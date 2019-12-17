@@ -6,6 +6,7 @@ import io.restassured.parsing.Parser;
 import lombok.extern.slf4j.Slf4j;
 
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
+import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import uk.gov.hmcts.reform.judicialapi.client.JudicialApiClient;
 import uk.gov.hmcts.reform.judicialapi.client.S2sClient;
 import uk.gov.hmcts.reform.judicialapi.config.Oauth2;
 import uk.gov.hmcts.reform.judicialapi.config.TestConfigProperties;
@@ -40,6 +42,8 @@ public abstract class AuthorizationFunctionalTest {
     @Value("${exui.role.hmcts-admin}")
     protected String hmctsAdmin;
 
+    protected JudicialApiClient judicialApiClient;
+
     @Autowired
     protected TestConfigProperties configProperties;
 
@@ -52,7 +56,7 @@ public abstract class AuthorizationFunctionalTest {
         log.info("Configured S2S microservice: " + s2sName);
         log.info("Configured S2S URL: " + s2sUrl);
 
-        /* SerenityRest.proxy("proxyout.reform.hmcts.net", 8080);
+        /*SerenityRest.proxy("proxyout.reform.hmcts.net", 8080);
         RestAssured.proxy("proxyout.reform.hmcts.net", 8080);*/
 
         String s2sToken = new S2sClient(s2sUrl, s2sName, s2sSecret).signIntoS2S();
