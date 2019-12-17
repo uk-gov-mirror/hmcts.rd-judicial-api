@@ -1,20 +1,15 @@
 package uk.gov.hmcts.reform.judicialapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
-import net.serenitybdd.rest.SerenityRest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.judicialapi.AuthorizationFunctionalTest;
-
-import java.util.Map;
 
 @RunWith(SpringIntegrationSerenityRunner.class)
 @ActiveProfiles("functional")

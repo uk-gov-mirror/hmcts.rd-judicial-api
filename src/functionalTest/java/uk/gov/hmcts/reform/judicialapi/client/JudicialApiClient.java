@@ -1,15 +1,16 @@
 package uk.gov.hmcts.reform.judicialapi.client;
 
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import lombok.extern.slf4j.Slf4j;
-import net.serenitybdd.rest.SerenityRest;
-import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import lombok.extern.slf4j.Slf4j;
+import net.serenitybdd.rest.SerenityRest;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 public class JudicialApiClient {
