@@ -12,31 +12,30 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "judicial_role_type")
+@Entity(name = "contract_type")
 @NoArgsConstructor
 @Getter
 @Setter
-public class JudicialRoleType {
+public class ContractType {
 
     @Id
     @Size(max = 64)
-    private String roleId;
+    private String contractTypeId;
 
-    @Column(name = "ROLE_DESC_EN")
+    @Column(name = "CONTRACT_TYPE_DESC_EN")
     @Size(max = 256)
-    private String roleDescEn;
+    private String contractTypeDescEn;
 
-    @Column(name = "ROLE_DESC_CY")
+    @Column(name = "CONTRACT_TYPE_DESC_CY")
     @Size(max = 256)
-    private String roleDescCy;
+    private String contractTypeDescCy;
 
-    @OneToMany(mappedBy = "judicialRoleType")
+    @OneToMany(mappedBy = "contractType")
     private List<JudicialOfficeAppointment> judicialOfficeAppointments = new ArrayList<>();
 
-    public JudicialRoleType(String roleId, String roleDescEn, String roleDescCy) {
-        this.roleId = roleId;
-        this.roleDescEn = roleDescEn;
-        this.roleDescCy = roleDescCy;
+    public ContractType(String contractTypeId, String contractTypeDescEn, String contractTypeDescCy) {
+        this.contractTypeId = contractTypeId;
+        this.contractTypeDescEn = contractTypeDescEn;
+        this.contractTypeDescCy = contractTypeDescCy;
     }
-
 }
