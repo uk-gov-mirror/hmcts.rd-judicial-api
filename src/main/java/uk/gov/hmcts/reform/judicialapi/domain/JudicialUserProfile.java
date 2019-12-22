@@ -1,11 +1,8 @@
 package uk.gov.hmcts.reform.judicialapi.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,9 +10,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity(name = "judicial_user_profile")
 @NoArgsConstructor
@@ -113,13 +113,21 @@ public class JudicialUserProfile {
         this.lastLoadedDate = lastLoadedDate;
     }
 
-    public void addJudicialOfficeAuthorisation(JudicialOfficeAuthorisation judicialOfficeAuthorisation) { judicialOfficeAuthorisations.add(judicialOfficeAuthorisation); }
+    public void addJudicialOfficeAuthorisation(JudicialOfficeAuthorisation judicialOfficeAuthorisation) {
+        judicialOfficeAuthorisations.add(judicialOfficeAuthorisation);
+    }
 
-    public List<JudicialOfficeAuthorisation> getJudicialOfficeAuthorisations() { return judicialOfficeAuthorisations; }
+    public List<JudicialOfficeAuthorisation> getJudicialOfficeAuthorisations() {
+        return judicialOfficeAuthorisations;
+    }
 
-    public void addJudicialOfficeAppointment(JudicialOfficeAppointment judicialOfficeAppointment) { judicialOfficeAppointments.add(judicialOfficeAppointment); }
+    public void addJudicialOfficeAppointment(JudicialOfficeAppointment judicialOfficeAppointment) {
+        judicialOfficeAppointments.add(judicialOfficeAppointment);
+    }
 
-    public List<JudicialOfficeAppointment> getJudicialOfficeAppointments() { return judicialOfficeAppointments; }
+    public List<JudicialOfficeAppointment> getJudicialOfficeAppointments() {
+        return judicialOfficeAppointments;
+    }
 
 
 }
