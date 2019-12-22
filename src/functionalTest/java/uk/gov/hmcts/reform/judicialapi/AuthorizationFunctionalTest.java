@@ -61,6 +61,7 @@ public abstract class AuthorizationFunctionalTest {
 
         String s2sToken = new S2sClient(s2sUrl, s2sName, s2sSecret).signIntoS2S();
 
+        judicialApiClient = new JudicialApiClient(judicialApiUrl, s2sToken);
     }
 
     @After
