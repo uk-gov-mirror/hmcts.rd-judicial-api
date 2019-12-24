@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -36,23 +36,23 @@ public class JudicialOfficeAuthorisation {
     private String jurisdictionId;
 
     @Column(name = "AUTHORISATION_DATE")
-    private LocalDate authorisationDate;
+    private LocalDateTime authorisationDate;
 
     @Column(name = "EXTRACTED_DATE")
-    private LocalDate extractedDate;
+    private LocalDateTime extractedDate;
 
     @Column(name = "CREATED_DATE")
     @CreationTimestamp
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @Column(name = "LAST_LOADED_DATE")
     @UpdateTimestamp
-    private LocalDate lastLoadedDate;
+    private LocalDateTime lastLoadedDate;
 
     public JudicialOfficeAuthorisation(long judicialOfficeAuthId, JudicialUserProfile judicialUserProfile,
                                        AuthorisationType authorisationType, String jurisdictionId,
-                                       LocalDate authorisationDate, LocalDate extractedDate, LocalDate createdDate,
-                                       LocalDate lastLoadedDate) {
+                                       LocalDateTime authorisationDate, LocalDateTime extractedDate,
+                                       LocalDateTime createdDate, LocalDateTime lastLoadedDate) {
         this.judicialOfficeAuthId = judicialOfficeAuthId;
         this.judicialUserProfile = judicialUserProfile;
         this.authorisationType = authorisationType;
