@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.judicialapi.controller.request.controller;
+package uk.gov.hmcts.reform.judicialapi.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

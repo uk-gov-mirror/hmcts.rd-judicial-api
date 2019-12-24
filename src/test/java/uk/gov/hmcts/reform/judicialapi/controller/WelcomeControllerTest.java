@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.judicialapi.controller.request.controller;
+package uk.gov.hmcts.reform.judicialapi.controller;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;

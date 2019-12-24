@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.judicialapi.controller.request.controller.advice;
+package uk.gov.hmcts.reform.judicialapi.controller.advice;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
