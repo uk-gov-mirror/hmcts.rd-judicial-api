@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeListResponse;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
-import uk.gov.hmcts.reform.judicialapi.service.impl.JudicialRoleTypeServiceImpl;
 
 @Api(value = "/v1/judicial")
 @RequestMapping(path = "refdata/v1/judicial")

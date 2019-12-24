@@ -2,10 +2,11 @@ package uk.gov.hmcts.reform.judicialapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
+
 import java.nio.file.Paths;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
 import org.junit.AfterClass;

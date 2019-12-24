@@ -9,5 +9,4 @@ public class RetrieveJudicialRolesTypesTest extends AuthorizationEnabledIntegrat
 
     JudicialRoleType judicialRole = new JudicialRoleType("1", "Test Role", "Test Role in Welsh");
 
-    judicialRoleTypeRepository
 }

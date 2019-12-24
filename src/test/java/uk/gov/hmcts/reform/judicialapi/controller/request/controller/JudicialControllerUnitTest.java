@@ -1,5 +1,9 @@
 package uk.gov.hmcts.reform.judicialapi.controller.request.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,10 +15,6 @@ import uk.gov.hmcts.reform.judicialapi.controller.JudicialController;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeListResponse;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Slf4j
 public class JudicialControllerUnitTest {
