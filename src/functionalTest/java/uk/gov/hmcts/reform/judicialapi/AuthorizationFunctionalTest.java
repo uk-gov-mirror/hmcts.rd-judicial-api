@@ -13,13 +13,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import javax.sql.DataSource;
-<<<<<<< HEAD
 
 import lombok.extern.slf4j.Slf4j;
-=======
->>>>>>> bc4f3b57dd09de7ee020c1a27ca72040c1912a71
 
-import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
 import org.junit.After;
 import org.junit.Before;
