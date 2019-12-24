@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.judicialapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +9,6 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.web.client.ResourceAccessException;
-import uk.gov.hmcts.reform.judicialapi.controller.advice.ResourceNotFoundException;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.util.AuthorizationEnabledIntegrationTest;
 
