@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.judicialapi.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -9,9 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 public class JudicialReferenceDataClient {
@@ -60,7 +59,7 @@ public class JudicialReferenceDataClient {
         ResponseEntity<Map> responseEntity;
 
         try {
-            HttpEntity<?> request = new HttpEntity<>();
+            HttpEntity<?> request = new HttpEntity<>(getMultipleAuthHeaders(role));
             responseEntity = restTemplate
                     .exchange("http://localhost:" + jrdApiPort + uriPath,
                             HttpMethod.GET,
@@ -75,5 +74,17 @@ public class JudicialReferenceDataClient {
         }
 
         return getResponse(responseEntity);
+    }
+
+    private HttpHeaders getMultipleAuthHeaders(String role) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+        headers.add("ServiceAuthorization", JWT_TOKEN);
+
+        headers.add("Authorization", role);
+
+        return headers;
     }
 }

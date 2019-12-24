@@ -1,12 +1,21 @@
 package uk.gov.hmcts.reform.judicialapi;
 
+import static java.lang.System.getenv;
+
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import javax.sql.DataSource;
 
+import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
-import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -20,17 +29,6 @@ import uk.gov.hmcts.reform.judicialapi.client.JudicialApiClient;
 import uk.gov.hmcts.reform.judicialapi.client.S2sClient;
 import uk.gov.hmcts.reform.judicialapi.config.Oauth2;
 import uk.gov.hmcts.reform.judicialapi.config.TestConfigProperties;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-
-import static java.lang.System.getenv;
 
 @RunWith(SpringIntegrationSerenityRunner.class)
 @ContextConfiguration(classes = {TestConfigProperties.class, Oauth2.class})
