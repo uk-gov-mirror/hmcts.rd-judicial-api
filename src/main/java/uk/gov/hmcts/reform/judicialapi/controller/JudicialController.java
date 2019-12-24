@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.judicialapi.controller;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -9,14 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeListResponse;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
 
-@Api(value = "/v1/judicial")
 @RequestMapping(path = "refdata/v1/judicial")
 @RestController
 @Slf4j
@@ -47,10 +44,15 @@ public class JudicialController {
             )
     })
 
-    @Secured("caseworker")
-    @GetMapping(path = "/roles", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+
+    //@Secured("caseworker")
+    @GetMapping(value = "/roles",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+
     public ResponseEntity getJudicialRoles() {
+
         Object judicialRolesResponse = judicialRoleTypeService.retrieveJudicialRoles();
+
         return ResponseEntity
                 .status(200)
                 .body(judicialRolesResponse);

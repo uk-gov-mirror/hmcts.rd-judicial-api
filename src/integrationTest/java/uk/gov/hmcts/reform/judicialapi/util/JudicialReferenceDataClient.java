@@ -61,7 +61,7 @@ public class JudicialReferenceDataClient {
         ResponseEntity<Map> responseEntity;
 
         try {
-            HttpEntity<?> request = new HttpEntity<>(getS2sTokenHeaders());
+            HttpEntity<?> request = new HttpEntity<>(getMultipleAuthHeaders(role));
             responseEntity = restTemplate
                     .exchange("http://localhost:" + jrdApiPort + uriPath,
                             HttpMethod.GET,
@@ -76,5 +76,17 @@ public class JudicialReferenceDataClient {
         }
 
         return getResponse(responseEntity);
+    }
+
+    private HttpHeaders getMultipleAuthHeaders(String role) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+        headers.add("ServiceAuthorization", JWT_TOKEN);
+
+        headers.add("Authorization", role);
+
+        return headers;
     }
 }

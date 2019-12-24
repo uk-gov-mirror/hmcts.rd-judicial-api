@@ -73,12 +73,12 @@ public class JudicialUserProfile {
     @Column(name = "EXTRACTED_DATE")
     private LocalDateTime extractedDate;
 
-    @Column(name = "CREATED_DATE")
     @CreationTimestamp
+    @Column(name = "CREATED_DATE")
     private LocalDateTime createdDate;
 
-    @Column(name = "LAST_LOADED_DATE")
     @UpdateTimestamp
+    @Column(name = "LAST_LOADED_DATE")
     private LocalDateTime lastLoadedDate;
 
     @OneToMany(mappedBy = "judicialUserProfile")
