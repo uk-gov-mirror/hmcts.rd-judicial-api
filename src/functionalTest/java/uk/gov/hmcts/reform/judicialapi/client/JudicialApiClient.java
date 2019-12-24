@@ -59,7 +59,6 @@ public class JudicialApiClient {
                 .get("/refdata/v1/judicial/roles")
                 .andReturn();
 
-
         response.then()
                 .assertThat()
                 .statusCode(expectedStatus.value());

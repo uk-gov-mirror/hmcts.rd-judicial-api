@@ -1,14 +1,12 @@
 package uk.gov.hmcts.reform.judicialapi.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 
 import lombok.Getter;
@@ -64,26 +62,24 @@ public class JudicialUserProfile {
     private String emailId;
 
     @Column(name = "JOINING_DATE")
-    @Temporal(TemporalType.DATE)
-    private LocalDate joiningDate;
+    private LocalDateTime joiningDate;
 
     @Column(name = "LAST_WORKING_DATE")
-    @Temporal(TemporalType.DATE)
-    private LocalDate lastWorkingDate;
+    private LocalDateTime lastWorkingDate;
 
     @Column(name = "ACTIVE_FLAG")
     private boolean activeFlag;
 
     @Column(name = "EXTRACTED_DATE")
-    private LocalDate extractedDate;
+    private LocalDateTime extractedDate;
 
     @Column(name = "CREATED_DATE")
     @CreationTimestamp
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @Column(name = "LAST_LOADED_DATE")
     @UpdateTimestamp
-    private LocalDate lastLoadedDate;
+    private LocalDateTime lastLoadedDate;
 
     @OneToMany(mappedBy = "judicialUserProfile")
     private List<JudicialOfficeAuthorisation> judicialOfficeAuthorisations = new ArrayList<>();
@@ -93,8 +89,8 @@ public class JudicialUserProfile {
 
     public JudicialUserProfile(String elinksId, String personalCode, String title, String knownAs,
                                String surname, String fullName, String postNominals, String contractType,
-                               String workPattern, String emailId, LocalDate joiningDate, LocalDate lastWorkingDate,
-                               boolean activeFlag, LocalDate extractedDate, LocalDate createdDate, LocalDate lastLoadedDate) {
+                               String workPattern, String emailId, LocalDateTime joiningDate, LocalDateTime lastWorkingDate,
+                               boolean activeFlag, LocalDateTime extractedDate, LocalDateTime createdDate, LocalDateTime lastLoadedDate) {
         this.elinksId = elinksId;
         this.personalCode = personalCode;
         this.title = title;

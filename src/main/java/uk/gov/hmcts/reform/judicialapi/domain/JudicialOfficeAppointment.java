@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -47,29 +47,29 @@ public class JudicialOfficeAppointment {
     private boolean isPrincipleAppointment;
 
     @Column(name = "START_DATE")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "END_DATE")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Column(name = "ACTIVE_FLAG")
     private boolean activeFlag;
 
     @Column(name = "EXTRACTED_DATE")
-    private LocalDate extractedDate;
+    private LocalDateTime extractedDate;
 
     @Column(name = "CREATED_DATE")
     @CreationTimestamp
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @Column(name = "LAST_LOADED_DATE")
     @UpdateTimestamp
-    private LocalDate lastLoadedDate;
+    private LocalDateTime lastLoadedDate;
 
     public JudicialOfficeAppointment(long judicialOfficeAppointmentId, JudicialUserProfile judicialUserProfile,
                                      JudicialRoleType judicialRoleType, ContractType contractType, BaseLocationType baseLocationType,
-                                     RegionType regionType, boolean isPrincipleAppointment, LocalDate startDate, LocalDate endDate,
-                                     boolean activeFlag, LocalDate createdDate, LocalDate lastLoadedDate) {
+                                     RegionType regionType, boolean isPrincipleAppointment, LocalDateTime startDate, LocalDateTime endDate,
+                                     boolean activeFlag, LocalDateTime createdDate, LocalDateTime lastLoadedDate) {
         this.judicialOfficeAppointmentId = judicialOfficeAppointmentId;
         this.judicialUserProfile = judicialUserProfile;
         this.judicialRoleType = judicialRoleType;
