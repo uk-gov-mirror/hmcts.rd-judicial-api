@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeListResponse;
+import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
 import uk.gov.hmcts.reform.judicialapi.service.impl.JudicialRoleTypeServiceImpl;
 
 @Api(value = "/v1/judicial")
@@ -24,7 +25,7 @@ import uk.gov.hmcts.reform.judicialapi.service.impl.JudicialRoleTypeServiceImpl;
 public class JudicialController {
 
     @Autowired
-    protected JudicialRoleTypeServiceImpl judicialRoleTypeService;
+    protected JudicialRoleTypeService judicialRoleTypeService;
 
     @ApiOperation(
             value = "Retrieves all judicial roles"
@@ -48,7 +49,7 @@ public class JudicialController {
     })
 
     @Secured("caseworker")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(path = "/roles", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity getJudicialRoles() {
         Object judicialRolesResponse = judicialRoleTypeService.retrieveJudicialRoles();
         return ResponseEntity
