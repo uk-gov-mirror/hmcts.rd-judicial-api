@@ -1,10 +1,5 @@
 package uk.gov.hmcts.reform.judicialapi.controller.request.controller.advice;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import javax.validation.ConstraintViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,12 +10,18 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.client.HttpStatusCodeException;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ExceptionMapper;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.InvalidRequest;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ResourceNotFoundException;
+
+import javax.validation.ConstraintViolationException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExceptionMapperUnitTest {
@@ -73,14 +74,14 @@ public class ExceptionMapperUnitTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
-    @Test
-    public void should_handle_forbidden_error_exception() {
-        AccessDeniedException exception = mock(AccessDeniedException.class);
-
-        ResponseEntity<Object> responseEntity = exceptionMapper.handleForbiddenException(exception);
-
-        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-    }
+//    @Test
+//    public void should_handle_forbidden_error_exception() {
+//        AccessDeniedException exception = mock(AccessDeniedException.class);
+//
+//        ResponseEntity<Object> responseEntity = exceptionMapper.handleForbiddenException(exception);
+//
+//        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+//    }
 
     @Test
     public void should_handle_http_status_code_exception() {

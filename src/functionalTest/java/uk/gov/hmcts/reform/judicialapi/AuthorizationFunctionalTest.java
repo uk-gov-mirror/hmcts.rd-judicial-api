@@ -70,9 +70,9 @@ public abstract class AuthorizationFunctionalTest {
         /*SerenityRest.proxy("proxyout.reform.hmcts.net", 8080);
         RestAssured.proxy("proxyout.reform.hmcts.net", 8080);*/
 
-        String s2sToken = new S2sClient(s2sUrl, s2sName, s2sSecret).signIntoS2S();
+        //String s2sToken = new S2sClient(s2sUrl, s2sName, s2sSecret).signIntoS2S();
 
-        judicialApiClient = new JudicialApiClient(judicialApiUrl, s2sToken);
+        judicialApiClient = new JudicialApiClient(judicialApiUrl, "");
     }
 
     protected static void executeScript(List<Path> scriptFiles) throws SQLException, IOException {
