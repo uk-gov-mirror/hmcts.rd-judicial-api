@@ -19,13 +19,12 @@ public class JudicialRoleTypeServiceImpl implements JudicialRoleTypeService {
     JudicialRoleTypeRepository judicialRoleTypeRepository;
 
     public JudicialRoleTypeListResponse retrieveJudicialRoles() {
-
         List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAll();
 
         if (judicialRoleTypes.isEmpty()) {
-
             throw new EmptyResultDataAccessException(1);
         }
+
         return new JudicialRoleTypeListResponse(judicialRoleTypes);
     }
 
