@@ -25,10 +25,7 @@ spring:
     name: Judicial Data API
   jackson.date-format: yyyy-MM-dd
   flyway.enabled: true
-  flyway.locations: classpath:db/migration,classpath:db/postgres
-  management.security.enabled: false
-  management.health.db.enabled: false
-  security.basic.enabled: false
+  flyway.locations: classpath:db/migration
 
 ### database configuration
   datasource:
