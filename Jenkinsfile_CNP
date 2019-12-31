@@ -29,9 +29,9 @@ def vaultOverrides = [
 withPipeline(type, product, component) {
 
     overrideVaultEnvironments(vaultOverrides)
-    loadVaultSecrets(secrets)
+    //loadVaultSecrets(secrets)
 
-    enableDbMigration()
+    enableDbMigration('rd')
     enableDockerBuild()
     installCharts()
     enableAksStagingDeployment()
