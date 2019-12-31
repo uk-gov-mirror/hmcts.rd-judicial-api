@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.configuration;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,7 +16,7 @@ public class ApplicationConfiguration {
     public ApplicationConfiguration(@Value("${idam.s2s-auth.totp_secret}") String s2sSecret,
                                     @Value("${idam.s2s-auth.microservice}") String s2sMicroService,
                                     @Value("${idam.s2s-auth.url}") String s2sUrl
-                               ) {
+    ) {
         this.s2sSecret = s2sSecret;
         this.s2sMicroService = s2sMicroService;
         this.s2sUrl = s2sUrl;
@@ -38,6 +37,4 @@ public class ApplicationConfiguration {
     public String getS2sUrl() {
         return s2sUrl;
     }
-
-
 }
