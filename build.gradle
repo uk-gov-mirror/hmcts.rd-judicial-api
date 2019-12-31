@@ -184,7 +184,7 @@ project.tasks['pitest'].group = "Verification"
 
 sonarqube {
     properties {
-        property "sonar.projectName", "RD :: Juducial Reference Data api"
+        property "sonar.projectName", "RD :: Judicial Reference api"
         property "sonar.projectKey", "RDJUDICIALAPI"
         property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
         property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/integration.exec"
