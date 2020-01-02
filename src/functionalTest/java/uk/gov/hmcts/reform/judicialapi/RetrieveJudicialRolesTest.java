@@ -25,9 +25,16 @@ public class RetrieveJudicialRolesTest extends AuthorizationFunctionalTest {
     @BeforeClass
     public static void dbSetup() throws Exception {
         String loadFile = ResourceUtils.getFile("classpath:load-data-functional.sql").getCanonicalPath();
-        String deleteFile = ResourceUtils.getFile("classpath:delete-data-functional.sql").getCanonicalPath();
-        executeScript(ImmutableList.of(Paths.get(deleteFile), Paths.get(loadFile)));
+        //String deleteFile = ResourceUtils.getFile("classpath:delete-data-functional.sql").getCanonicalPath();
+        executeScript(ImmutableList.of(Paths.get(loadFile)));
     }
+
+//    @AfterClass
+//    public void destroy() throws Exception {
+//        //String loadFile = ResourceUtils.getFile("classpath:load-data-functional.sql").getCanonicalPath();
+//        String deleteFile = ResourceUtils.getFile("classpath:delete-data-functional.sql").getCanonicalPath();
+//        executeScript(ImmutableList.of(Paths.get(deleteFile)));
+//    }
 
     @Test
     public void rdcc_739_ac1_user_with_appropriate_rights_can_retrieve_list_of_all_judicial_roles() {

@@ -27,4 +27,5 @@ public class RetrieveJudicialRolesTypesTest extends SpringBootIntegrationTest {
         assertNotNull(judicialRoleTypeListResponse);
         assertEquals(judicialRoleTypeListResponse, JudicialRoleTypeListResponse.builder().judicialRoleTypeResponseList(list).build());
     }
+
 }

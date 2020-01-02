@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
+import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -66,8 +67,8 @@ public abstract class AuthorizationFunctionalTest {
         log.info("Configured S2S microservice: " + s2sName);
         log.info("Configured S2S URL: " + s2sUrl);
 
-        /*SerenityRest.proxy("proxyout.reform.hmcts.net", 8080);
-        RestAssured.proxy("proxyout.reform.hmcts.net", 8080);*/
+        SerenityRest.proxy("proxyout.reform.hmcts.net", 8080);
+        RestAssured.proxy("proxyout.reform.hmcts.net", 8080);
 
         //String s2sToken = new S2sClient(s2sUrl, s2sName, s2sSecret).signIntoS2S();
 
@@ -76,7 +77,7 @@ public abstract class AuthorizationFunctionalTest {
 
     protected static void executeScript(List<Path> scriptFiles) throws SQLException, IOException {
 
-        if ("aat".equalsIgnoreCase(getenv("environment_name"))) {
+      //  if ("aat".equalsIgnoreCase(getenv("environment_name"))) {
             log.info("environment script execution started::");
             try (Connection connection = createDataSource().getConnection()) {
                 try (Statement statement = connection.createStatement()) {
@@ -92,17 +93,18 @@ public abstract class AuthorizationFunctionalTest {
                 throw exe;
             }
             log.info("environment script execution completed::");
-        }
+      //  }
     }
 
     private static DataSource createDataSource() {
+
         log.info("DB Host name::" + getValueOrDefault("POSTGRES_HOST", "localhost"));
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setServerName(getValueOrDefault("POSTGRES_HOST", "localhost"));
-        dataSource.setPortNumber(Integer.parseInt(getValueOrDefault("POSTGRES_PORT", "5432")));
-        dataSource.setDatabaseName(getValueOrThrow("POSTGRES_DATABASE"));
-        dataSource.setUser(getValueOrThrow("POSTGRES-USER"));
-        dataSource.setPassword(getValueOrThrow("POSTGRES-PASSWORD"));
+        dataSource.setPortNumber(Integer.parseInt(getValueOrDefault("POSTGRES_PORT", "5456")));
+        dataSource.setDatabaseName(getValueOrDefault("POSTGRES_DATABASE","dbjuddata"));
+        dataSource.setUser("dbjuddata");
+        dataSource.setPassword("dbjuddata");
         return dataSource;
     }
 
