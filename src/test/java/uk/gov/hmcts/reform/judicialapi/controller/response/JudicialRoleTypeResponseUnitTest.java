@@ -3,25 +3,20 @@ package uk.gov.hmcts.reform.judicialapi.controller.response;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 
 public class JudicialRoleTypeResponseUnitTest {
 
     @Test
     public void testJudicialRoleTypeResponse() {
-        final String expectRoleId = "1";
-        final String expectRoleDescEn = "Role Description";
-        final String expectRoleDescCy = "Role Description Welsh";
-        final JudicialRoleType judicialRoleType = new JudicialRoleType();
-        judicialRoleType.setRoleId(expectRoleId);
-        judicialRoleType.setRoleDescEn(expectRoleDescEn);
-        judicialRoleType.setRoleDescCy(expectRoleDescCy);
+        final String roleId = "1";
+        final String roleDescEn = "Role Description";
+        final String roleDescCy = "Role Description Welsh";
 
-        JudicialRoleTypeResponse sut = new JudicialRoleTypeResponse(judicialRoleType);
+        JudicialRoleTypeResponse sut = new JudicialRoleTypeResponse(roleId, roleDescEn, roleDescCy);
 
-        assertThat(sut.getRoleId()).isEqualTo(expectRoleId);
-        assertThat(sut.getRoleDescEn()).isEqualTo(expectRoleDescEn);
-        assertThat(sut.getRoleDescCy()).isEqualTo(expectRoleDescCy);
+        assertThat(sut.getRoleId()).isEqualTo(roleId);
+        assertThat(sut.getRoleDescEn()).isEqualTo(roleDescEn);
+        assertThat(sut.getRoleDescCy()).isEqualTo(roleDescCy);
 
     }
 }
