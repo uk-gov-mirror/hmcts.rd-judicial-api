@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.judicialapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -11,7 +12,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableJpaAuditing
 @EnableJpaRepositories
 @EnableRetry
-@SpringBootApplication
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @EnableCircuitBreaker
 @EnableFeignClients(basePackages = {
         "uk.gov.hmcts.reform.judicialapi",

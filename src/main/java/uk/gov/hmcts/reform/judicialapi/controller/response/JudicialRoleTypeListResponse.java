@@ -1,19 +1,23 @@
 package uk.gov.hmcts.reform.judicialapi.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 
+@Data
+@Builder
+@JsonDeserialize(builder = JudicialRoleTypeListResponse.JudicialRoleTypeListResponseBuilder.class)
+@AllArgsConstructor
+@NoArgsConstructor
 public class JudicialRoleTypeListResponse {
 
     @JsonProperty
     private List<JudicialRoleTypeResponse> judicialRoleTypeResponseList;
 
-    public JudicialRoleTypeListResponse(List<JudicialRoleType> judicialRoleTypes) {
-        this.judicialRoleTypeResponseList = judicialRoleTypes.stream().map(judicialRoleType ->
-                new JudicialRoleTypeResponse(judicialRoleType)).collect(Collectors.toList());
-    }
 }

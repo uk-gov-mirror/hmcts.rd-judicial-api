@@ -1,39 +1,30 @@
 package uk.gov.hmcts.reform.judicialapi;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
-import uk.gov.hmcts.reform.judicialapi.util.AuthorizationEnabledIntegrationTest;
+
+import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeListResponse;
+import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
+import uk.gov.hmcts.reform.judicialapi.util.SpringBootIntegrationTest;
+
 
 @Slf4j
-public class RetrieveJudicialRolesTypesTest extends AuthorizationEnabledIntegrationTest {
+public class RetrieveJudicialRolesTypesTest extends SpringBootIntegrationTest {
 
     @Test
-    public void retrieveJudicialRole() {
-        judicialRoleTypeRepository.saveAll(Arrays.asList(
-                new JudicialRoleType("1", "Test Role", "Test Role in Welsh"),
-                new JudicialRoleType("2", "Test Role 1", "Test Role 1 in Welsh")));
+    public void testGetAllRoles() {
+        JudicialRoleTypeListResponse judicialRoleTypeListResponse = restTemplate
+                .getForObject("/refdata/v1/judicial/roles", JudicialRoleTypeListResponse.class);
+        List<JudicialRoleTypeResponse> list = ImmutableList.of(JudicialRoleTypeResponse.builder().roleId("1").roleDescCy("test").roleDescEn("Magistrate").build(),
+                JudicialRoleTypeResponse.builder().roleId("2").roleDescCy("test").roleDescEn("Advisory Committee Member - Magistrate").build());
 
-        Map<String, Object> response = judicialReferenceDataClient.retrieveAllJudicialRoleTypes("caseworker");
-
-        List<HashMap> rolesResponses = (List<HashMap>) response.get("judicialRoleTypeResponseList");
-        rolesResponses.forEach(role -> {
-            assertThat(role.get("roleId")).isNotNull();
-            assertThat(role.get("roleDescEn")).isNotNull();
-        });
-        assertThat(response.get("http_status")).isEqualTo("200 OK");
-    }
-
-    @Test
-    public void retrieveJudicialRole_Returns404WhenNoRolesPresentInDatabase() {
-        Map<String, Object> response = judicialReferenceDataClient.retrieveAllJudicialRoleTypes("caseworker");
-        assertThat(response.get("http_status")).isEqualTo("404");
+        assertNotNull(judicialRoleTypeListResponse);
+        assertEquals(judicialRoleTypeListResponse, JudicialRoleTypeListResponse.builder().judicialRoleTypeResponseList(list).build());
     }
 }
