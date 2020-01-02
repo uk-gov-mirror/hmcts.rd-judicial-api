@@ -67,12 +67,7 @@ public abstract class AuthorizationFunctionalTest {
         log.info("Configured S2S microservice: " + s2sName);
         log.info("Configured S2S URL: " + s2sUrl);
 
-        SerenityRest.proxy("proxyout.reform.hmcts.net", 8080);
-        RestAssured.proxy("proxyout.reform.hmcts.net", 8080);
-
-        //String s2sToken = new S2sClient(s2sUrl, s2sName, s2sSecret).signIntoS2S();
-
-        judicialApiClient = new JudicialApiClient(judicialApiUrl, "");
+        judicialApiClient = new JudicialApiClient(judicialApiUrl);
     }
 
     protected static void executeScript(List<Path> scriptFiles) throws SQLException, IOException {

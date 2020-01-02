@@ -16,11 +16,9 @@ import org.springframework.http.HttpStatus;
 public class JudicialApiClient {
 
     private final String judicialApiUrl;
-    private final String s2sToken;
 
-    public JudicialApiClient(String judicialApiUrl, String s2sToken) {
+    public JudicialApiClient(String judicialApiUrl) {
         this.judicialApiUrl = judicialApiUrl;
-        this.s2sToken = s2sToken;
     }
 
     public String getWelcomePage() {
