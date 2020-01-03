@@ -53,7 +53,6 @@ public class JudicialApiClient {
 
     public Map<String, Object> retrieveAllJudicialRoles(String roleOfAccessor, HttpStatus expectedStatus) {
         Response response = withUnauthenticatedRequest()
-                //.body("")
                 .get("/refdata/v1/judicial/roles")
                 .andReturn();
 

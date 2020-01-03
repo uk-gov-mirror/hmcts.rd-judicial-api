@@ -17,7 +17,6 @@ import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 
 import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
-import net.serenitybdd.rest.SerenityRest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -72,23 +71,21 @@ public abstract class AuthorizationFunctionalTest {
 
     protected static void executeScript(List<Path> scriptFiles) throws SQLException, IOException {
 
-      //  if ("aat".equalsIgnoreCase(getenv("environment_name"))) {
-            log.info("environment script execution started::");
-            try (Connection connection = createDataSource().getConnection()) {
-                try (Statement statement = connection.createStatement()) {
-                    for (Path path : scriptFiles) {
-                        for (String scriptLine : Files.readAllLines(path)) {
-                            statement.addBatch(scriptLine);
-                        }
-                        statement.executeBatch();
+        log.info("environment script execution started::");
+        try (Connection connection = createDataSource().getConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                for (Path path : scriptFiles) {
+                    for (String scriptLine : Files.readAllLines(path)) {
+                        statement.addBatch(scriptLine);
                     }
+                    statement.executeBatch();
                 }
-            } catch (Exception exe) {
-                log.error("FunctionalTestSuite script execution error with script ::" + exe.toString());
-                throw exe;
             }
-            log.info("environment script execution completed::");
-      //  }
+        } catch (Exception exe) {
+            log.error("FunctionalTestSuite script execution error with script ::" + exe.toString());
+            throw exe;
+        }
+        log.info("environment script execution completed::");
     }
 
     private static DataSource createDataSource() {
