@@ -1,8 +1,7 @@
 package uk.gov.hmcts.reform.judicialapi.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -11,10 +10,11 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import uk.gov.hmcts.reform.judicialapi.controller.JudicialController;
-import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeListResponse;
-import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
+import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class JudicialControllerUnitTest {
@@ -22,15 +22,17 @@ public class JudicialControllerUnitTest {
     @InjectMocks
     private JudicialController judicialController;
 
-    private JudicialRoleType judicialRoleTypeMock;
-    private JudicialRoleTypeListResponse judicialRoleTypeListResponseMock;
+    private JudicialRoleTypeResponse judicialRoleTypeResponseMock;
     private JudicialRoleTypeService judicialRoleTypeServiceMock;
+    private List<JudicialRoleTypeResponse> judicialRoleTypeResponseList;
 
     @Before
     public void setUp() throws Exception {
-        judicialRoleTypeMock = mock(JudicialRoleType.class);
-        judicialRoleTypeListResponseMock = mock(JudicialRoleTypeListResponse.class);
+        judicialRoleTypeResponseMock = mock(JudicialRoleTypeResponse.class);
         judicialRoleTypeServiceMock = mock(JudicialRoleTypeService.class);
+
+        judicialRoleTypeResponseList = new ArrayList<>();
+        judicialRoleTypeResponseList.add(judicialRoleTypeResponseMock);
 
         MockitoAnnotations.initMocks(this);
     }
@@ -39,8 +41,13 @@ public class JudicialControllerUnitTest {
     public void testRetrieveJudicialRoleTypes() {
 
         final HttpStatus expectedHttpStatus = HttpStatus.OK;
-        when(judicialRoleTypeServiceMock.retrieveJudicialRoles()).thenReturn(judicialRoleTypeListResponseMock);
-        ResponseEntity<?> actual = judicialController.getJudicialRoles();
+
+        when(judicialRoleTypeServiceMock.retrieveJudicialRoles()).thenReturn(judicialRoleTypeResponseList);
+
+        ResponseEntity<List<JudicialRoleTypeResponse>> actual = judicialController.getJudicialRoles();
+
+        verify(judicialRoleTypeServiceMock, times(1)).retrieveJudicialRoles();
+
         assertThat(actual).isNotNull();
         assertThat(actual.getStatusCode()).isEqualTo(expectedHttpStatus);
     }
