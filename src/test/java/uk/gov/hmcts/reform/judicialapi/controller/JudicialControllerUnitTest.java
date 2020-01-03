@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.judicialapi.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,9 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class JudicialControllerUnitTest {
