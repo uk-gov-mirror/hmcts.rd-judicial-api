@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeListResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.persistence.JudicialRoleTypeRepository;
@@ -20,7 +19,7 @@ public class JudicialRoleTypeServiceImpl implements JudicialRoleTypeService {
     @Autowired
     JudicialRoleTypeRepository judicialRoleTypeRepository;
 
-    public JudicialRoleTypeListResponse retrieveJudicialRoles() {
+    public List<JudicialRoleTypeResponse> retrieveJudicialRoles() {
         List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAll();
 
         List<JudicialRoleTypeResponse> judicialRoleTypeResponses = new ArrayList<>();
@@ -35,7 +34,7 @@ public class JudicialRoleTypeServiceImpl implements JudicialRoleTypeService {
                     .roleDescEn(judicialRoleType.getRoleDescEn()).build());
         }
 
-        return new JudicialRoleTypeListResponse(judicialRoleTypeResponses);
+        return judicialRoleTypeResponses;
     }
 
 }
