@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.AccessDeniedException;
 import javax.validation.ConstraintViolationException;
 
 import org.junit.Test;
@@ -19,9 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.client.HttpStatusCodeException;
-import uk.gov.hmcts.reform.judicialapi.controller.advice.ExceptionMapper;
-import uk.gov.hmcts.reform.judicialapi.controller.advice.InvalidRequest;
-import uk.gov.hmcts.reform.judicialapi.controller.advice.ResourceNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExceptionMapperUnitTest {
@@ -74,14 +72,14 @@ public class ExceptionMapperUnitTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
-    //    @Test
-    //    public void should_handle_forbidden_error_exception() {
-    //        AccessDeniedException exception = mock(AccessDeniedException.class);
-    //
-    //        ResponseEntity<Object> responseEntity = exceptionMapper.handleForbiddenException(exception);
-    //
-    //        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-    //    }
+    @Test
+    public void should_handle_forbidden_error_exception() {
+        AccessDeniedException exception = mock(AccessDeniedException.class);
+
+        ResponseEntity<Object> responseEntity = exceptionMapper.handleForbiddenException(exception);
+
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+    }
 
     @Test
     public void should_handle_http_status_code_exception() {

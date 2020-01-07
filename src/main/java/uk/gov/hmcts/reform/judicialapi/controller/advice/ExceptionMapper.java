@@ -95,10 +95,10 @@ public class ExceptionMapper {
         return errorDetailsResponseEntity(ex, BAD_REQUEST, UNSUPPORTED_MEDIA_TYPES.getErrorMessage());
     }
 
-        @ExceptionHandler(AccessDeniedException.class)
-        public ResponseEntity<Object> handleForbiddenException(Exception ex) {
-            return errorDetailsResponseEntity(ex, FORBIDDEN, ACCESS_EXCEPTION.getErrorMessage());
-        }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleForbiddenException(Exception ex) {
+        return errorDetailsResponseEntity(ex, FORBIDDEN, ACCESS_EXCEPTION.getErrorMessage());
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex) {
