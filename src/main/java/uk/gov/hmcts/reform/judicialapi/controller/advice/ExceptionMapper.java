@@ -1,19 +1,10 @@
 package uk.gov.hmcts.reform.judicialapi.controller.advice;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.CONFLICT_EXCEPTION;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.DATA_INTEGRITY_VIOLATION;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.EMPTY_RESULT_DATA_ACCESS;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.INVALID_REQUEST;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.MALFORMED_JSON;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.METHOD_ARG_NOT_VALID;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.UNKNOWN_EXCEPTION;
-import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.UNSUPPORTED_MEDIA_TYPES;
+import static uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants.*;
 
+import java.nio.file.AccessDeniedException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -104,10 +95,10 @@ public class ExceptionMapper {
         return errorDetailsResponseEntity(ex, BAD_REQUEST, UNSUPPORTED_MEDIA_TYPES.getErrorMessage());
     }
 
-    //    @ExceptionHandler(AccessDeniedException.class)
-    //    public ResponseEntity<Object> handleForbiddenException(Exception ex) {
-    //        return errorDetailsResponseEntity(ex, FORBIDDEN, ACCESS_EXCEPTION.getErrorMessage());
-    //    }
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<Object> handleForbiddenException(Exception ex) {
+            return errorDetailsResponseEntity(ex, FORBIDDEN, ACCESS_EXCEPTION.getErrorMessage());
+        }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex) {
