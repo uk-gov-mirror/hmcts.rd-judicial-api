@@ -27,8 +27,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.judicialapi.client.JudicialApiClient;
+import uk.gov.hmcts.reform.judicialapi.client.S2sClient;
 import uk.gov.hmcts.reform.judicialapi.config.Oauth2;
 import uk.gov.hmcts.reform.judicialapi.config.TestConfigProperties;
+import uk.gov.hmcts.reform.judicialapi.idam.IdamClient;
 
 @RunWith(SpringIntegrationSerenityRunner.class)
 @ContextConfiguration(classes = {TestConfigProperties.class, Oauth2.class})
@@ -49,8 +51,11 @@ public abstract class AuthorizationFunctionalTest {
     @Value("${targetInstance}")
     protected String judicialApiUrl;
 
-    @Value("${exui.role.hmcts-admin}")
-    protected String hmctsAdmin;
+    @Value("${exui.role.caseworker}")
+    protected String caseworker;
+
+    @Value("${exui.role.pui-organisation-manager}")
+    protected String puiOrgManager;
 
     protected JudicialApiClient judicialApiClient;
 
@@ -66,7 +71,14 @@ public abstract class AuthorizationFunctionalTest {
         log.info("Configured S2S microservice: " + s2sName);
         log.info("Configured S2S URL: " + s2sUrl);
 
-        judicialApiClient = new JudicialApiClient(judicialApiUrl);
+        IdamClient idamClient = new IdamClient(configProperties);
+        log.info("idamClient: " + idamClient);
+        /*SerenityRest.proxy("proxyout.reform.hmcts.net", 8080);
+        RestAssured.proxy("proxyout.reform.hmcts.net", 8080);*/
+
+        String s2sToken = new S2sClient(s2sUrl, s2sName, s2sSecret).signIntoS2S();
+
+        judicialApiClient = new JudicialApiClient(judicialApiUrl, s2sToken, idamClient);
     }
 
     protected static void executeScript(List<Path> scriptFiles) throws SQLException, IOException {

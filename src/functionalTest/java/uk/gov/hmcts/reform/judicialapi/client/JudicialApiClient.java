@@ -11,14 +11,25 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.rest.SerenityRest;
 import org.springframework.http.HttpStatus;
+import uk.gov.hmcts.reform.judicialapi.idam.IdamClient;
 
 @Slf4j
 public class JudicialApiClient {
 
-    private final String judicialApiUrl;
+    private static final String SERVICE_HEADER = "ServiceAuthorization";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
 
-    public JudicialApiClient(String judicialApiUrl) {
+    private final String judicialApiUrl;
+    private final String s2sToken;
+
+    protected IdamClient idamClient;
+
+    public JudicialApiClient(String judicialApiUrl,
+                             String s2sToken,
+                             IdamClient idamClient) {
         this.judicialApiUrl = judicialApiUrl;
+        this.s2sToken = s2sToken;
+        this.idamClient = idamClient;
     }
 
     public String getWelcomePage() {
@@ -49,6 +60,26 @@ public class JudicialApiClient {
                 .baseUri(judicialApiUrl)
                 .header("Content-Type", APPLICATION_JSON_UTF8_VALUE)
                 .header("Accepts", APPLICATION_JSON_UTF8_VALUE);
+    }
+
+    private RequestSpecification getS2sTokenHeaders() {
+        return withUnauthenticatedRequest()
+                .header(SERVICE_HEADER, "Bearer " + s2sToken);
+    }
+
+    private RequestSpecification getMultipleAuthHeadersInternal() {
+        return getMultipleAuthHeaders(idamClient.getInternalBearerToken());
+    }
+
+    public RequestSpecification getMultipleAuthHeaders(String userToken) {
+
+        return SerenityRest.with()
+                .relaxedHTTPSValidation()
+                .baseUri(judicialApiUrl)
+                .header("Content-Type", APPLICATION_JSON_UTF8_VALUE)
+                .header("Accepts", APPLICATION_JSON_UTF8_VALUE)
+                .header(SERVICE_HEADER, "Bearer " + s2sToken)
+                .header(AUTHORIZATION_HEADER, "Bearer " + userToken);
     }
 
     public Map<String, Object> retrieveAllJudicialRoles(String roleOfAccessor, HttpStatus expectedStatus) {

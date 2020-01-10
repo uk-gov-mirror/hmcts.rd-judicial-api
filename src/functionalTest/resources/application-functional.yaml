@@ -1,7 +1,7 @@
 targetInstance: http://localhost:8093/
 s2s-url: ${S2S_URL_FOR_TESTS:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
 
-s2s-name: rd_professional_api
+s2s-name: rd_judicial_api
 
 idam.api.url: ${IDAM_URL:https://idam-api.aat.platform.hmcts.net}
 generated.user.email.pattern: ${GENERATED_USER_EMAIL_PATTERN:freg-test-user-%s@feemail.com}
@@ -18,10 +18,7 @@ s2s-secret: ${S2S_SECRET:K6KA6PRLRFWQLSD6}
 
 spring.flyway.enabled: false
 ## Secure roles configuration 1
-exui.role.hmcts-admin: prd-admin
-exui.role.pui-user-manager: pui-user-manager
+exui.role.caseworker: caseworker
 exui.role.pui-organisation-manager: pui-organisation-manager
-exui.role.pui-finance-manager: pui-finance-manager
-exui.role.pui-case-manager: pui-case-manager
 
 
