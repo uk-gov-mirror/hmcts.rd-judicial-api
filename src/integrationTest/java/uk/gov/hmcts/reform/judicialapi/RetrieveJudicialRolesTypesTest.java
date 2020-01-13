@@ -1,21 +1,16 @@
 package uk.gov.hmcts.reform.judicialapi;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.util.AuthorizationEnabledIntegrationTest;
-import uk.gov.hmcts.reform.judicialapi.util.SpringBootIntegrationTest;
-
 
 @Slf4j
 public class RetrieveJudicialRolesTypesTest extends AuthorizationEnabledIntegrationTest {
