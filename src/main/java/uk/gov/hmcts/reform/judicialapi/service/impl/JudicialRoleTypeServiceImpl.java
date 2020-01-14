@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants;
+import uk.gov.hmcts.reform.judicialapi.controller.advice.ExceptionMapper;
+import uk.gov.hmcts.reform.judicialapi.controller.advice.ResourceNotFoundException;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.persistence.JudicialRoleTypeRepository;
@@ -25,7 +28,7 @@ public class JudicialRoleTypeServiceImpl implements JudicialRoleTypeService {
         List<JudicialRoleTypeResponse> judicialRoleTypeResponses = new ArrayList<>();
 
         if (judicialRoleTypes.isEmpty()) {
-            throw new EmptyResultDataAccessException(1);
+            throw new ResourceNotFoundException("4 : Resource not found");
         }
 
         for (JudicialRoleType judicialRoleType : judicialRoleTypes) {

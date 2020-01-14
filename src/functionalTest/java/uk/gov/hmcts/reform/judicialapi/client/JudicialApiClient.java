@@ -11,7 +11,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.rest.SerenityRest;
 import org.springframework.http.HttpStatus;
-import uk.gov.hmcts.reform.judicialapi.idam.IdamClient;
+import uk.gov.hmcts.reform.judicialapi.idam.IdamOpenIdClient;
 
 @Slf4j
 public class JudicialApiClient {
@@ -22,14 +22,14 @@ public class JudicialApiClient {
     private final String judicialApiUrl;
     private final String s2sToken;
 
-    protected IdamClient idamClient;
+    protected IdamOpenIdClient idamOpenIdClient;
 
     public JudicialApiClient(String judicialApiUrl,
                              String s2sToken,
-                             IdamClient idamClient) {
+                             IdamOpenIdClient idamOpenIdClient) {
         this.judicialApiUrl = judicialApiUrl;
         this.s2sToken = s2sToken;
-        this.idamClient = idamClient;
+        this.idamOpenIdClient = idamOpenIdClient;
     }
 
     public String getWelcomePage() {
@@ -68,7 +68,7 @@ public class JudicialApiClient {
     }
 
     private RequestSpecification getMultipleAuthHeadersInternal() {
-        return getMultipleAuthHeaders(idamClient.getInternalBearerToken());
+        return getMultipleAuthHeaders(idamOpenIdClient.getInternalBearerToken());
     }
 
     public RequestSpecification getMultipleAuthHeaders(String userToken) {

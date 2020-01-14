@@ -34,7 +34,8 @@ public class JudicialController {
             @ApiResponse(
                     code = 200,
                     message = "List of judicial role types",
-                    response = List.class
+                    responseContainer = "List",
+                    response = JudicialRoleTypeResponse.class
             ),
             @ApiResponse(
                     code = 403,

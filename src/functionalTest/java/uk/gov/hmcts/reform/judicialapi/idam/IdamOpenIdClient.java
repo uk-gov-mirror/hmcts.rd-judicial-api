@@ -26,7 +26,7 @@ import uk.gov.hmcts.reform.judicialapi.config.TestConfigProperties;
 
 
 @Slf4j
-public class IdamClient {
+public class IdamOpenIdClient {
 
     private final TestConfigProperties testConfig;
 
@@ -36,7 +36,7 @@ public class IdamClient {
 
     private Gson gson = new Gson();
 
-    public IdamClient(TestConfigProperties testConfig) {
+    public IdamOpenIdClient(TestConfigProperties testConfig) {
         this.testConfig = testConfig;
     }
 
