@@ -8,13 +8,12 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 
 @Getter
-@Component
-@Data
-@Builder
-@JsonDeserialize(builder = JudicialRoleTypeResponse.JudicialRoleTypeResponseBuilder.class)
-@AllArgsConstructor
+//@Builder
+//@JsonDeserialize(builder = JudicialRoleTypeResponse.JudicialRoleTypeResponseBuilder.class)
+//@AllArgsConstructor
 @NoArgsConstructor
 public class JudicialRoleTypeResponse {
 
@@ -25,6 +24,11 @@ public class JudicialRoleTypeResponse {
     @JsonProperty
     private String roleDescCy;
 
+    public JudicialRoleTypeResponse(JudicialRoleType judicialRoleType) {
+        this.roleId = judicialRoleType.getRoleId();
+        this.roleDescEn = judicialRoleType.getRoleDescEn();
+        this.roleDescCy = judicialRoleType.getRoleDescCy();
+    }
 
     @Override
     public String toString() {

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeEntityResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
 
@@ -34,8 +35,7 @@ public class JudicialController {
             @ApiResponse(
                     code = 200,
                     message = "List of judicial role types",
-                    responseContainer = "List",
-                    response = JudicialRoleTypeResponse.class
+                    response = JudicialRoleTypeEntityResponse.class
             ),
             @ApiResponse(
                     code = 403,
@@ -53,10 +53,10 @@ public class JudicialController {
     @GetMapping(value = "/roles",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 
-    public ResponseEntity<List<JudicialRoleTypeResponse>> getJudicialRoles() {
+    public ResponseEntity<JudicialRoleTypeEntityResponse> getJudicialRoles() {
 
-        List<JudicialRoleTypeResponse> judicialRolesResponse = judicialRoleTypeService.retrieveJudicialRoles();
+        JudicialRoleTypeEntityResponse judicialRoleTypeEntityResponse = judicialRoleTypeService.retrieveJudicialRoles();
 
-        return new ResponseEntity<>(judicialRolesResponse, HttpStatus.OK);
+        return new ResponseEntity<>(judicialRoleTypeEntityResponse, HttpStatus.OK);
     }
 }

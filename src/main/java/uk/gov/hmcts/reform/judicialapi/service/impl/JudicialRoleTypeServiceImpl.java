@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorConstants;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ExceptionMapper;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ResourceNotFoundException;
+import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeEntityResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.persistence.JudicialRoleTypeRepository;
@@ -22,22 +23,22 @@ public class JudicialRoleTypeServiceImpl implements JudicialRoleTypeService {
     @Autowired
     JudicialRoleTypeRepository judicialRoleTypeRepository;
 
-    public List<JudicialRoleTypeResponse> retrieveJudicialRoles() {
+    public JudicialRoleTypeEntityResponse retrieveJudicialRoles() {
         List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAll();
 
-        List<JudicialRoleTypeResponse> judicialRoleTypeResponses = new ArrayList<>();
+        //List<JudicialRoleTypeResponse> judicialRoleTypeResponses = new ArrayList<>();
 
         if (judicialRoleTypes.isEmpty()) {
             throw new ResourceNotFoundException("4 : Resource not found");
         }
 
-        for (JudicialRoleType judicialRoleType : judicialRoleTypes) {
+        /*for (JudicialRoleType judicialRoleType : judicialRoleTypes) {
             judicialRoleTypeResponses.add(JudicialRoleTypeResponse.builder().roleId(judicialRoleType.getRoleId())
                     .roleDescCy(judicialRoleType.getRoleDescCy())
                     .roleDescEn(judicialRoleType.getRoleDescEn()).build());
-        }
+        }*/
 
-        return judicialRoleTypeResponses;
+        return new JudicialRoleTypeEntityResponse(judicialRoleTypes);
     }
 
 }
