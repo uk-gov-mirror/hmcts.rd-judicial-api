@@ -13,8 +13,8 @@ import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 @Getter
 //@Builder
 //@JsonDeserialize(builder = JudicialRoleTypeResponse.JudicialRoleTypeResponseBuilder.class)
-//@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor
+//@NoArgsConstructor
 public class JudicialRoleTypeResponse {
 
     @JsonProperty

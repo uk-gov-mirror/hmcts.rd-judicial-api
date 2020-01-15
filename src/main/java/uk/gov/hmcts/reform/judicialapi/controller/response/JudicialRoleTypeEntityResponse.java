@@ -1,17 +1,14 @@
 package uk.gov.hmcts.reform.judicialapi.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor
 public class JudicialRoleTypeEntityResponse {
 
-    private List<JudicialRoleTypeResponse> judicialRoleTypeResponses = new ArrayList<>();
+    private List<JudicialRoleTypeResponse> judicialRoleTypeResponses;
 
     public JudicialRoleTypeEntityResponse(List<JudicialRoleType> judicialRoleTypes) {
         this.judicialRoleTypeResponses = judicialRoleTypes.stream()

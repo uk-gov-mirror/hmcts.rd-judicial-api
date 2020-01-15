@@ -26,17 +26,9 @@ public class JudicialRoleTypeServiceImpl implements JudicialRoleTypeService {
     public JudicialRoleTypeEntityResponse retrieveJudicialRoles() {
         List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAll();
 
-        //List<JudicialRoleTypeResponse> judicialRoleTypeResponses = new ArrayList<>();
-
         if (judicialRoleTypes.isEmpty()) {
             throw new ResourceNotFoundException("4 : Resource not found");
         }
-
-        /*for (JudicialRoleType judicialRoleType : judicialRoleTypes) {
-            judicialRoleTypeResponses.add(JudicialRoleTypeResponse.builder().roleId(judicialRoleType.getRoleId())
-                    .roleDescCy(judicialRoleType.getRoleDescCy())
-                    .roleDescEn(judicialRoleType.getRoleDescEn()).build());
-        }*/
 
         return new JudicialRoleTypeEntityResponse(judicialRoleTypes);
     }

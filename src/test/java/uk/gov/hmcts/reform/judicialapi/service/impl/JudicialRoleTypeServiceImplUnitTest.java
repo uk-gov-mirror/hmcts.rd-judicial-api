@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
+import uk.gov.hmcts.reform.judicialapi.controller.advice.ResourceNotFoundException;
+import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeEntityResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.persistence.JudicialRoleTypeRepository;
@@ -21,36 +23,34 @@ public class JudicialRoleTypeServiceImplUnitTest {
 
     private JudicialRoleTypeRepository judicialRoleTypeRepositoryMock;
     private JudicialRoleType judicialRoleTypeMock;
-    private JudicialRoleTypeResponse judicialRoleTypeResponseMock;
 
     private List<JudicialRoleType> judicialRoleTypes;
-    private List<JudicialRoleTypeResponse> judicialRoleTypeResponses;
 
     @Before
     public void setUp() {
 
         judicialRoleTypeRepositoryMock = mock(JudicialRoleTypeRepository.class);
         judicialRoleTypeMock = mock(JudicialRoleType.class);
-        judicialRoleTypeResponseMock = mock(JudicialRoleTypeResponse.class);
         MockitoAnnotations.initMocks(this);
 
         judicialRoleTypes = new ArrayList<>();
-        judicialRoleTypeResponses = new ArrayList<>();
     }
 
     @Test
     public void retrieveJudicialRolesTest() {
 
         judicialRoleTypes.add(judicialRoleTypeMock);
-        judicialRoleTypeResponses.add(judicialRoleTypeResponseMock);
 
         when(judicialRoleTypeRepositoryMock.findAll()).thenReturn(judicialRoleTypes);
 
-        List<JudicialRoleTypeResponse> actual = sut.retrieveJudicialRoles();
+        JudicialRoleTypeEntityResponse actual = sut.retrieveJudicialRoles();
 
         assertThat(actual).isNotNull();
-
         verify(judicialRoleTypeRepositoryMock, times(1)).findAll();
+    }
 
+    @Test(expected = ResourceNotFoundException.class)
+    public void retrieveJudicialRolesThrowsResourceNotFoundIfEmpty() {
+        sut.retrieveJudicialRoles();
     }
 }
