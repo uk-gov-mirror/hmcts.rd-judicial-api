@@ -15,6 +15,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Entity(name = "judicial_role_type")
+@NoArgsConstructor
 @Getter
 @Component
 public class JudicialRoleType {
