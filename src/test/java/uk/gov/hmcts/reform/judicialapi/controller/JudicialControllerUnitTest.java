@@ -14,7 +14,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeEntityResponse;
-import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialRoleTypeService;
 

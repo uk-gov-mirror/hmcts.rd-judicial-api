@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ResourceNotFoundException;
 import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeEntityResponse;
-import uk.gov.hmcts.reform.judicialapi.controller.response.JudicialRoleTypeResponse;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.persistence.JudicialRoleTypeRepository;
 
