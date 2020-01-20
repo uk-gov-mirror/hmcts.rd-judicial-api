@@ -12,7 +12,6 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,64 +75,44 @@ public class IdamOpenIdClient {
         return userEmail;
     }
 
-    public String getInternalBearerToken() {
+    public String getInternalOpenIdToken() {
         String userEmail = createUser("prd-admin");
-        return getBearerToken(userEmail);
+        return getOpenIdToken(userEmail);
     }
 
-    public String getExternalBearerToken(String role, String firstName, String lastName, String email) {
+
+    public String getExternalOpenIdToken(String role, String firstName, String lastName, String email) {
         String userEmail = createUser(role, email, firstName, lastName);
-        return getBearerToken(userEmail);
+        return getOpenIdToken(userEmail);
     }
 
-    public String getBearerToken(String userEmail) {
-
-        String codeAuthorization = Base64.getEncoder().encodeToString((userEmail + ":" + password).getBytes());
-
-        Map<String, String> authorizeParams = new HashMap<>();
-        authorizeParams.put("client_id", testConfig.getClientId());
-        authorizeParams.put("redirect_uri", testConfig.getOauthRedirectUrl());
-        authorizeParams.put("response_type", "code");
-        authorizeParams.put("scope", "openid profile roles create-user manage-user");
-
-        Response authorizeResponse = RestAssured
-                .given()
-                .relaxedHTTPSValidation()
-                .baseUri(testConfig.getIdamApiUrl())
-                .header(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE)
-                .header("Authorization", BASIC + codeAuthorization)
-                .params(authorizeParams)
-                .post("/oauth2/authorize")
-                .andReturn();
-
-        assertThat(authorizeResponse.getStatusCode()).isEqualTo(200);
-
-        AuthorizationResponse authorizationCode = gson.fromJson(authorizeResponse.getBody().asString(), AuthorizationResponse.class);
-
-        String authCode = authorizationCode.getCode();
+    public String getOpenIdToken(String userEmail) {
 
         Map<String, String> tokenParams = new HashMap<>();
+        tokenParams.put("grant_type", "password");
+        tokenParams.put("username", userEmail);
+        tokenParams.put("password", password);
         tokenParams.put("client_id", testConfig.getClientId());
-        tokenParams.put("code", authCode);
-        tokenParams.put("grant_type", "authorization_code");
+        tokenParams.put("client_secret", testConfig.getClientSecret());
         tokenParams.put("redirect_uri", testConfig.getOauthRedirectUrl());
+        tokenParams.put("scope", "openid profile roles manage-user create-user search-user");
 
-        Response bearerTokenResponse = RestAssured
+        Response openIdTokenResponse = RestAssured
                 .given()
                 .relaxedHTTPSValidation()
                 .baseUri(testConfig.getIdamApiUrl())
                 .header(CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE)
-                .header("Authorization", BASIC + testConfig.getTokenAuthorization())
                 .params(tokenParams)
-                .post("/oauth2/token")
+                .post("/o/token")
                 .andReturn();
 
-        assertThat(bearerTokenResponse.getStatusCode()).isEqualTo(200);
+        assertThat(openIdTokenResponse.getStatusCode()).isEqualTo(200);
 
-        BearerTokenResponse accessTokenResponse = gson.fromJson(bearerTokenResponse.getBody().asString(), BearerTokenResponse.class);
-
+        IdamOpenIdClient.BearerTokenResponse accessTokenResponse = gson.fromJson(openIdTokenResponse.getBody().asString(), IdamOpenIdClient.BearerTokenResponse.class);
         return accessTokenResponse.getAccessToken();
+
     }
+
 
     private String nextUserEmail() {
         return String.format(testConfig.getGeneratedUserEmailPattern(), RandomStringUtils.randomAlphanumeric(10));
@@ -173,3 +152,4 @@ public class IdamOpenIdClient {
         private String accessToken;
     }
 }
+
