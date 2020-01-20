@@ -68,7 +68,7 @@ public class JudicialApiClient {
     }
 
     private RequestSpecification getMultipleAuthHeadersInternal() {
-        return getMultipleAuthHeaders(idamOpenIdClient.getInternalBearerToken());
+        return getMultipleAuthHeaders(idamOpenIdClient.getInternalOpenIdToken());
     }
 
     public RequestSpecification getMultipleAuthHeaders(String userToken) {
