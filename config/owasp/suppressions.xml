@@ -1325,6 +1325,7 @@
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.websocket/websocket-client@.*$</packageUrl>
         <cve>CVE-2019-10247</cve>
     </suppress>
+
     <suppress>
         <notes><![CDATA[
    file name: jetty-servlets-9.4.15.v20190215.jar

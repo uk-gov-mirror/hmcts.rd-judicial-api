@@ -1,6 +1,10 @@
 spring:
-  flyway.locations: classpath:db/migration
-
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  h2:
+    console:
+      enabled: true
   jpa:
     show-sql: true
     properties:
@@ -17,3 +21,9 @@ security:
 
   authorisedServices:
     - "it"
+## IDAM feign connection
+auth.idam.client.baseUrl: ${IDAM_URL:http://127.0.0.1:5000}
+
+exui.role:
+  caseworker: caseworker
+  pui-organisation-manager: pui-organisation-manager

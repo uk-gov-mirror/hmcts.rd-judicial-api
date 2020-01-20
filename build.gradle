@@ -1,11 +1,14 @@
 buildscript {
     repositories {
         jcenter()
+
     }
     dependencies {
         classpath("net.serenity-bdd:serenity-gradle-plugin:2.0.11")
     }
 }
+
+
 
 plugins {
     id 'application'
@@ -16,9 +19,10 @@ plugins {
     id "info.solidsoft.pitest" version '1.3.0'
     id 'io.spring.dependency-management' version '1.0.6.RELEASE'
     id 'org.owasp.dependencycheck' version '5.1.0'
-    id 'org.sonarqube' version '2.6.2'
+    id 'org.sonarqube' version '2.8'
     id 'org.springframework.boot' version '2.1.4.RELEASE'
     id "org.flywaydb.flyway" version "5.0.7"
+    id "io.freefair.lombok" version "4.1.6"
 }
 
 apply plugin: 'java'
@@ -186,16 +190,17 @@ sonarqube {
     properties {
         property "sonar.projectName", "RD :: Judicial Reference api"
         property "sonar.projectKey", "RDJUDICIALAPI"
-        property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
-        property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/integration.exec"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.pitest.mode", "reuseReport"
         property "sonar.pitest.reportsDirectory", "build/reports/pitest"
         property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/judicialapi/configuration/**," +
-                "src/main/java/uk/gov/hmcts/reform/judicialapi/JudicialApplication.java"
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/JudicialApplication.java,"+
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/domain/*," +
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/service/impl/JudicialRoleTypeServiceImpl.java"
     }
 }
 
-project.tasks['sonarqube'].dependsOn test, integration
+project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
 project.tasks['sonarqube'].group = "Verification"
 
 repositories {
@@ -208,12 +213,21 @@ repositories {
 }
 
 dependencies {
+
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    integrationTestCompile group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    integrationTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+
     compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: versions.springBoot
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: versions.springBoot
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: versions.springBoot
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: versions.springBoot
+    //compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: versions.springBoot
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
     compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
@@ -221,8 +235,6 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version: versions.springBoot
 
     compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.5.6'
-
-
     compile (group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.1') {
         force = true
     }
@@ -230,7 +242,6 @@ dependencies {
         force = true
     }
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.10.1'
-
     compile group: 'io.github.openfeign.form', name: 'feign-form', version: '3.8.0'
     compile group: 'io.github.openfeign.form', name: 'feign-form-spring', version: '3.8.0'
     compile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
@@ -243,11 +254,11 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: '0.0.4'
     compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.reformS2sClient
     compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: versions.reformHealthStarter
-    compile(group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.3') {
-        // TODO remove when auth-checker-lib upgrades its dependency to spring boot 2.0.x
-        exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
-        
-    }
+//    compile(group: 'uk.gov.hmcts.reform.auth', name: 'auth-checker-lib', version: '2.1.3') {
+//        // TODO remove when auth-checker-lib upgrades its dependency to spring boot 2.0.x
+//        exclude group: 'uk.gov.hmcts.reform', module: 'java-logging-spring'
+//
+//    }
 
     compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
@@ -255,16 +266,8 @@ dependencies {
 
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
 
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    integrationTestCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    integrationTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    functionalTestCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    functionalTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    smokeTestCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    smokeTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+
+
 
     testCompile("org.hamcrest:hamcrest-junit:2.0.0.0") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
@@ -286,6 +289,11 @@ dependencies {
     testCompile group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
     testCompile group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
     testCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+
+    testCompile (group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot) {
+        exclude group: 'junit', module: 'junit'
+    }
+
 
     testCompile(group: 'org.yaml', name: 'snakeyaml', version: '1.23') {
         force = true
