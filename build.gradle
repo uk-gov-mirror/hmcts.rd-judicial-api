@@ -158,7 +158,7 @@ jacoco {
 }
 
 jacocoTestReport {
-    executionData(test, integration)
+    executionData(test)
     reports {
         xml.enabled = true
         csv.enabled = false
@@ -200,7 +200,7 @@ sonarqube {
     }
 }
 
-project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
+project.tasks['sonarqube'].dependsOn test
 project.tasks['sonarqube'].group = "Verification"
 
 repositories {
