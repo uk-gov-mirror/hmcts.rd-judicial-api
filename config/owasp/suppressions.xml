@@ -158,6 +158,20 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: spring-test-5.1.6.RELEASE.jar
+   ]]></notes>
+        <sha1>3f419c32390d4adabe431d726996479d799cec0e</sha1>
+        <cpe>cpe:/a:pivotal_software:spring_framework</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-test-5.1.6.RELEASE.jar
+   ]]></notes>
+        <sha1>3f419c32390d4adabe431d726996479d799cec0e</sha1>
+        <cve>CVE-2020-5398</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
     <suppress>
         <notes><![CDATA[
    file name: spring-context-support-5.0.8.RELEASE.jar
