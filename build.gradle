@@ -3,11 +3,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("net.serenity-bdd:serenity-gradle-plugin:2.1.6")
+        classpath("net.serenity-bdd:serenity-gradle-plugin:2.0.83")
     }
 }
-
-
 
 plugins {
     id 'application'
@@ -230,7 +228,7 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
     compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
-    compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.1.RELEASE'
+    compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.5.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version: versions.springBoot
 
     compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.5.6'
@@ -268,6 +266,9 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
 
+    testCompile group: 'io.rest-assured', name: 'rest-assured', version: '4.0.0'
+    testCompile group: 'io.rest-assured', name: 'rest-assured-common', version: '4.0.0'
+
     testCompile group: 'com.h2database', name: 'h2'
     testCompile "com.github.tomakehurst:wiremock:2.19.0"
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.2.4'
@@ -289,7 +290,7 @@ dependencies {
     }
 
 
-    testCompile(group: 'org.yaml', name: 'snakeyaml', version: '1.23') {
+    testCompile(group: 'org.yaml', name: 'snakeyaml', version: '1.25') {
         force = true
     }
 
@@ -315,7 +316,7 @@ dependencies {
 dependencyCheck {
     // Specifies if the build should be failed if a CVSS score above a specified level is identified.
     // range of 0-10 fails the build, anything greater and it doesn't fail the build
-    failBuildOnCVSS = System.getProperty('dependencyCheck.failBuild') == 'true' ? 0 : 11
+    failBuildOnCVSS = System.getProperty('dependencyCheck.failBuild') == 'false' ? 0 : 11
     suppressionFiles = ['config/owasp/suppressions.xml']
 }
 
