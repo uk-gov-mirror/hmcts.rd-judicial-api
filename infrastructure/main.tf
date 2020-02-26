@@ -95,6 +95,7 @@ module "db-judicial-ref-data" {
   postgresql_user = "dbjuddata"
   database_name = "dbjuddata"
   common_tags = "${var.common_tags}"
+  postgresql_version    = "${var.postgresql_version}"
 }
 
 module "rd_judicial_api" {
