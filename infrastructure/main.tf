@@ -110,10 +110,9 @@ module "db-judicial-ref-data" {
 
 module "db-judicial-ref-data-v11" {
   source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product = "${var.product}-${var.component}-postgres-db"
+  product = "${var.product}-${var.component}-postgres-db-v11"
   location = "${var.location}"
   subscription = "${var.subscription}"
-  resource_group_name = "${azurerm_resource_group_db.rg_database.name}"
   env = "${var.env}"
   postgresql_user = "dbjuddata"
   database_name = "dbjuddata"
