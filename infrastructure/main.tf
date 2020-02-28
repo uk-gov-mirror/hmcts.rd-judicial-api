@@ -86,16 +86,6 @@ resource "azurerm_resource_group" "rg" {
   }
 }
 
-data "azurerm_resource_group_db" "rg_database" {
-  name = "${var.product}-${var.component}-postgres-db-data-${var.env}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE_11" {
-  name      = "${var.component}-POSTGRES-DATABASE"
-  value     = "${module.db-judicial-ref-data.postgresql_database_11}"
-
-}
-
 module "db-judicial-ref-data" {
   source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
   product = "${var.product}-${var.component}-postgres-db"
@@ -105,20 +95,10 @@ module "db-judicial-ref-data" {
   postgresql_user = "dbjuddata"
   database_name = "dbjuddata"
   common_tags = "${var.common_tags}"
-
-}
-
-module "db-judicial-ref-data-v11" {
-  source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product = "${var.product}-${var.component}-postgres-db-v11"
-  location = "${var.location}"
-  subscription = "${var.subscription}"
-  env = "${var.env}"
-  postgresql_user = "dbjuddata"
-  database_name = "dbjuddata"
-  common_tags = "${var.common_tags}"
   postgresql_version    = "${var.postgresql_version}"
+
 }
+
 
 module "rd_judicial_api" {
   source = "git@github.com:hmcts/cnp-module-webapp?ref=master"
