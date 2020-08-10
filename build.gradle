@@ -252,6 +252,8 @@ dependencies {
 
     compile group: 'com.google.guava', name: 'guava', version: '28.2-jre'
 
+    compile group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '5.0.2'
+
     testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.3.0'
 
     testCompile("org.hamcrest:hamcrest-junit:2.0.0.0") {

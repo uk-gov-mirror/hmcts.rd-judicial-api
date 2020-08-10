@@ -9,11 +9,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.UUID;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.judicialapi.util.FeatureConditionEvaluation;
 
 @Api(
     value = "/",
@@ -50,6 +52,38 @@ public class WelcomeController {
     )
     @ResponseBody
     public ResponseEntity<String> welcome() {
+
+        LOG.info("Welcome message '{}' from running instance: {}", MESSAGE, INSTANCE_ID);
+
+        return ResponseEntity
+            .ok()
+            .cacheControl(CacheControl.noCache())
+            .body("{\"message\": \"" + MESSAGE + "\"}");
+    }
+
+
+    @ResponseBody
+    @GetMapping(
+        path = "/testLD",
+        produces = APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String> testLD() {
+
+        LOG.info("Welcome message '{}' from running instance: {}", MESSAGE, INSTANCE_ID);
+
+
+        return ResponseEntity
+            .ok()
+            .cacheControl(CacheControl.noCache())
+            .body("{\"message\": \"" + MESSAGE + "\"}");
+    }
+
+    @ResponseBody
+    @GetMapping(
+        path = "/testLD123",
+        produces = APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String> testLD123() {
 
         LOG.info("Welcome message '{}' from running instance: {}", MESSAGE, INSTANCE_ID);
 

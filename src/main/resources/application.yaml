@@ -89,3 +89,7 @@ feign:
     headers:
       - authorization
       - serviceauthorization
+ld:
+  sdk_key: 1234555
+  user_key: rd-${env}
+
