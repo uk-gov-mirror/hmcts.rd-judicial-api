@@ -40,6 +40,7 @@ import uk.gov.hmcts.reform.judicialapi.util.RequestUtils;
 import uk.gov.hmcts.reform.judicialapi.validator.RefreshUserValidator;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -336,8 +337,9 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         log.info("{} : starting get Appointment Refresh Response List ", loggingComponentName);
 
         var appointmentList = new ArrayList<AppointmentRefreshResponse>();
-
+        LocalDate today = LocalDate.now();
         profile.getAppointments().stream()
+                .filter(app -> filterAppExpiredRecords(app.getServiceCode(),app.getEndDate()))
                 .forEach(appointment -> appointmentList.add(
                         buildAppointmentRefreshResponseDto(appointment, profile, regionMappings)));
         return appointmentList;
@@ -381,8 +383,13 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         log.info("{} : starting get Authorisation Refresh Response List ", loggingComponentName);
 
         var authorisationList = new ArrayList<AuthorisationRefreshResponse>();
+        var ticketCodes =  serviceCodeMappings.stream()
+                    .filter(s -> s.getServiceCode().equalsIgnoreCase("BBA3"))
+                    .map(s -> s.getTicketCode())
+                    .toList();
 
         profile.getAuthorisations().stream()
+                .filter(app -> filterExpiredAuthRecords(ticketCodes,app.getTicketCode(),app.getEndDate()))
                 .forEach(authorisation -> authorisationList.add(
                         buildAuthorisationRefreshResponseDto(authorisation, serviceCodeMappings)));
 
@@ -447,5 +454,28 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         } else {
             return null != regionCircuitMapping ? regionCircuitMapping.getRegion() : null;
         }
+    }
+
+    private Boolean filterAppExpiredRecords(String serviceCode, LocalDate compareToDate) {
+
+        LocalDate todayDate =  LocalDate.now();
+        if (StringUtils.isNotBlank(serviceCode)
+               && serviceCode.equalsIgnoreCase("BBA3")
+                && compareToDate != null) {
+            return  compareToDate.equals(todayDate) || compareToDate.isAfter(todayDate);
+        }
+        return Boolean.TRUE;
+    }
+
+    private Boolean filterExpiredAuthRecords(List ticketCodes,String ticketCode, LocalDateTime compareToDateTime) {
+
+        LocalDateTime todayDateTime = LocalDateTime.now();
+        if (!ticketCodes.isEmpty()
+              && compareToDateTime != null
+                && ticketCodes.contains(ticketCode)) {
+
+            return compareToDateTime.equals(todayDateTime) || compareToDateTime.isAfter(todayDateTime);
+        }
+        return Boolean.TRUE;
     }
 }
