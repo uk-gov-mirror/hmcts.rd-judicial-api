@@ -85,6 +85,12 @@ public class JudicialUserServiceImpl implements JudicialUserService {
     @Value("${loggingComponentName}")
     private String loggingComponentName;
 
+    @Value("${refresh.serviceCode}")
+    private String refreshServiceCode;
+
+    @Value("${refresh.ticketCode}")
+    private String refreshTicketCode;
+
     @Override
     public ResponseEntity<Object> fetchJudicialUsers(Integer size, Integer page, List<String> sidamIds) {
         Pageable pageable = createPageableObject(page, size, defaultPageSize);
@@ -124,7 +130,7 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         var userSearchResponses = userProfiles
                 .stream().filter(distinctByKeys(UserProfile::getPersonalCode))
                 .map(UserSearchResponse::new)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
 
         return ResponseEntity
                 .status(200)
@@ -196,7 +202,6 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         return getRefreshRoleResponseEntity(userProfilePage, sidamIds, "sidamIds");
     }
 
-    @SuppressWarnings("unchecked")
     private ResponseEntity<Object> refreshUserProfileBasedOnPersonalCodes(List<String> personalCodes,
                                                                           PageRequest pageRequest) {
         log.info("{} : starting refreshUserProfile BasedOn personalCodes ", loggingComponentName);
@@ -221,8 +226,17 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         var regionMappings = regionMappingRepository.findAllRegionMappingData();
         log.info("regionMappings size = {}", regionMappings.size());
 
-        userProfilePage.forEach(userProfile -> userProfileList.add(
-                buildUserProfileRefreshResponseDto(userProfile,serviceCodeMappings,regionMappings)));
+        userProfilePage.forEach(userProfile -> {
+            UserProfileRefreshResponse response =  buildUserProfileRefreshResponseDto(userProfile,
+                    serviceCodeMappings, regionMappings);
+            if (null != response) {
+                userProfileList.add(response);
+            }
+        });
+
+        if (userProfileList.isEmpty()) {
+            throw new ResourceNotFoundException(RefDataConstants.NO_DATA_FOUND);
+        }
 
         Map<String, List<UserProfileRefreshResponse>> groupedUserProfiles = userProfileList
                 .stream()
@@ -306,8 +320,7 @@ public class JudicialUserServiceImpl implements JudicialUserService {
                 ErrorResponse.class);
         var responseBody = responseEntity.getBody();
 
-        if (nonNull(responseBody) && responseBody instanceof ErrorResponse) {
-            ErrorResponse errorResponse = (ErrorResponse) responseBody;
+        if (nonNull(responseBody) && responseBody instanceof ErrorResponse errorResponse) {
             throw new UserProfileException(httpStatus, errorResponse.getErrorMessage(),
                     errorResponse.getErrorDescription());
         } else {
@@ -318,7 +331,22 @@ public class JudicialUserServiceImpl implements JudicialUserService {
     private UserProfileRefreshResponse buildUserProfileRefreshResponseDto(
             UserProfile profile, List<ServiceCodeMapping> serviceCodeMappings, List<RegionMapping> regionMappings) {
         log.info("{} : starting build User Profile Refresh Response Dto ", loggingComponentName);
-        return UserProfileRefreshResponse.builder()
+
+        //check the Non-IAC records validation
+        if (Boolean.TRUE.equals(validateIACCodes(profile,serviceCodeMappings,true))) {
+            return  userProfileResponse(profile,serviceCodeMappings,regionMappings);
+        }else{
+            if (Boolean.TRUE.equals(validateIACCodes(profile,serviceCodeMappings,false))) {
+             return  userProfileResponse(profile,serviceCodeMappings,regionMappings);
+            }
+        }
+        return null;
+    }
+
+    private UserProfileRefreshResponse userProfileResponse(UserProfile profile, List<ServiceCodeMapping> serviceCodeMappings,
+                                                           List<RegionMapping> regionMappings) {
+
+       return UserProfileRefreshResponse.builder()
                 .sidamId(profile.getSidamId())
                 .objectId(profile.getObjectId())
                 .knownAs(profile.getKnownAs())
@@ -337,9 +365,7 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         log.info("{} : starting get Appointment Refresh Response List ", loggingComponentName);
 
         var appointmentList = new ArrayList<AppointmentRefreshResponse>();
-        LocalDate today = LocalDate.now();
-        profile.getAppointments().stream()
-                .filter(app -> filterAppExpiredRecords(app.getServiceCode(),app.getEndDate()))
+        profile.getAppointments()
                 .forEach(appointment -> appointmentList.add(
                         buildAppointmentRefreshResponseDto(appointment, profile, regionMappings)));
         return appointmentList;
@@ -383,13 +409,8 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         log.info("{} : starting get Authorisation Refresh Response List ", loggingComponentName);
 
         var authorisationList = new ArrayList<AuthorisationRefreshResponse>();
-        var ticketCodes =  serviceCodeMappings.stream()
-                    .filter(s -> s.getServiceCode().equalsIgnoreCase("BBA3"))
-                    .map(s -> s.getTicketCode())
-                    .toList();
 
-        profile.getAuthorisations().stream()
-                .filter(app -> filterExpiredAuthRecords(ticketCodes,app.getTicketCode(),app.getEndDate()))
+        profile.getAuthorisations()
                 .forEach(authorisation -> authorisationList.add(
                         buildAuthorisationRefreshResponseDto(authorisation, serviceCodeMappings)));
 
@@ -456,26 +477,56 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         }
     }
 
-    private Boolean filterAppExpiredRecords(String serviceCode, LocalDate compareToDate) {
+    private Boolean filterValidateAppointmentRecords(Appointment app,Boolean iacFlag) {
 
         LocalDate todayDate =  LocalDate.now();
-        if (StringUtils.isNotBlank(serviceCode)
-               && serviceCode.equalsIgnoreCase("BBA3")
-                && compareToDate != null) {
-            return  compareToDate.equals(todayDate) || compareToDate.isAfter(todayDate);
+        if (StringUtils.isNotBlank(app.getServiceCode())
+               && (app.getServiceCode().equalsIgnoreCase(refreshServiceCode) == iacFlag)) {
+
+            return null != app.getEndDate() ? (app.getEndDate().equals(todayDate)
+                    || app.getEndDate().isAfter(todayDate)): Boolean.TRUE;
         }
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
-    private Boolean filterExpiredAuthRecords(List ticketCodes,String ticketCode, LocalDateTime compareToDateTime) {
+    private Boolean filterValidAuthRecords(List<String> ticketCodes,Authorisation auth,Boolean iacFlag) {
 
         LocalDateTime todayDateTime = LocalDateTime.now();
-        if (!ticketCodes.isEmpty()
-              && compareToDateTime != null
-                && ticketCodes.contains(ticketCode)) {
+        if (ticketCodes.contains(auth.getTicketCode()) == iacFlag) {
 
-            return compareToDateTime.equals(todayDateTime) || compareToDateTime.isAfter(todayDateTime);
+            return null != auth.getEndDate() ? (auth.getEndDate().equals(todayDateTime)
+                    || auth.getEndDate().isAfter(todayDateTime)) : Boolean.TRUE;
         }
-        return Boolean.TRUE;
+        return Boolean.FALSE;
+    }
+
+    private Boolean validateIACCodes(UserProfile profile,List<ServiceCodeMapping> serviceCodeMappings,Boolean iacFlag) {
+
+        List<Appointment> appointment = profile.getAppointments().stream()
+                                       .filter(app -> filterValidateAppointmentRecords(app,iacFlag))
+                                       .toList();
+
+        List<String> ticketCodes =  serviceCodeMappings.stream()
+                .filter(s -> s.getServiceCode().equalsIgnoreCase(refreshServiceCode))
+                .map(ServiceCodeMapping::getTicketCode)
+                .toList();
+
+        List<Authorisation> authorisation =  profile.getAuthorisations().stream()
+                .filter(auth -> filterValidAuthRecords(ticketCodes,auth,iacFlag))
+                .toList();
+
+        //IAC flag check
+        if (Boolean.TRUE.equals(iacFlag)) {
+            if ((!appointment.isEmpty() || !authorisation.isEmpty())) {
+                return Boolean.TRUE;
+            }
+        }
+      else {
+            if ((!appointment.isEmpty()
+                        && !authorisation.isEmpty())) {
+                    return Boolean.TRUE;
+            }
+        }
+      return Boolean.FALSE;
     }
 }
