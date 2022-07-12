@@ -148,7 +148,7 @@ public class JrdApiProviderTest {
                 .thenReturn(Response.builder()
                         .request(mock(Request.class)).body(body, defaultCharset()).status(201).build());
 
-        when(serviceCodeMappingRepository.fetchTicketCodeFromServiceCode(any())).thenReturn(List.of(" "));
+        when(serviceCodeMappingRepository.fetchTicketCodeFromServiceCode(any())).thenReturn(List.of("373"));
 
         var serviceCodeMapping = new ServiceCodeMapping();
         serviceCodeMapping.setServiceId(1L);
@@ -191,9 +191,9 @@ public class JrdApiProviderTest {
         appointment.setOfficeAppointmentId(12L);
         appointment.setPerId("testPerId");
         appointment.setStartDate(LocalDate.now());
-        appointment.setEndDate(LocalDate.now());
+        appointment.setEndDate(LocalDate.now().plusDays(10));
         appointment.setActiveFlag(Boolean.TRUE);
-        appointment.setExtractedDate(LocalDateTime.now().plusDays(10));
+        appointment.setExtractedDate(LocalDateTime.now());
         appointment.setCreatedDate(LocalDateTime.now());
         appointment.setLastLoadedDate(LocalDateTime.now());
         appointment.setBaseLocationType(baseLocationType);
@@ -206,7 +206,7 @@ public class JrdApiProviderTest {
         appointment.setObjectId("testObjectId");
         appointment.setAppointment("testApp");
         appointment.setAppointmentType("testAppType");
-        appointment.setBaseLocationId("1");
+        appointment.setBaseLocationId("testBaseLocID");
 
 
         var authorisation = new Authorisation();
@@ -220,7 +220,7 @@ public class JrdApiProviderTest {
         authorisation.setLastUpdated(LocalDateTime.now());
         authorisation.setLowerLevel("lower level");
         authorisation.setPersonalCode("Personal code");
-        authorisation.setTicketCode("373");
+        authorisation.setTicketCode("Ticket code");
         authorisation.setObjectId("Object id");
 
         var authorisations = Collections.singletonList(authorisation);
