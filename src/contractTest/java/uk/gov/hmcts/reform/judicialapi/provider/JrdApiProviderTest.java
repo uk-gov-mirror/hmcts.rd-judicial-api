@@ -152,8 +152,8 @@ public class JrdApiProviderTest {
 
         var serviceCodeMapping = new ServiceCodeMapping();
         serviceCodeMapping.setServiceId(1L);
-        serviceCodeMapping.setTicketCode("368");
-        serviceCodeMapping.setServiceCode("BBA3");
+        serviceCodeMapping.setTicketCode("373");
+        serviceCodeMapping.setServiceCode("BFA1");
         serviceCodeMapping.setServiceDescription("Social Security and Child Support");
 
         when(serviceCodeMappingRepository.findAllServiceCodeMapping()).thenReturn(List.of(serviceCodeMapping));
@@ -193,7 +193,7 @@ public class JrdApiProviderTest {
         appointment.setStartDate(LocalDate.now());
         appointment.setEndDate(LocalDate.now());
         appointment.setActiveFlag(Boolean.TRUE);
-        appointment.setExtractedDate(LocalDateTime.now());
+        appointment.setExtractedDate(LocalDateTime.now().plusDays(10));
         appointment.setCreatedDate(LocalDateTime.now());
         appointment.setLastLoadedDate(LocalDateTime.now());
         appointment.setBaseLocationType(baseLocationType);
@@ -202,11 +202,11 @@ public class JrdApiProviderTest {
         appointment.setIsPrincipleAppointment(Boolean.TRUE);
         appointment.setPersonalCode("testPersonalCode");
         appointment.setEpimmsId("testEpimmsId");
-        appointment.setServiceCode("testServiceCode");
+        appointment.setServiceCode("BFA1");
         appointment.setObjectId("testObjectId");
         appointment.setAppointment("testApp");
         appointment.setAppointmentType("testAppType");
-        appointment.setBaseLocationId("testBaseLocID");
+        appointment.setBaseLocationId("1");
 
 
         var authorisation = new Authorisation();
@@ -215,12 +215,12 @@ public class JrdApiProviderTest {
         authorisation.setTicketId(1234L);
         authorisation.setJurisdiction("Languages");
         authorisation.setStartDate(LocalDateTime.now());
-        authorisation.setEndDate(LocalDateTime.parse("2022-03-04T10:11:00.619526"));
+        authorisation.setEndDate(LocalDateTime.now().plusDays(10));
         authorisation.setCreatedDate(LocalDateTime.now());
         authorisation.setLastUpdated(LocalDateTime.now());
         authorisation.setLowerLevel("lower level");
         authorisation.setPersonalCode("Personal code");
-        authorisation.setTicketCode("Ticket code");
+        authorisation.setTicketCode("373");
         authorisation.setObjectId("Object id");
 
         var authorisations = Collections.singletonList(authorisation);
