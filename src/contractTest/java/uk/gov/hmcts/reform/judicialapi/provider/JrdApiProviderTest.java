@@ -148,7 +148,7 @@ public class JrdApiProviderTest {
                 .thenReturn(Response.builder()
                         .request(mock(Request.class)).body(body, defaultCharset()).status(201).build());
 
-        when(serviceCodeMappingRepository.fetchTicketCodeFromServiceCode(any())).thenReturn(List.of("373"));
+        when(serviceCodeMappingRepository.fetchTicketCodeFromServiceCode(any())).thenReturn(List.of(" "));
 
         var serviceCodeMapping = new ServiceCodeMapping();
         serviceCodeMapping.setServiceId(1L);
@@ -215,7 +215,7 @@ public class JrdApiProviderTest {
         authorisation.setTicketId(1234L);
         authorisation.setJurisdiction("Languages");
         authorisation.setStartDate(LocalDateTime.now());
-        authorisation.setEndDate(LocalDateTime.now().plusDays(10));
+        authorisation.setEndDate(LocalDateTime.parse("2099-03-04T10:11:00.619526"));
         authorisation.setCreatedDate(LocalDateTime.now());
         authorisation.setLastUpdated(LocalDateTime.now());
         authorisation.setLowerLevel("lower level");
