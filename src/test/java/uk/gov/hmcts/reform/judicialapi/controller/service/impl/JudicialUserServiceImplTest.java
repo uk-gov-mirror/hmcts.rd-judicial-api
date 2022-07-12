@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -275,6 +277,7 @@ class JudicialUserServiceImplTest {
                 .regionId("1")
                 .region("National")
                 .jrdRegionId("1")
+                .jrdRegion("National")
                 .build();
         when(serviceCodeMappingRepository.findAllServiceCodeMapping())
                 .thenReturn(List.of(serviceCodeMappingOne,serviceCodeMappingTwo));
@@ -289,16 +292,59 @@ class JudicialUserServiceImplTest {
         assertEquals(200, responseEntity.getStatusCodeValue());
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
+    @SuppressWarnings("warning")
     void test_refreshUserProfile_BasedOnObjectIds_200() {
-        var userProfile = buildUserProfile();
-
+        var userProfile = buildUserProfileIac();
         var pageRequest = getPageRequest();
-        var page = new PageImpl<>(Collections.singletonList(userProfile));
+        var page = new PageImpl<>(List.of(userProfile));
 
-        var serviceCodeMapping = ServiceCodeMapping
+        var serviceCodeMappingOne = ServiceCodeMapping
                 .builder()
-                .ticketCode("100")
+                .ticketCode("300")
+                .serviceCode("BBA3")
+                .build();
+        var serviceCodeMappingTwo = ServiceCodeMapping
+                .builder()
+                .ticketCode("373")
+                .serviceCode("BFA1")
+                .build();
+
+        var regionMapping = RegionMapping
+                .builder()
+                .regionId("1")
+                .region("National")
+                .jrdRegionId("1")
+                .jrdRegion("National")
+                .build();
+        when(serviceCodeMappingRepository.findAllServiceCodeMapping()).thenReturn(List.of(serviceCodeMappingOne,
+                serviceCodeMappingTwo));
+        when(regionMappingRepository.findAllRegionMappingData()).thenReturn(List.of(regionMapping));
+        when(userProfileRepository.fetchUserProfileByObjectIds(List.of("test", "test"), pageRequest))
+                .thenReturn(page);
+        var refreshRoleRequest = new RefreshRoleRequest("",
+                Arrays.asList("test", "test"), null,null);
+
+        var responseEntity = judicialUserService.refreshUserProfile(refreshRoleRequest, 1,
+                0, "ASC", "objectId");
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        ArrayList profiles =  (ArrayList)responseEntity.getBody();
+        assertEquals(1, profiles.size());
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
+    @SuppressWarnings("warning")
+    void test_refreshUserProfile_BasedOnObjectIds_NonIac200() {
+        var userProfile = buildUserProfileNonIac();
+        var pageRequest = getPageRequest();
+        var page = new PageImpl<>(List.of(userProfile));
+
+        var serviceCodeMappingOne = ServiceCodeMapping
+                .builder()
+                .ticketCode("366")
                 .serviceCode("BBA3")
                 .build();
 
@@ -307,20 +353,21 @@ class JudicialUserServiceImplTest {
                 .regionId("1")
                 .region("National")
                 .jrdRegionId("1")
+                .jrdRegion("National")
                 .build();
-        when(serviceCodeMappingRepository.findAllServiceCodeMapping()).thenReturn(List.of(serviceCodeMapping));
+        when(serviceCodeMappingRepository.findAllServiceCodeMapping()).thenReturn(List.of(serviceCodeMappingOne));
         when(regionMappingRepository.findAllRegionMappingData()).thenReturn(List.of(regionMapping));
         when(userProfileRepository.fetchUserProfileByObjectIds(List.of("test", "test"), pageRequest))
                 .thenReturn(page);
         var refreshRoleRequest = new RefreshRoleRequest("",
                 Arrays.asList("test", "test"), null,null);
 
-
-
         var responseEntity = judicialUserService.refreshUserProfile(refreshRoleRequest, 1,
                 0, "ASC", "objectId");
-
         assertEquals(200, responseEntity.getStatusCodeValue());
+        ArrayList profiles =  (ArrayList)responseEntity.getBody();
+        assertEquals(1, profiles.size());
+
     }
 
     @Test
@@ -342,13 +389,13 @@ class JudicialUserServiceImplTest {
 
     @Test
     void test_refreshUserProfile_BasedOnPersonalCodes_200() {
-        var userProfile = buildUserProfile();
+        var userProfile = buildUserProfileIac();
 
         var pageRequest = getPageRequest();
         var page = new PageImpl<>(Collections.singletonList(userProfile));
         var serviceCodeMapping = ServiceCodeMapping
                 .builder()
-                .ticketCode("200")
+                .ticketCode("373")
                 .serviceCode("BFA1")
                 .build();
 
@@ -411,14 +458,14 @@ class JudicialUserServiceImplTest {
                 .thenReturn(Response.builder()
                         .request(mock(Request.class)).body(body, defaultCharset()).status(201).build());
 
-        var userProfile = buildUserProfile();
+        var userProfile = buildUserProfileIac();
 
         var pageRequest = getPageRequest();
 
         var page = new PageImpl<>(Collections.singletonList(userProfile));
 
-        when(serviceCodeMappingRepository.fetchTicketCodeFromServiceCode(Set.of("BFA1"))).thenReturn(List.of("386"));
-        when(userProfileRepository.fetchUserProfileByServiceNames(Set.of("BFA1"), List.of("386"), pageRequest))
+        when(serviceCodeMappingRepository.fetchTicketCodeFromServiceCode(Set.of("BFA1"))).thenReturn(List.of("373"));
+        when(userProfileRepository.fetchUserProfileByServiceNames(Set.of("BFA1"), List.of("373"), pageRequest))
                 .thenReturn(page);
         var refreshRoleRequest = new RefreshRoleRequest("cmc",
                 null, null,null);
@@ -529,6 +576,7 @@ class JudicialUserServiceImplTest {
                 20, "id", UserProfile.class);
     }
 
+
     UserProfile buildUserProfile() {
 
         var baseLocationType = new BaseLocationType();
@@ -542,10 +590,10 @@ class JudicialUserServiceImplTest {
 
         var appointment = new Appointment();
         appointment.setPerId("1");
-        appointment.setEpimmsId(null);
+        appointment.setEpimmsId("");
         appointment.setOfficeAppointmentId(1L);
         appointment.setIsPrincipleAppointment(true);
-        appointment.setStartDate(LocalDate.now());
+        appointment.setStartDate(null);
         appointment.setEndDate(null);
         appointment.setActiveFlag(true);
         appointment.setExtractedDate(LocalDateTime.now());
@@ -554,7 +602,7 @@ class JudicialUserServiceImplTest {
         appointment.setBaseLocationType(baseLocationType);
         appointment.setRegionType(regionType);
         appointment.setServiceCode(null);
-
+        appointment.setRegionId("1");
 
         var appointmentTwo = new Appointment();
         appointmentTwo.setPerId("1");
@@ -569,7 +617,8 @@ class JudicialUserServiceImplTest {
         appointmentTwo.setLastLoadedDate(LocalDateTime.now());
         appointmentTwo.setBaseLocationType(baseLocationType);
         appointmentTwo.setRegionType(regionType);
-        appointment.setServiceCode("BFA1");
+        appointmentTwo.setServiceCode("BFA1");
+        appointment.setRegionId("2");
 
         var appointmentThree = new Appointment();
         appointmentThree.setPerId("1");
@@ -585,6 +634,7 @@ class JudicialUserServiceImplTest {
         appointmentThree.setBaseLocationType(baseLocationType);
         appointmentThree.setRegionType(regionType);
         appointmentThree.setServiceCode("BBA3");
+        appointment.setRegionId("2");
 
         var appointmentFour = new Appointment();
         appointmentFour.setPerId("1");
@@ -600,6 +650,7 @@ class JudicialUserServiceImplTest {
         appointmentFour.setBaseLocationType(baseLocationType);
         appointmentFour.setRegionType(regionType);
         appointmentFour.setServiceCode("BBA3");
+        appointment.setRegionId("3");
 
         var authorisation = new Authorisation();
         authorisation.setPerId("1");
@@ -685,6 +736,190 @@ class JudicialUserServiceImplTest {
         userProfile.setJudicialRoleTypes(List.of(judicialRoleType,judicialRoleType1,judicialRoleType2));
 
         return userProfile;
+    }
+
+    //Valid IAC record
+    UserProfile buildUserProfileIac() {
+
+        var baseLocationType = new BaseLocationType();
+        baseLocationType.setBaseLocationId("2");
+        baseLocationType.setCircuit("Nationals");
+
+        var regionType = new RegionType();
+        regionType.setRegionId("1");
+        regionType.setRegionDescCy("Nationals");
+        regionType.setRegionDescEn("Nationals");
+
+        var appointment = new Appointment();
+        appointment.setPerId("2");
+        appointment.setEpimmsId(" ");
+        appointment.setOfficeAppointmentId(1L);
+        appointment.setIsPrincipleAppointment(true);
+        appointment.setStartDate(LocalDate.now());
+        appointment.setEndDate(null);
+        appointment.setActiveFlag(false);
+        appointment.setExtractedDate(LocalDateTime.now());
+        appointment.setCreatedDate(LocalDateTime.now());
+        appointment.setLastLoadedDate(LocalDateTime.now());
+        appointment.setBaseLocationType(baseLocationType);
+        appointment.setRegionType(regionType);
+        appointment.setServiceCode("BFA1");
+        appointment.setRegionId("1");
+
+
+
+        var authorisation = new Authorisation();
+        authorisation.setPerId("2");
+        authorisation.setOfficeAuthId(1L);
+        authorisation.setJurisdiction("Languages");
+        authorisation.setTicketId(29611L);
+        authorisation.setStartDate(LocalDateTime.now());
+        authorisation.setEndDate(null);
+        authorisation.setCreatedDate(LocalDateTime.now());
+        authorisation.setLastUpdated(LocalDateTime.now());
+        authorisation.setLowerLevel("Welsh");
+        authorisation.setPersonalCode("100");
+        authorisation.setTicketCode("373");
+
+
+        var judicialRoleType = new JudicialRoleType();
+        judicialRoleType.setRoleId("1");
+        judicialRoleType.setPerId("1");
+        judicialRoleType.setTitle("Test1");
+        judicialRoleType.setLocation("west");
+
+        var judicialRoleType1 = new JudicialRoleType();
+        judicialRoleType1.setRoleId("2");
+        judicialRoleType1.setPerId("1");
+        judicialRoleType1.setTitle("Test2");
+        judicialRoleType1.setLocation("east");
+        judicialRoleType1.setEndDate(LocalDateTime.now().minusDays(3));
+
+        var judicialRoleType2 = new JudicialRoleType();
+        judicialRoleType2.setRoleId("3");
+        judicialRoleType2.setPerId("1");
+        judicialRoleType2.setTitle("Test3");
+        judicialRoleType2.setLocation("north");
+        judicialRoleType2.setEndDate(LocalDateTime.now().plusDays(3));
+
+        var userProfile = new UserProfile();
+        userProfile.setPerId("2");
+        userProfile.setPersonalCode("Emp");
+        userProfile.setKnownAs("TestEmp");
+        userProfile.setSurname("Test");
+        userProfile.setFullName("Test1");
+        userProfile.setPostNominals("Test Test1");
+        userProfile.setWorkPattern("temp");
+        userProfile.setEjudiciaryEmailId("abc@gmail.com");
+        userProfile.setJoiningDate(LocalDate.now());
+        userProfile.setLastWorkingDate(LocalDate.now());
+        userProfile.setActiveFlag(false);
+        userProfile.setExtractedDate(LocalDateTime.now());
+        userProfile.setCreatedDate(LocalDateTime.now());
+        userProfile.setLastLoadedDate(LocalDateTime.now());
+        userProfile.setObjectId("asd12345-0987asdas-asdas8asdas");
+        userProfile.setSidamId("4c0ff6a3-8fd6-803b-301a-29d9dacccca8");
+
+        authorisation.setUserProfile(userProfile);
+        baseLocationType.setAppointments(List.of(appointment));
+        userProfile.setAppointments(List.of(appointment));
+        userProfile.setAuthorisations(List.of(authorisation));
+        userProfile.setJudicialRoleTypes(List.of(judicialRoleType,judicialRoleType1,judicialRoleType2));
+
+        return userProfile;
+
+    }
+
+    //user Profile IAC records
+    UserProfile buildUserProfileNonIac() {
+
+        var baseLocationType = new BaseLocationType();
+        baseLocationType.setBaseLocationId("2");
+        baseLocationType.setCircuit("Nationals");
+
+        var regionType = new RegionType();
+        regionType.setRegionId("1");
+        regionType.setRegionDescCy("Nationals");
+        regionType.setRegionDescEn("Nationals");
+
+        var appointment = new Appointment();
+        appointment.setPerId("2");
+        appointment.setEpimmsId(" ");
+        appointment.setOfficeAppointmentId(1L);
+        appointment.setIsPrincipleAppointment(true);
+        appointment.setStartDate(LocalDate.now());
+        appointment.setEndDate(null);
+        appointment.setActiveFlag(false);
+        appointment.setExtractedDate(LocalDateTime.now());
+        appointment.setCreatedDate(LocalDateTime.now());
+        appointment.setLastLoadedDate(LocalDateTime.now());
+        appointment.setBaseLocationType(baseLocationType);
+        appointment.setRegionType(regionType);
+        appointment.setServiceCode("BBA3");
+        appointment.setRegionId("1");
+
+
+
+        var authorisation = new Authorisation();
+        authorisation.setPerId("2");
+        authorisation.setOfficeAuthId(1L);
+        authorisation.setJurisdiction("Languages");
+        authorisation.setTicketId(29611L);
+        authorisation.setStartDate(LocalDateTime.now());
+        authorisation.setEndDate(null);
+        authorisation.setCreatedDate(LocalDateTime.now());
+        authorisation.setLastUpdated(LocalDateTime.now());
+        authorisation.setLowerLevel("Welsh");
+        authorisation.setPersonalCode("100");
+        authorisation.setTicketCode("366");
+
+
+        var judicialRoleType = new JudicialRoleType();
+        judicialRoleType.setRoleId("1");
+        judicialRoleType.setPerId("1");
+        judicialRoleType.setTitle("Test1");
+        judicialRoleType.setLocation("west");
+
+        var judicialRoleType1 = new JudicialRoleType();
+        judicialRoleType1.setRoleId("2");
+        judicialRoleType1.setPerId("1");
+        judicialRoleType1.setTitle("Test2");
+        judicialRoleType1.setLocation("east");
+        judicialRoleType1.setEndDate(LocalDateTime.now().minusDays(3));
+
+        var judicialRoleType2 = new JudicialRoleType();
+        judicialRoleType2.setRoleId("3");
+        judicialRoleType2.setPerId("1");
+        judicialRoleType2.setTitle("Test3");
+        judicialRoleType2.setLocation("north");
+        judicialRoleType2.setEndDate(LocalDateTime.now().plusDays(3));
+
+        var userProfile = new UserProfile();
+        userProfile.setPerId("3");
+        userProfile.setPersonalCode("Emp");
+        userProfile.setKnownAs("TestEmp");
+        userProfile.setSurname("Test");
+        userProfile.setFullName("Test1");
+        userProfile.setPostNominals("Test Test1");
+        userProfile.setWorkPattern("temp");
+        userProfile.setEjudiciaryEmailId("abcd@gmail.com");
+        userProfile.setJoiningDate(LocalDate.now());
+        userProfile.setLastWorkingDate(LocalDate.now());
+        userProfile.setActiveFlag(false);
+        userProfile.setExtractedDate(LocalDateTime.now());
+        userProfile.setCreatedDate(LocalDateTime.now());
+        userProfile.setLastLoadedDate(LocalDateTime.now());
+        userProfile.setObjectId("asd12345-0987asdas-asdas8asdas");
+        userProfile.setSidamId("4c0ff6a3-8fd6-803b-301a-29d9dacccca8");
+
+        authorisation.setUserProfile(userProfile);
+        baseLocationType.setAppointments(List.of(appointment));
+        userProfile.setAppointments(List.of(appointment));
+        userProfile.setAuthorisations(List.of(authorisation));
+        userProfile.setJudicialRoleTypes(List.of(judicialRoleType,judicialRoleType1,judicialRoleType2));
+
+        return userProfile;
+
     }
 
 }

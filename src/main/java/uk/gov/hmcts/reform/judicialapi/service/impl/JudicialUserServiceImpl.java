@@ -48,8 +48,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
-import static uk.gov.hmcts.reform.judicialapi.util.RefDataConstants.LOCATION;
-import static uk.gov.hmcts.reform.judicialapi.util.RefDataConstants.REGION;
 import static uk.gov.hmcts.reform.judicialapi.util.RefDataUtil.createPageableObject;
 import static uk.gov.hmcts.reform.judicialapi.util.RefDataUtil.distinctByKeys;
 
@@ -333,10 +331,10 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         log.info("{} : starting build User Profile Refresh Response Dto ", loggingComponentName);
 
         //check the Non-IAC records validation
-        if (Boolean.TRUE.equals(validateIacCodes(profile,serviceCodeMappings,true))) {
+        if (Boolean.TRUE.equals(validateIacCodes(profile,true))) {
             return  userProfileResponse(profile,serviceCodeMappings,regionMappings);
         } else {
-            if (Boolean.TRUE.equals(validateIacCodes(profile,serviceCodeMappings,false))) {
+            if (Boolean.TRUE.equals(validateIacCodes(profile,false))) {
                 return  userProfileResponse(profile,serviceCodeMappings,regionMappings);
             }
         }
@@ -379,22 +377,26 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         RegionMapping regionMapping = regionMappings.stream()
                 .filter(rm -> rm.getJrdRegionId().equalsIgnoreCase(appt.getRegionId()))
                 .findFirst()
-                .orElse(null);
+                .orElse(new RegionMapping());
 
         RegionMapping regionCircuitMapping = regionMappings.stream()
                 .filter(rm -> rm.getRegion().equalsIgnoreCase(appt.getBaseLocationType().getCircuit()))
                 .findFirst()
-                .orElse(null);
+                .orElse(new RegionMapping());
 
 
         return AppointmentRefreshResponse.builder()
                 .baseLocationId(appt.getBaseLocationId())
                 .epimmsId(appt.getEpimmsId())
                 .courtName(appt.getBaseLocationType().getCourtName())
-                .cftRegionID(getRegionId(appt.getEpimmsId(),regionMapping,regionCircuitMapping,REGION))
-                .cftRegion(getRegion(appt.getEpimmsId(),regionMapping,regionCircuitMapping,REGION))
-                .locationId(getRegionId(appt.getEpimmsId(),regionMapping,regionCircuitMapping,LOCATION))
-                .location(getRegion(appt.getEpimmsId(),regionMapping,regionCircuitMapping,LOCATION))
+                .cftRegionID(StringUtils.isBlank(appt.getEpimmsId()) ? regionMapping.getRegionId() :
+                            regionCircuitMapping.getRegionId())
+                .cftRegion(StringUtils.isBlank(appt.getEpimmsId()) ?  regionMapping.getRegion() :
+                             regionCircuitMapping.getRegion())
+                .locationId(StringUtils.isBlank(appt.getEpimmsId()) ? regionMapping.getJrdRegionId() :
+                        regionCircuitMapping.getRegionId())
+                .location(StringUtils.isBlank(appt.getEpimmsId()) ?  regionMapping.getJrdRegion()  :
+                            regionCircuitMapping.getRegion())
                 .isPrincipalAppointment(String.valueOf(appt.getIsPrincipleAppointment()))
                 .appointment(appt.getAppointment())
                 .appointmentType(appt.getAppointmentType())
@@ -449,84 +451,30 @@ public class JudicialUserServiceImpl implements JudicialUserService {
                 .map(JudicialRoleType::getTitle).toList();
     }
 
-    // For Tribunal's epimmsId is null
-    private String getRegionId(String epimmsId,RegionMapping regionMapping,RegionMapping regionCircuitMapping,
-                                  String type) {
+    private Boolean validateIacCodes(UserProfile profile,Boolean iacFlag) {
 
-        if ((epimmsId == null || epimmsId.isEmpty())) {
-            if (LOCATION.equalsIgnoreCase(type)) {
-                return null != regionMapping ? regionMapping.getJrdRegionId() : null;
-            } else {
-                return null != regionMapping ? regionMapping.getRegionId() : null;
-            }
-        } else {
-            return null != regionCircuitMapping ? regionCircuitMapping.getRegionId() : null;
-        }
-    }
-
-    private String getRegion(String epimmsId,RegionMapping regionMapping,RegionMapping regionCircuitMapping,
-                                String type) {
-
-        if ((epimmsId == null || epimmsId.isEmpty())) {
-            if (LOCATION.equalsIgnoreCase(type)) {
-                return null != regionMapping ? regionMapping.getJrdRegion() : null;
-            } else {
-                return null != regionMapping ? regionMapping.getRegion() : null;
-            }
-        } else {
-            return null != regionCircuitMapping ? regionCircuitMapping.getRegion() : null;
-        }
-    }
-
-    private Boolean filterValidateAppointmentRecords(Appointment app,Boolean iacFlag) {
-
-        LocalDate todayDate =  LocalDate.now();
-        if (StringUtils.isNotBlank(app.getServiceCode())
-               && (app.getServiceCode().equalsIgnoreCase(refreshServiceCode) == iacFlag)) {
-
-            return null != app.getEndDate() ? (app.getEndDate().equals(todayDate)
-                    || app.getEndDate().isAfter(todayDate)) : Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
-
-    private Boolean filterValidAuthRecords(List<String> ticketCodes,Authorisation auth,Boolean iacFlag) {
-
-        LocalDateTime todayDateTime = LocalDateTime.now();
-        if (ticketCodes.contains(auth.getTicketCode()) == iacFlag) {
-
-            return null != auth.getEndDate() ? (auth.getEndDate().equals(todayDateTime)
-                    || auth.getEndDate().isAfter(todayDateTime)) : Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
-
-    private Boolean validateIacCodes(UserProfile profile,List<ServiceCodeMapping> serviceCodeMappings,Boolean iacFlag) {
+        List<String> serviceCode = List.of(refreshServiceCode);
+        List<String> ticketCodes = List.of(refreshTicketCode);
 
         List<Appointment> appointment = profile.getAppointments().stream()
-                                       .filter(app -> filterValidateAppointmentRecords(app,iacFlag))
+                                       .filter(app -> StringUtils.isNotBlank(app.getServiceCode())
+                                               ? (serviceCode.contains(app.getServiceCode()) == iacFlag) :
+                                                       !iacFlag)
+                                    .filter(app -> null != app.getEndDate() ? (app.getEndDate().equals(LocalDate.now())
+                                       || app.getEndDate().isAfter(LocalDate.now())) : Boolean.TRUE)
                                        .toList();
 
-        List<String> ticketCodes =  serviceCodeMappings.stream()
-                .filter(s -> s.getServiceCode().equalsIgnoreCase(refreshServiceCode))
-                .map(ServiceCodeMapping::getTicketCode)
-                .toList();
+
 
         List<Authorisation> authorisation =  profile.getAuthorisations().stream()
-                .filter(auth -> filterValidAuthRecords(ticketCodes,auth,iacFlag))
+                .filter(auth -> StringUtils.isNotBlank(auth.getTicketCode())
+                        ? (ticketCodes.contains(auth.getTicketCode()) == iacFlag) : !iacFlag)
+                .filter(auth -> null != auth.getEndDate() ? (auth.getEndDate().equals(LocalDateTime.now())
+                        || auth.getEndDate().isAfter(LocalDateTime.now())) : Boolean.TRUE)
                 .toList();
 
         //IAC flag check
-        if (Boolean.TRUE.equals(iacFlag)) {
-            if ((!appointment.isEmpty() || !authorisation.isEmpty())) {
-                return Boolean.TRUE;
-            }
-        } else {
-            if ((!appointment.isEmpty()
-                        && !authorisation.isEmpty())) {
-                return Boolean.TRUE;
-            }
-        }
-        return Boolean.FALSE;
+        return Boolean.TRUE.equals(iacFlag) ? (!appointment.isEmpty() || !authorisation.isEmpty()) :
+               (!appointment.isEmpty() && !authorisation.isEmpty());
     }
 }
