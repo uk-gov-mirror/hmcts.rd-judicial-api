@@ -140,33 +140,6 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         assertEquals(BAD_REQUEST.value(),refreshResponse.getStatusCode());
     }
 
-    @DisplayName("Scenario: Get Judicial user based on page size and page number")
-    @ParameterizedTest
-    @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
-    @ExtendWith(FeatureToggleConditionExtension.class)
-    @ToggleEnable(mapKey = REFRESH_USER, withFeature = true)
-    void refreshUserProfileGet(String role) {
-
-        RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
-                .ccdServiceNames("ia")
-                .sidamIds(Collections.emptyList())
-                .objectIds(Collections.emptyList())
-                .build();
-
-        Response refreshResponse = judicialApiClient.refreshUserProfiles(refreshRoleRequest, 1, 1,
-                "objectId", "ASC", role);
-
-        if (OK.value() == refreshResponse.getStatusCode()) {
-            List<UserProfileRefreshResponse> userProfiles = InvokerHelper.asList(refreshResponse.getBody()
-                    .as(UserProfileRefreshResponse[].class));
-            log.info("JRD get refreshResponse response: {}", userProfiles.get(0).getObjectId());
-            assertNotNull(userProfiles.get(0).getObjectId());
-        } else {
-            assertEquals(NOT_FOUND.value(), refreshResponse.getStatusCode());
-        }
-    }
-
-
     private UserRequest getDummyUserRequest() {
         var userIds = new ArrayList<String>();
         userIds.add(UUID.randomUUID().toString());
