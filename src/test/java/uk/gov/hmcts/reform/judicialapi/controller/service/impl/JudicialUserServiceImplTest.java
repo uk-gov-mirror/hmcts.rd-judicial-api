@@ -370,6 +370,44 @@ class JudicialUserServiceImplTest {
 
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
+    @SuppressWarnings("warning")
+    void test_refreshUserProfile_BasedOnObjectIds_Iac_NonIac200() {
+        var userProfileIac = buildUserProfileIac();
+        var userProfileNonIac = buildUserProfileNonIac();
+        var pageRequest = getPageRequest();
+        var page = new PageImpl<>(List.of(userProfileIac,userProfileNonIac));
+
+        var serviceCodeMappingOne = ServiceCodeMapping
+                .builder()
+                .ticketCode("366")
+                .serviceCode("BBA3")
+                .build();
+
+        var regionMapping = RegionMapping
+                .builder()
+                .regionId("1")
+                .region("National")
+                .jrdRegionId("1")
+                .jrdRegion("National")
+                .build();
+        when(serviceCodeMappingRepository.findAllServiceCodeMapping()).thenReturn(List.of(serviceCodeMappingOne));
+        when(regionMappingRepository.findAllRegionMappingData()).thenReturn(List.of(regionMapping));
+        when(userProfileRepository.fetchUserProfileByObjectIds(List.of("test", "test"), pageRequest))
+                .thenReturn(page);
+        var refreshRoleRequest = new RefreshRoleRequest("",
+                Arrays.asList("test", "test"), null,null);
+
+        var responseEntity = judicialUserService.refreshUserProfile(refreshRoleRequest, 1,
+                0, "ASC", "objectId");
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        ArrayList profiles =  (ArrayList)responseEntity.getBody();
+        assertEquals(2, profiles.size());
+
+    }
+
+
     @Test
     void test_refreshUserProfile_BasedOnObjectIds_EmptyUser() {
         var userProfile = new UserProfile();
@@ -856,8 +894,23 @@ class JudicialUserServiceImplTest {
         appointment.setBaseLocationType(baseLocationType);
         appointment.setRegionType(regionType);
         appointment.setServiceCode("BBA3");
-        appointment.setRegionId("1");
+        appointment.setRegionId("2");
 
+        var appointmentTwo = new Appointment();
+        appointmentTwo.setPerId("3");
+        appointmentTwo.setEpimmsId(" ");
+        appointmentTwo.setOfficeAppointmentId(1L);
+        appointmentTwo.setIsPrincipleAppointment(true);
+        appointmentTwo.setStartDate(LocalDate.now());
+        appointmentTwo.setEndDate(LocalDate.now().minusDays(1));
+        appointmentTwo.setActiveFlag(false);
+        appointmentTwo.setExtractedDate(LocalDateTime.now());
+        appointmentTwo.setCreatedDate(LocalDateTime.now());
+        appointmentTwo.setLastLoadedDate(LocalDateTime.now());
+        appointmentTwo.setBaseLocationType(baseLocationType);
+        appointmentTwo.setRegionType(regionType);
+        appointmentTwo.setServiceCode(" ");
+        appointmentTwo.setRegionId("2");
 
 
         var authorisation = new Authorisation();
@@ -873,6 +926,18 @@ class JudicialUserServiceImplTest {
         authorisation.setPersonalCode("100");
         authorisation.setTicketCode("366");
 
+        var authorisationTwo = new Authorisation();
+        authorisationTwo.setPerId("2");
+        authorisationTwo.setOfficeAuthId(1L);
+        authorisationTwo.setJurisdiction("Languages");
+        authorisationTwo.setTicketId(29611L);
+        authorisationTwo.setStartDate(LocalDateTime.now());
+        authorisationTwo.setEndDate(LocalDateTime.now().minusDays(1));
+        authorisationTwo.setCreatedDate(LocalDateTime.now());
+        authorisationTwo.setLastUpdated(LocalDateTime.now());
+        authorisationTwo.setLowerLevel("Welsh");
+        authorisationTwo.setPersonalCode("100");
+        authorisationTwo.setTicketCode(" ");
 
         var judicialRoleType = new JudicialRoleType();
         judicialRoleType.setRoleId("1");
