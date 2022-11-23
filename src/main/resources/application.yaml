@@ -48,6 +48,7 @@ spring:
   flyway:
     enabled: true
     locations: ${JUDICIAL_DB:classpath:db/migration}
+    schemas: dbjuddata
 
 ### database configuration
   datasource:
