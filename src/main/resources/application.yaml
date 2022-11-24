@@ -137,5 +137,5 @@ search:
 
 elastic:
   search:
-    query: ${JRD_SIDAM_SEARCH_QUERY:(roles:judiciary) AND lastModified:>now-12h}
+    query: (roles:judiciary) AND lastModified:>now-12h
     recordsPerPage: 500
