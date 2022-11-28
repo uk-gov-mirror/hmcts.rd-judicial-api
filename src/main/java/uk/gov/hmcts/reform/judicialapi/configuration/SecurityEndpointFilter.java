@@ -7,6 +7,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.UnauthorizedException;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,13 @@ public class SecurityEndpointFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         try {
+            log.error("Authorization header value  :" + request.getHeader("Authorization"));
+            Enumeration headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String headerName = (String)headerNames.nextElement();
+                log.error("" + headerName);
+                log.error("" + request.getHeader(headerName));
+            }
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             Throwable throwable = e.getCause();

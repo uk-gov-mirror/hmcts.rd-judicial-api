@@ -30,6 +30,10 @@ public class RefDataConstants {
     public static final String LRD_ERROR = "An error occurred while retrieving data from Location Reference Data";
 
     public static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
+
+    public static final String AUTHORIZATION = "Authorization";
+
+
     public static final String LOCATION = "Location";
     public static final String REGION = "Region";
 

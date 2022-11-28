@@ -29,3 +29,5 @@ java:
           alias: azure.application-insights.instrumentation-key
         - name: LD-SDK-KEY
           alias: LD_SDK_KEY
+        - name: judicial-api-elinks-api-key
+          alias: judicial-api-elinks-api-key
