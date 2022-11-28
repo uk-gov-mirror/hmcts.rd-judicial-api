@@ -123,7 +123,7 @@ elinksApiKey: ${judicial-api-elinks-api-key:}
 
 locationRefDataUrl: ${LOCATION_REF_DATA_URL:http://rd-location-ref-api-aat.service.core-compute-aat.internal}
 #elinksUrl:  ${ELINKS_URL:https://jo-staging.elinks.judiciary.uk}
-elinksUrl:  ${ELINKS_URL:http://localhost:8093/}
+elinksUrl: http://localhost:8093/
 refresh:
   pageSize: ${REFRESH_PAGE_SIZE:200}
   sortColumn: ${REFRESH_SORT_COLUMN:objectId}
