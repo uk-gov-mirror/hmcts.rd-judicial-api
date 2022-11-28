@@ -124,3 +124,7 @@ refresh:
 testing:
   support:
     idamUrl: ${http://127.0.0.1:5000/o}
+
+elinksUrl: http://localhost:8093/
+
+elinksApiKey: test
