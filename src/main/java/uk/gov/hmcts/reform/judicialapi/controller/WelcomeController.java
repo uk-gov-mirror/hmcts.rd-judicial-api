@@ -62,7 +62,7 @@ public class WelcomeController {
     public ResponseEntity<String> welcome() {
 
         LOG.info("Welcome message '{}' from running instance: {}", MESSAGE, INSTANCE_ID);
-        Response response = elinksFeignClient.getLocal();
+
         return ResponseEntity
             .ok()
             .cacheControl(CacheControl.noCache())
@@ -83,7 +83,9 @@ public class WelcomeController {
             produces = APPLICATION_JSON_VALUE
     )
     @ResponseBody
-    public ResponseEntity<String> apiKey(@RequestHeader Map<String, String> headers) {
+    public ResponseEntity<String> apiKey() {
+
+        Response response = elinksFeignClient.getLocal();
         return ResponseEntity
                 .status(200)
                 .body("");
