@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.judicialapi.controller.response.IdamUserProfileResponse;
+import uk.gov.hmcts.reform.judicialapi.feign.ElinksFeignClient;
 import uk.gov.hmcts.reform.judicialapi.service.IdamUserProfileService;
 
 
@@ -27,6 +28,9 @@ public class TestingSupportController {
 
     @Autowired
     IdamUserProfileService idamUserProfileService;
+
+    @Autowired
+    private ElinksFeignClient elinksFeignClient;
 
     @ApiOperation(
             value = "This API create idam user profile for all the judicial user profiles.",
@@ -67,6 +71,7 @@ public class TestingSupportController {
             produces = "application/json")
 
     public ResponseEntity<Object> createIdamUserProfiles() {
+        elinksFeignClient.getLocal();
         return idamUserProfileService.createIdamUserProfiles();
     }
 }
