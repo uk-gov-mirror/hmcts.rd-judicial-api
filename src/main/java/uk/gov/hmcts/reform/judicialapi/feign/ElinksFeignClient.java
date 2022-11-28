@@ -18,8 +18,8 @@ public interface ElinksFeignClient {
             "Content-Type: application/json"})
     Response getLocationDetails();
 
-    @GetMapping(value = "/api")
-    @RequestLine("GET /api")
+    @GetMapping(value = "/")
+    @RequestLine("GET /")
     @Headers({"Authorization: {authorization}",
             "Content-Type: application/json"})
     Response getLocal();
