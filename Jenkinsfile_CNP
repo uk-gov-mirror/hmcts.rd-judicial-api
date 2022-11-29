@@ -17,7 +17,7 @@ def secrets = [
           secret('OAUTH2-CLIENT-AUTH', 'OAUTH2_CLIENT_AUTH'),
           secret('OAUTH2-CLIENT-ID', 'OAUTH2_CLIENT_ID'),
           secret('LD-SDK-KEY', 'LD_SDK_KEY'),
-          secret('judicial-api-elinks-api-key', 'judicial-api-elinks-api-key')
+          secret('judicial-api-elinks-api-key', 'judicial_api_elinks_api_key')
   ],
   (appVault): [
           secret('judicial-api-POSTGRES-HOST', 'DATABASE_HOST'),
@@ -25,7 +25,7 @@ def secrets = [
           secret('judicial-api-POSTGRES-DATABASE', 'DATABASE_NAME'),
           secret('judicial-api-POSTGRES-USER', 'DATABASE_USER'),
           secret('judicial-api-POSTGRES-PASS', 'DATABASE_PASS'),
-          secret('judicial-api-elinks-api-key', 'judicial-api-elinks-api-key')
+          secret('judicial-api-elinks-api-key', 'judicial_api_elinks_api_key')
   ]
 ]
 

@@ -122,7 +122,7 @@ launchdarkly:
     environment: ${LAUNCH_DARKLY_ENV:preview}
     user: rd
 
-elinksApiKey: ${judicial-api-elinks-api-key:}
+elinksApiKey: ${judicial_api_elinks_api_key:}
 
 locationRefDataUrl: ${LOCATION_REF_DATA_URL:http://rd-location-ref-api-aat.service.core-compute-aat.internal}
 #elinksUrl:  ${ELINKS_URL:https://jo-staging.elinks.judiciary.uk}

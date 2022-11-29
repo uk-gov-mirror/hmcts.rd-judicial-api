@@ -30,4 +30,4 @@ java:
         - name: LD-SDK-KEY
           alias: LD_SDK_KEY
         - name: judicial-api-elinks-api-key
-          alias: judicial-api-elinks-api-key
+          alias: judicial_api_elinks_api_key
