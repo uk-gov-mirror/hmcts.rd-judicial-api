@@ -15,18 +15,12 @@ public class ElinksFeignInterceptorConfiguration {
     @Value("${elinksApiKey}")
     private String elinksApiKey;
 
-    @Value("${LD_SDK_KEY}")
-    private String key;
-
-
 
 
     @Bean
     public RequestInterceptor requestInterceptor(FeignHeaderConfig config) {
 
         return requestTemplate -> {
-            log.error("elinksApiKey  :" + elinksApiKey);
-            log.error("LD_SDK_KEY  :" + key);
             requestTemplate.header(RefDataConstants.AUTHORIZATION, "Token " + elinksApiKey);
             requestTemplate.header("Content-Type", "application/json");
         };

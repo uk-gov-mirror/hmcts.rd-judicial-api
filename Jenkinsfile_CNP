@@ -24,8 +24,7 @@ def secrets = [
           secret('judicial-api-POSTGRES-PORT', 'DATABASE_PORT'),
           secret('judicial-api-POSTGRES-DATABASE', 'DATABASE_NAME'),
           secret('judicial-api-POSTGRES-USER', 'DATABASE_USER'),
-          secret('judicial-api-POSTGRES-PASS', 'DATABASE_PASS'),
-          secret('judicial-api-elinks-api-key', 'judicial_api_elinks_api_key')
+          secret('judicial-api-POSTGRES-PASS', 'DATABASE_PASS')
   ]
 ]
 
