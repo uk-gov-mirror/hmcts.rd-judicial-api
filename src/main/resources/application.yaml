@@ -96,6 +96,7 @@ security:
     - "/csrf"
     - "/error"
     - "/favicon.ico"
+    - "/refdata/internal/elink/**"
 
 ### dependency configuration
 idam:
@@ -113,6 +114,10 @@ feign:
   allow:
     headers:
       - authorization
+  client:
+    config:
+      default:
+        loggerLevel: full
 
 defaultPageSize: ${DEFAULTPAGESIZE:10}
 
@@ -129,3 +134,9 @@ refresh:
 
 search:
   serviceCode: ${JRD_SEARCH_SERVICE_CODE:bfa1,bba3,aaa6,aaa7,aba5,aba3}
+
+elinksApiKey: ${judicial_api_elinks_api_key:}
+elinksUrl: ${ELINKS_URL:https://jo-staging.elinks.judiciary.uk/api/v4}
+
+logging.level.uk.gov.hmcts.reform: DEBUG
+
