@@ -9,7 +9,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.judicialapi.elinks.controller.advice.ErrorResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
@@ -58,7 +57,7 @@ public class ELinksServiceImpl implements ELinksService {
         log.info("Get location details ELinksService.retrieveBaseLocation ");
 
         Response baseLocationsResponse = null;
-        HttpStatus httpStatus = null;
+        HttpStatus httpStatus;
         ResponseEntity<ElinkBaseLocationWrapperResponse> result = null;
         try {
 
@@ -69,7 +68,7 @@ public class ELinksServiceImpl implements ELinksService {
             log.info("Get location details response status ELinksService.retrieveBaseLocation" + httpStatus.value());
             if (httpStatus.is2xxSuccessful()) {
                 ResponseEntity<Object> responseEntity = JsonFeignResponseUtil
-                        .toELinksResponseEntity(baseLocationsResponse,
+                        .toResponseEntity(baseLocationsResponse,
                         ElinkBaseLocationResponse.class);
 
 
@@ -83,7 +82,7 @@ public class ELinksServiceImpl implements ELinksService {
                 result =  loadBaseLocationData(baselocations);
 
             } else {
-                handleELinksErrorResponse(baseLocationsResponse, httpStatus);
+                handleELinksErrorResponse(httpStatus);
             }
 
 
@@ -109,7 +108,7 @@ public class ELinksServiceImpl implements ELinksService {
 
             log.info("Get location details response status ELinksService.retrieveLocation" + httpStatus.value());
             if (httpStatus.is2xxSuccessful()) {
-                ResponseEntity<Object> responseEntity = JsonFeignResponseUtil.toELinksResponseEntity(locationsResponse,
+                ResponseEntity<Object> responseEntity = JsonFeignResponseUtil.toResponseEntity(locationsResponse,
                         ElinkLocationResponse.class);
 
 
@@ -123,7 +122,7 @@ public class ELinksServiceImpl implements ELinksService {
                 result =  loadLocationData(locations);
 
             } else {
-                handleELinksErrorResponse(locationsResponse, httpStatus);
+                handleELinksErrorResponse(httpStatus);
             }
 
 
@@ -133,11 +132,7 @@ public class ELinksServiceImpl implements ELinksService {
         return result;
     }
 
-    private void handleELinksErrorResponse(Response locationsResponse, HttpStatus httpStatus) {
-        ResponseEntity<Object> responseEntity = JsonFeignResponseUtil.toELinksResponseEntity(locationsResponse,
-                ErrorResponse.class);
-        Object responseBody = responseEntity.getBody();
-
+    private void handleELinksErrorResponse(HttpStatus httpStatus) {
 
         if (HttpStatus.BAD_REQUEST.value() == httpStatus.value()) {
 
