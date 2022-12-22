@@ -19,7 +19,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"AbbreviationAsWordInName","MemberName"})
-public class ElinksControllerTest {
+class ElinksControllerTest {
 
     @InjectMocks
     ElinksController eLinksController;

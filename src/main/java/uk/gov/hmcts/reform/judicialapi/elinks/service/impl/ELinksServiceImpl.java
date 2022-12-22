@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 import feign.FeignException;
 import feign.Response;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
 import java.util.List;
 
+import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ACCESS_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_DATA_STORE_ERROR;
@@ -56,7 +58,7 @@ public class ELinksServiceImpl implements ELinksService {
 
         log.info("Get location details ELinksService.retrieveBaseLocation ");
 
-        Response baseLocationsResponse = null;
+        Response baseLocationsResponse;
         HttpStatus httpStatus;
         ResponseEntity<ElinkBaseLocationWrapperResponse> result = null;
         try {
@@ -72,15 +74,18 @@ public class ELinksServiceImpl implements ELinksService {
                         ElinkBaseLocationResponse.class);
 
 
-                ElinkBaseLocationResponse elinkLocationResponse = (ElinkBaseLocationResponse) responseEntity.getBody();
+                if (nonNull(responseEntity.getBody())) {
+                    ElinkBaseLocationResponse elinkLocationResponse = (ElinkBaseLocationResponse)
+                            responseEntity.getBody();
+                    if (nonNull(elinkLocationResponse) && nonNull(elinkLocationResponse.getResults())) {
+                        List<BaseLocationResponse> locationResponseList = elinkLocationResponse.getResults();
 
-                List<BaseLocationResponse> locationResponseList = elinkLocationResponse.getResults();
-
-                List<BaseLocation> baselocations = locationResponseList.stream()
-                        .map(BaseLocationResponse::toBaseLocationEntity)
-                        .toList();
-                result =  loadBaseLocationData(baselocations);
-
+                        List<BaseLocation> baselocations = locationResponseList.stream()
+                                .map(BaseLocationResponse::toBaseLocationEntity)
+                                .toList();
+                        result = loadBaseLocationData(baselocations);
+                    }
+                }
             } else {
                 handleELinksErrorResponse(httpStatus);
             }
@@ -97,8 +102,8 @@ public class ELinksServiceImpl implements ELinksService {
 
         log.info("Get location details ELinksService.retrieveLocation ");
 
-        Response locationsResponse = null;
-        HttpStatus httpStatus = null;
+        Response locationsResponse;
+        HttpStatus httpStatus;
         ResponseEntity<ElinkLocationWrapperResponse> result = null;
         try {
 
@@ -113,13 +118,14 @@ public class ELinksServiceImpl implements ELinksService {
 
 
                 ElinkLocationResponse elinkLocationResponse = (ElinkLocationResponse) responseEntity.getBody();
+                if(nonNull(elinkLocationResponse)) {
+                    List<LocationResponse> locationResponseList = elinkLocationResponse.getResults();
 
-                List<LocationResponse> locationResponseList = elinkLocationResponse.getResults();
-
-                List<Location> locations = locationResponseList.stream()
-                        .map(locationRes -> new Location(locationRes.getId(), locationRes.getName(), StringUtils.EMPTY))
-                        .toList();
-                result =  loadLocationData(locations);
+                    List<Location> locations = locationResponseList.stream()
+                            .map(locationRes -> new Location(locationRes.getId(), locationRes.getName(), StringUtils.EMPTY))
+                            .toList();
+                    result = loadLocationData(locations);
+                }
 
             } else {
                 handleELinksErrorResponse(httpStatus);
@@ -160,7 +166,7 @@ public class ELinksServiceImpl implements ELinksService {
     }
 
     private ResponseEntity<ElinkBaseLocationWrapperResponse> loadBaseLocationData(List<BaseLocation> baselocations) {
-        ResponseEntity<ElinkBaseLocationWrapperResponse> result = null;
+        ResponseEntity<ElinkBaseLocationWrapperResponse> result;
         try {
 
             baseLocationRepository.saveAll(baselocations);
@@ -182,7 +188,7 @@ public class ELinksServiceImpl implements ELinksService {
     }
 
     private ResponseEntity<ElinkLocationWrapperResponse> loadLocationData(List<Location> locations) {
-        ResponseEntity<ElinkLocationWrapperResponse> result = null;
+        ResponseEntity<ElinkLocationWrapperResponse> result;
         try {
 
             locationRepository.saveAll(locations);

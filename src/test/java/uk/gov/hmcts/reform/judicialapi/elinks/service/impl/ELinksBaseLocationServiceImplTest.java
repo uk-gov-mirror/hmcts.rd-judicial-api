@@ -44,7 +44,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"AbbreviationAsWordInName","MemberName"})
-public class ELinksBaseLocationServiceImplTest {
+class ELinksBaseLocationServiceImplTest {
 
     @Mock
     BaseLocationRepository baseLocationRepository;

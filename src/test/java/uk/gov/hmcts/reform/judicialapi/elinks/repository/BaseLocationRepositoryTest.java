@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class BaseLocationRepositoryTest {
+class BaseLocationRepositoryTest {
 
 
     @Spy
@@ -55,15 +55,13 @@ public class BaseLocationRepositoryTest {
 
         List<BaseLocation> result = baseLocationRepository.saveAll(baseLocations);
 
-        assertThat(result.size()).isEqualTo(2);
-
+        assertThat(result).hasSize(2);
 
         assertThat(result.get(0).getBaseLocationId()).isEqualTo(baseLocationOne.getBaseLocationId());
         assertThat(result.get(0).getCourtName()).isEqualTo(baseLocationOne.getCourtName());
         assertThat(result.get(0).getCourtType()).isEqualTo(baseLocationOne.getCourtType());
         assertThat(result.get(0).getCircuit()).isEqualTo(baseLocationOne.getCircuit());
         assertThat(result.get(0).getAreaOfExpertise()).isEqualTo(baseLocationOne.getAreaOfExpertise());
-
 
         assertThat(result.get(1).getBaseLocationId()).isEqualTo(baseLocationTwo.getBaseLocationId());
         assertThat(result.get(1).getCourtName()).isEqualTo(baseLocationTwo.getCourtName());

@@ -62,7 +62,7 @@ class LocationRepositoryTest {
 
         List<Location> result = locationRepository.saveAll(locations);
 
-        assertThat(result.size()).isEqualTo(3);
+        assertThat(result).hasSize(3);
 
         assertThat(result.get(0).getRegionId()).isEqualTo(locationOne.getRegionId());
         assertThat(result.get(0).getRegionDescEn()).isEqualTo(locationOne.getRegionDescEn());
