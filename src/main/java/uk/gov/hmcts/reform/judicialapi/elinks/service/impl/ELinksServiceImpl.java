@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 import feign.FeignException;
 import feign.Response;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,11 +117,12 @@ public class ELinksServiceImpl implements ELinksService {
 
 
                 ElinkLocationResponse elinkLocationResponse = (ElinkLocationResponse) responseEntity.getBody();
-                if(nonNull(elinkLocationResponse)) {
+                if (nonNull(elinkLocationResponse)) {
                     List<LocationResponse> locationResponseList = elinkLocationResponse.getResults();
 
                     List<Location> locations = locationResponseList.stream()
-                            .map(locationRes -> new Location(locationRes.getId(), locationRes.getName(), StringUtils.EMPTY))
+                            .map(locationRes -> new Location(locationRes.getId(), locationRes.getName(),
+                                    StringUtils.EMPTY))
                             .toList();
                     result = loadLocationData(locations);
                 }
