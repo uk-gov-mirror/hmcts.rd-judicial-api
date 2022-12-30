@@ -5,14 +5,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.ELinksServiceImpl;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.IdamElasticSearchServiceImpl;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION_DATA_LOAD_SUCCESS;
@@ -27,6 +34,9 @@ class ElinksControllerTest {
 
     @Mock
     ELinksServiceImpl eLinksService;
+
+    @Mock
+    IdamElasticSearchServiceImpl idamElasticSearchService;
 
     @Test
     void test_load_location_success() {
@@ -77,5 +87,18 @@ class ElinksControllerTest {
 
     }
 
+    @Test
+    void test_idam_elastic_search_success() {
+
+        Set<IdamResponse> idamResponseSet = new HashSet<>();
+        idamResponseSet.add(new IdamResponse());
+
+        when(idamElasticSearchService.getIdamElasticSearchSyncFeed()).thenReturn(idamResponseSet);
+
+        ResponseEntity<Object> actual = eLinksController.idamElasticSearch();
+        assertThat(actual).isNotNull();
+        assertThat(actual.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+
+    }
 
 }
