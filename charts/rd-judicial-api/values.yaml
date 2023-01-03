@@ -32,3 +32,13 @@ java:
           alias: LD_SDK_KEY
         - name: judicial-api-elinks-api-key
           alias: judicial_api_elinks_api_key
+        - name: judicial-topic-primary-connection-string
+          alias: JUDICIAL_TOPIC_PRIMARY_CONNECTION_STRING
+        - name: OAUTH2-CLIENT-SECRET
+          alias: OAUTH2_CLIENT_SECRET
+        - name: OAUTH2-AUTH
+          alias: OAUTH2_AUTH
+        - name: OAUTH2-CLIENT-AUTH
+          alias: OAUTH2_CLIENT_AUTH
+        - name: rd-sendgrid-api-key
+          alias: RD_SENDGRID_API_KEY
