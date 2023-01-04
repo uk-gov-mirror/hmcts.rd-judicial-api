@@ -151,7 +151,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
 
         LocalDateTime maxSchedulerEndTime = dataloadSchedularAuditRepository.findByScheduleEndTime();
 
-        log.debug("idamElasticSearchQuery  date { }",maxSchedulerEndTime);
+        log.debug("idamElasticSearchQuery  date from audit table {}",maxSchedulerEndTime);
         return maxSchedulerEndTime == null ? String.format(idamSearchQuery,72) : String.format(idamSearchQuery,
                 Math.addExact(ChronoUnit.HOURS.between(maxSchedulerEndTime, LocalDateTime.now()), 1));
     }
