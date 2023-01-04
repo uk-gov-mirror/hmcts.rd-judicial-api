@@ -87,10 +87,9 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     @Override
     public Set<IdamResponse> getIdamElasticSearchSyncFeed() throws JudicialDataLoadException {
         Map<String, String> params = new HashMap<>();
-        idamSearchQuery = idamElasticSearchQuery();
         params.put("size",String.valueOf(recordsPerPage));
-        params.put("query",idamSearchQuery);
-        log.debug("{}:: search elk query {}", loggingComponentName, idamSearchQuery);
+        params.put("query",String.format(idamSearchQuery,idamElasticSearchQueryHours()));
+        log.debug("{}:: search elk query {}", loggingComponentName, params.get("query"));
         Set<IdamResponse> judicialUsers = new HashSet<>();
         int count = 0;
         int totalCount = 0;
@@ -147,13 +146,13 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
         }
     }
 
-    private String idamElasticSearchQuery() {
+    private Long idamElasticSearchQueryHours() {
 
         LocalDateTime maxSchedulerEndTime = dataloadSchedularAuditRepository.findByScheduleEndTime();
 
         log.debug("idamElasticSearchQuery  date from audit table {}",maxSchedulerEndTime);
-        return maxSchedulerEndTime == null ? String.format(idamSearchQuery,72) : String.format(idamSearchQuery,
-                Math.addExact(ChronoUnit.HOURS.between(maxSchedulerEndTime, LocalDateTime.now()), 1));
+        return maxSchedulerEndTime == null ? 72 : Math.addExact(ChronoUnit.HOURS.between(maxSchedulerEndTime,
+                LocalDateTime.now()), 1);
     }
 
     public void updateSidamIds(Set<IdamResponse> sidamUsers) {
