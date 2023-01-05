@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
@@ -40,6 +41,9 @@ class ElinksControllerTest {
 
     @Mock
     IdamElasticSearchServiceImpl idamElasticSearchService;
+
+    @Mock
+    RestTemplate restTemplate;
 
     @Test
     void test_load_location_success() {
