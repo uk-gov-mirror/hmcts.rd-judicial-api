@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
@@ -150,6 +151,7 @@ public class ElinksController {
     })
     @GetMapping (path = "/people",
             produces = APPLICATION_JSON_VALUE)
+    @ResponseBody
     public ResponseEntity<Object> loadPeople() {
 
         return elinksPeopleService.updatePeople();
