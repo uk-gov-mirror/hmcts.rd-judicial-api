@@ -106,7 +106,7 @@ class ElinksControllerTest {
         ResponseEntity<Object> actual = eLinksController.loadPeople();
         assertThat(actual).isNotNull();
         assertThat(actual.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
-        assertThat(actual.getBody().toString()).isEqualTo(PEOPLE_DATA_LOAD_SUCCESS);
+        assertThat(actual.getBody().toString()).hasToString(PEOPLE_DATA_LOAD_SUCCESS);
 
     }
 

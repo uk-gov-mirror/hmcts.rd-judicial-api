@@ -219,7 +219,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 authorisationsRepository.saveAll(authorisations);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
 
