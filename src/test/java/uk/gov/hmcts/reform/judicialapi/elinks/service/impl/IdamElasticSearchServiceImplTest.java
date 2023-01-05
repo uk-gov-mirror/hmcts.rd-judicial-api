@@ -198,14 +198,14 @@ class IdamElasticSearchServiceImplTest {
     @Test
     void testElasticSearchQuery() {
         when(dataloadSchedularAuditRepository.findByScheduleEndTime()).thenReturn(LocalDateTime.now().minusDays(1));
-        String formattedQuery = invokeMethod(idamElasticSearchServiceImpl, "idamElasticSearchQuery");
-        Assert.assertEquals("(roles:judiciary) AND lastModified:>now-25h", formattedQuery);
+        Long hours = invokeMethod(idamElasticSearchServiceImpl, "idamElasticSearchQueryHours");
+        Assert.assertEquals(Long.valueOf(25), hours);
     }
 
     @Test
     void testElasticSearchQueryMaxIsNull() {
         when(dataloadSchedularAuditRepository.findByScheduleEndTime()).thenReturn(null);
-        String formattedQuery = invokeMethod(idamElasticSearchServiceImpl, "idamElasticSearchQuery");
-        Assert.assertEquals("(roles:judiciary) AND lastModified:>now-72h", formattedQuery);
+        Long computeHours = invokeMethod(idamElasticSearchServiceImpl, "idamElasticSearchQueryHours");
+        Assert.assertEquals(Long.valueOf(72),computeHours);
     }
 }

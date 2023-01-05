@@ -87,10 +87,9 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     @Override
     public Set<IdamResponse> getIdamElasticSearchSyncFeed() throws JudicialDataLoadException {
         Map<String, String> params = new HashMap<>();
-        idamSearchQuery = idamElasticSearchQuery();
         params.put("size",String.valueOf(recordsPerPage));
-        params.put("query",idamSearchQuery);
-        log.info("{}:: search elk query {}", loggingComponentName, idamSearchQuery);
+        params.put("query",String.format(idamSearchQuery,idamElasticSearchQueryHours()));
+        log.debug("{}:: search elk query {}", loggingComponentName, params.get("query"));
         Set<IdamResponse> judicialUsers = new HashSet<>();
         int count = 0;
         int totalCount = 0;
@@ -116,7 +115,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                             && !headerCount.get(0).isEmpty()) {
 
                         totalCount = Integer.parseInt(headerCount.get(0));
-                        log.info("{}:: Header Records count from Idam :: " + totalCount, loggingComponentName);
+                        log.debug("{}:: Header Records count from Idam :: " + totalCount, loggingComponentName);
                     }
 
                 } catch (Exception ex) {
@@ -130,7 +129,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                         + response.status());
             }
             count++;
-            log.info("{}:: batch count :: ", count);
+            log.debug("{}:: batch count :: ", count);
         } while (totalCount > 0 && recordsPerPage * count < totalCount);
         updateSidamIds(judicialUsers);
 
@@ -138,31 +137,32 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     }
 
     private void logIdamResponses(Response response) {
-        log.info("Logging Response from IDAM");
+        log.debug("Logging Response from IDAM");
         if (response != null) {
-            log.info("{}:: Response code from idamClient.getUserFeed {}", loggingComponentName, response.status());
+            log.debug("{}:: Response code from idamClient.getUserFeed {}", loggingComponentName, response.status());
             if (response.status() != 200 && response.body() != null) {
-                log.info("{}:: Response body from Idam Client ::{}", loggingComponentName, response.status());
+                log.debug("{}:: Response body from Idam Client ::{}", loggingComponentName, response.status());
             }
         }
     }
 
-    private String idamElasticSearchQuery() {
+    private Long idamElasticSearchQueryHours() {
 
         LocalDateTime maxSchedulerEndTime = dataloadSchedularAuditRepository.findByScheduleEndTime();
 
-        return maxSchedulerEndTime == null ? String.format(idamSearchQuery,72) : String.format(idamSearchQuery,
-                Math.addExact(ChronoUnit.HOURS.between(maxSchedulerEndTime, LocalDateTime.now()), 1));
+        log.debug("idamElasticSearchQuery  date from audit table {}",maxSchedulerEndTime);
+        return maxSchedulerEndTime == null ? 72 : Math.addExact(ChronoUnit.HOURS.between(maxSchedulerEndTime,
+                LocalDateTime.now()), 1);
     }
 
     public void updateSidamIds(Set<IdamResponse> sidamUsers) {
         List<Pair<String, String>> sidamObjectId = new ArrayList<>();
 
         String updateSidamIds = "UPDATE dbjudicialdata.judicial_user_profile SET sidam_id = ? "
-                + "WHERE object_id = ? AND sidam_id IS NULL";
+                + "WHERE object_id = ? AND (sidam_id IS NULL OR sidam_id <> ' ')";
         sidamUsers.stream().filter(user -> nonNull(user.getSsoId())).forEach(s ->
                 sidamObjectId.add(Pair.of(s.getId(), s.getSsoId())));
-        log.info("Insert Query batch Response from IDAM" + sidamObjectId.size());
+        log.debug("Insert Query batch Response from IDAM" + sidamObjectId.size());
         jdbcTemplate.batchUpdate(
                 updateSidamIds,
                 sidamObjectId,
