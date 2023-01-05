@@ -5,12 +5,15 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
@@ -46,6 +49,12 @@ public class ElinksController {
 
     @Autowired
     IdamElasticSearchService idamElasticSearchService;
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Value("${elinksUrl}")
+    String elinksUrl;
 
     @ApiResponses({
             @ApiResponse(
@@ -192,6 +201,16 @@ public class ElinksController {
                 .body(response);
     }
 
+    @GetMapping (path = "/elinktest/{path}",
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> testingelinks(@PathVariable String path) {
+
+        ResponseEntity<Object> response = restTemplate.getForEntity(elinksUrl+path,Object.class);
+
+        return ResponseEntity
+                .status(response.getStatusCode())
+                .body(response);
+    }
 
 
 }
