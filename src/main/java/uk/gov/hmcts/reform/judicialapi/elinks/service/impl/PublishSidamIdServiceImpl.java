@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -43,7 +42,6 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
     private static final String ZERO = "0";
 
     @Autowired
-    @Qualifier("springJdbcTemplate")
     JdbcTemplate jdbcTemplate;
 
     @Value("${logging-component-name}")
