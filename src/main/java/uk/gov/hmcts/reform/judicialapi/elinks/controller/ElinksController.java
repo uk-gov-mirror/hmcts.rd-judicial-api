@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IdamElasticSearchService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
 
 import java.util.Set;
 
@@ -35,7 +37,8 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 @SuppressWarnings("all")
 public class ElinksController {
 
-
+    @Autowired
+    PublishSidamIdService publishSidamIdService;
     @Autowired
     ELinksService eLinksService;
 
@@ -155,6 +158,13 @@ public class ElinksController {
                 .body(response);
     }
 
+    @GetMapping(path = "/sidam/asb/publish",
+        produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> publishSidamIdToAsb() {
+        SchedulerJobStatusResponse response = publishSidamIdService.publishSidamIdToAsb();
 
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
 
 }
