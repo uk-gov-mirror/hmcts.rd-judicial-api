@@ -18,6 +18,8 @@ java:
     REFRESH_PAGE_SIZE: 200
     REFRESH_SORT_COLUMN: objectId
     ELINKS_URL: https://jo-staging.elinks.judiciary.uk/api/v4
+    JRD_MQ_TOPIC_NAME: rd-judicial-topic-{{ .Values.global.environment }}
+    JRD_MQ_TRUST_ALL_CERTS: false
   image: 'hmctspublic.azurecr.io/rd/judicial-api:latest'
   keyVaults:
     rd:
