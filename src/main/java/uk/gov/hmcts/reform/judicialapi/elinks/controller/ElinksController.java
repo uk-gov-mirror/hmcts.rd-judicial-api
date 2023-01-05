@@ -217,7 +217,7 @@ public class ElinksController {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(AUTHORIZATION, "Token " + elinksApiKey);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity<Object> response = restTemplate.getForEntity(elinksUrl+path,Object.class,entity);
+        ResponseEntity<Object> response = restTemplate.getForEntity(elinksUrl+"/"+path,Object.class,entity);
 
         return ResponseEntity
                 .status(response.getStatusCode())
