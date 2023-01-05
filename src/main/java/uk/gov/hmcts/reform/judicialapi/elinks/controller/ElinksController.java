@@ -5,29 +5,24 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IdamElasticSearchService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.TestElinksImpl;
 
 import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.AUTHORIZATION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BAD_REQUEST;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.FORBIDDEN_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INTERNAL_SERVER_ERROR;
@@ -55,14 +50,7 @@ public class ElinksController {
     IdamElasticSearchService idamElasticSearchService;
 
     @Autowired
-    RestTemplate restTemplate;
-
-    @Value("${elinksUrl}")
-    String elinksUrl;
-
-    @Value("${elinksApiKey}")
-    private String elinksApiKey;
-
+    TestElinksImpl testElinks;
 
     @ApiResponses({
             @ApiResponse(
@@ -211,13 +199,10 @@ public class ElinksController {
 
     @GetMapping (path = "/elinktest/{path}",
             produces = APPLICATION_JSON_VALUE)
+    @ResponseBody
     public ResponseEntity<Object> testingelinks(@PathVariable String path) {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(AUTHORIZATION, "Token " + elinksApiKey);
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity<Object> response = restTemplate.getForEntity(elinksUrl+"/"+path,Object.class,entity);
+        ResponseEntity<Object> response = testElinks.mockService(path);
 
         return ResponseEntity
                 .status(response.getStatusCode())
