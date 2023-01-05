@@ -139,3 +139,15 @@ elastic:
   search:
     query: (roles:judiciary) AND lastModified:>now-12h
     recordsPerPage: 500
+
+
+elink:
+  publisher:
+    azure:
+      service:
+        bus:
+          connection-string: ${JUDICIAL_TOPIC_PRIMARY_CONNECTION_STRING:}
+          topic: ${JRD_MQ_TOPIC_NAME:rd-judicial-topic-aat}
+          # DO NOT SET THIS 'true' IN PRODUCTION!
+          trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:true}
+    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:50}

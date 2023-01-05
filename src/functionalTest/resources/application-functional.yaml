@@ -22,3 +22,14 @@ idam:
     redirect-uri: ${OAUTH2_REDIRECT_URI:https://rd-professional-api-aat.service.core-compute-aat.internal/oauth2redirect}
     authorization: ${OAUTH2_AUTH:}
     client-authorization: ${OAUTH2_CLIENT_AUTH:}
+
+elink:
+  publisher:
+    azure:
+      service:
+        bus:
+          connection-string: ${JUDICIAL_TOPIC_PRIMARY_CONNECTION_STRING:}
+          topic: ${JRD_MQ_TOPIC_NAME:rd-judicial-topic-aat}
+          # DO NOT SET THIS 'true' IN PRODUCTION!
+          trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:true}
+    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:50}
