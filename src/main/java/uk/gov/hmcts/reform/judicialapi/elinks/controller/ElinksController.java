@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IdamElasticSearchService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.TestElinksImpl;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -200,7 +201,7 @@ public class ElinksController {
     @GetMapping (path = "/elinktest/{path}",
             produces = APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Object> testingelinks(@PathVariable String path) {
+    public ResponseEntity<Object> testingelinks(@PathVariable String path) throws UnsupportedEncodingException {
 
         ResponseEntity<Object> response = testElinks.mockService(path);
 
