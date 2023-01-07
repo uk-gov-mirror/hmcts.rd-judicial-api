@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedularAuditR
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationMapppingRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleService;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
@@ -106,7 +107,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     @Override
     @Transactional("transactionManager")
-    public ResponseEntity<Object> updatePeople() {
+    public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
 
@@ -134,11 +135,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         } while (isMorePagesAvailable);
 
         updateEpimsServiceCodeMapping();
+
+        ElinkPeopleWrapperResponse response = new ElinkPeopleWrapperResponse();
+        response.setMessage(PEOPLE_DATA_LOAD_SUCCESS);
+
         return ResponseEntity
                 .status(httpStatus)
-                .body(PEOPLE_DATA_LOAD_SUCCESS);
-
-
+                .body(response);
     }
 
     private Response getPeopleResponseFromElinks(int currentPage) {
