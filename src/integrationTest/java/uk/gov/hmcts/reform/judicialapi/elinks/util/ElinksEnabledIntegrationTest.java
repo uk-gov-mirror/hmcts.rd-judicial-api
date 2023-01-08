@@ -76,7 +76,7 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
 
     @BeforeAll
     public void setUpClient() {
-        elinksReferenceDataClient.setBearerToken("");
+        ElinksReferenceDataClient.setBearerToken("");
         elinksReferenceDataClient = new ElinksReferenceDataClient(port, issuer, expiration, serviceName);
         when(featureToggleServiceImpl.isFlagEnabled(anyString())).thenReturn(true);
         flyway.clean();
@@ -138,11 +138,11 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
                                 + "          \"per_id\": 57818,"
                                 + "          \"personal_code\": \"0049931063\","
                                 + "          \"title\": \"Tribunal Judge\","
-                                + "          \"known_as\": \"LMS\","
+                                + "          \"known_as\": \"Tester\","
                                 + "          \"surname\": \"TestAccount 2\","
-                                + "          \"fullname\": \"Tribunal Judge LMS TestAccount 2\","
-                                + "          \"post_nominals\": null,"
-                                + "      \"email\": \"TribunalJudge.LMSTestAccount2@judiciarystaging.onmicrosoft.com\","
+                                + "          \"fullname\": \"Tribunal Judge Tester TestAccount 2\","
+                                + "          \"post_nominals\": \"ABC\","
+                                + "      \"email\": \"Tester2@judiciarystaging.onmicrosoft.com\","
                                 + "          \"sex\": \"sex_unknown\","
                                 + "          \"work_phone\": null,"
                                 + "          \"disability\": false,"
@@ -241,7 +241,7 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
 
     @AfterEach
     public void cleanupTestData() {
-        elinksReferenceDataClient.setBearerToken("");
+        ElinksReferenceDataClient.setBearerToken("");
     }
 
 
