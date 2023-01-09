@@ -104,7 +104,7 @@ class ElinksPeopleServiceImplTest {
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "threadPauseTime",
                 "2000");
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "lastUpdated",
-                "2015-01-01");
+                "Thu Jan 01 00:00:00 GMT 2015");
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "page",
                 "1");
 
