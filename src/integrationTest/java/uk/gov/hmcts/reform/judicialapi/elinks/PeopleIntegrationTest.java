@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
-
-
     @Autowired
     private ProfileRepository profileRepository;
 

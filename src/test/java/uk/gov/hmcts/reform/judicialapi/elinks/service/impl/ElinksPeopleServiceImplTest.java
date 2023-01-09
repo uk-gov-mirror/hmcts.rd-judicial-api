@@ -32,6 +32,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationMapppingReposit
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -93,6 +94,9 @@ class ElinksPeopleServiceImplTest {
     private PeopleRequest elinksApiResponseSecondHit;
 
     JdbcTemplate jdbcTemplate =  mock(JdbcTemplate.class);
+
+    @Spy
+    CommonUtil commonUtil;
 
     @BeforeEach
     void setUP() {
