@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.nonNull;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.AUDIT_DATA_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.DATA_UPDATE_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ACCESS_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_BAD_REQUEST;
@@ -173,7 +172,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         try {
             maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
         } catch (Exception ex) {
-            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, AUDIT_DATA_ERROR, AUDIT_DATA_ERROR);
+            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
         if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
             updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
