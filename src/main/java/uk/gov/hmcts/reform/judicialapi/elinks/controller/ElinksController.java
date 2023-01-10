@@ -130,7 +130,7 @@ public class ElinksController {
     @ApiResponses({
             @ApiResponse(
                     code = 200,
-                    message = "Get list of idam users.",
+                    message = "Get list of Peoples.",
                     response = Object.class
             ),
             @ApiResponse(
