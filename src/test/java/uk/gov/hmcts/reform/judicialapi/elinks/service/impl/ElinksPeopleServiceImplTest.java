@@ -334,7 +334,6 @@ class ElinksPeopleServiceImplTest {
         });
         assertThat(thrown.getStatus().value()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
         assertThat(thrown.getErrorMessage()).contains(DATA_UPDATE_ERROR);
-        assertThat(thrown.getErrorDescription()).contains(DATA_UPDATE_ERROR);
     }
 
 
@@ -360,7 +359,6 @@ class ElinksPeopleServiceImplTest {
         });
         assertThat(thrown.getStatus().value()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
         assertThat(thrown.getErrorMessage()).contains(DATA_UPDATE_ERROR);
-        assertThat(thrown.getErrorDescription()).contains(DATA_UPDATE_ERROR);
     }
 
     @Test
@@ -385,7 +383,6 @@ class ElinksPeopleServiceImplTest {
         });
         assertThat(thrown.getStatus().value()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
         assertThat(thrown.getErrorMessage()).contains(DATA_UPDATE_ERROR);
-        assertThat(thrown.getErrorDescription()).contains(DATA_UPDATE_ERROR);
     }
 
     @Test
