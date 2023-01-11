@@ -13,17 +13,29 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ElinkMessagingConfig {
 
-    @Value("${elink.publisher.azure.service.bus.topic}")
+    @Value("${jrd.publisher.azure.service.bus.topic}")
     String topic;
 
-    @Value("${elink.publisher.azure.service.bus.connection-string}")
-    String accessConnectionString;
+    @Value("${jrd.publisher.azure.service.bus.host}")
+    String host;
+
+    @Value("${jrd.publisher.azure.service.bus.username}")
+    String sharedAccessKeyName;
+
+    @Value("${jrd.publisher.azure.service.bus.password}")
+    String sharedAccessKeyValue;
+
+
 
     @Bean
     public ServiceBusSenderClient getServiceBusSenderClient() {
 
+
+        String connectionString = "Endpoint=sb://"
+            + host + ";SharedAccessKeyName=" + sharedAccessKeyName + ";SharedAccessKey=" + sharedAccessKeyValue;
+
         return new ServiceBusClientBuilder()
-                .connectionString(accessConnectionString)
+                .connectionString(connectionString)
                 .retryOptions(new AmqpRetryOptions())
                 .sender()
                 .topicName(topic)

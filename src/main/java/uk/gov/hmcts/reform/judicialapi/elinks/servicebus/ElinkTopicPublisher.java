@@ -24,9 +24,9 @@ public class ElinkTopicPublisher {
 
     @Value("${logging-component-name}")
     String loggingComponentName;
-    @Value("${elink.publisher.jrd-message-batch-size}")
+    @Value("${jrd.publisher.jrd-message-batch-size}")
     int jrdMessageBatchSize;
-    @Value("${elink.publisher.azure.service.bus.topic}")
+    @Value("${jrd.publisher.azure.service.bus.topic}")
     String topic;
 
 
