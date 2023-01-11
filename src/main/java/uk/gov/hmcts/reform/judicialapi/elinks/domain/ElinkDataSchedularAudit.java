@@ -13,10 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-
-
-@Entity(name = "dataload_schedular_audit")
-@Table(name = "dbjudicialdata.dataload_schedular_audit")
+@Entity(name = "dataloadSchedularAudit")
+@Table(name = "dataload_schedular_audit", schema = "dbjudicialdata")
 @Getter
 @Setter
 @NoArgsConstructor

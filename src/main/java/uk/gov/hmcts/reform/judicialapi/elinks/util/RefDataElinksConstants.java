@@ -35,6 +35,19 @@ public class RefDataElinksConstants {
     public static final String ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS
             = "You have exceeded the request limit (20 requests in 20 seconds)";
 
+    public static final String PEOPLE_DATA_LOAD_SUCCESS = "People data loaded successfully";
+
+    public static final String THREAD_INVOCATION_EXCEPTION = "An error occurred while thread sleeping";
+
+    public static final String AUDIT_DATA_ERROR = "An error occurred while getting data from Audit table";
+
+    public static final String DATA_UPDATE_ERROR = "An error occurred while updating data in refDataDb";
+
+    public static final String REGION_DEFAULT_ID = "0";
+
+    public static final String UPDATED_SINCE = "2015-01-01";
+
+    public static final String LEAVERSSUCCESS = "Leavers Data Loaded Successfully";
 
 
 
