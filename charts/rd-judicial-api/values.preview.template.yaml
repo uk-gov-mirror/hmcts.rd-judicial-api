@@ -3,18 +3,6 @@ java:
   ingressHost: ${SERVICE_FQDN}
 
   secrets:
-    SB_TOPIC_CONN_STRING:
-      secretRef: servicebus-secret-topic-{{ .Release.Name }}-servicebus-jrd-aks-topic
-      key: connectionString
-    BLOB_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
-    BLOB_ACCESS_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
-    BLOB_SERVICE_ENDPOINT:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: primaryBlobServiceEndPoint
     JRD_MQ_PASSWORD:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: primaryKey
@@ -66,12 +54,11 @@ java:
           alias: RD_SENDGRID_API_KEY
 
 servicebus:
-  resourceGroup: rd-aks-pr-test
+  enabled: true
   teamName: RD
-  location: ukwest
+  resourceGroup: rd-aks
   serviceplan: standard
   setup:
     topics:
       - name: jrd-aks-topic
         subscriptionNeeded: yes
-  enabled: true
