@@ -27,14 +27,16 @@ java:
     POSTGRES_NAME: "{{ .Values.postgresql.auth.database}}"
     POSTGRES_USERNAME: "{{ .Values.postgresql.auth.username}}"
     POSTGRES_PASSWORD: "{{ .Values.postgresql.auth.password}}"
-    JUDICIAL_DB: classpath:db/migration
+    POSTGRES_PORT: "{{ .Values.postgresql.auth.port}}"
     LAUNCH_DARKLY_ENV: "preview"
     ENVIRONMENT_NAME: "preview"
     JRD_MQ_HOST: "$(JRD_MQ_HOST).servicebus.windows.net"
     JUDICIAL_TOPIC_PRIMARY_SEND_LISTEN_SHARED_ACCESS_KEY: "$(JRD_MQ_PASSWORD)"
+    JRD_MQ_TOPIC_NAME: jrd-aks-topic
     JRD_MQ_USERNAME: SendAndListenSharedAccessKey
     JRD_SEARCH_SERVICE_CODE: bfa1,bba3
     JRD_MQ_TRUST_ALL_CERTS: false
+    JRD_DATA_PER_MESSAGE: 50
     MAIL_FROM: no-reply@mail-rd-nonprod.platform.hmcts.net
   postgresql:
     enabled: true
@@ -42,6 +44,7 @@ java:
       username: dbjuddata
       password: dbjuddata
       database: dbjuddata
+      port: 5432
   keyVaults:
     rd:
       secrets:
@@ -53,8 +56,6 @@ java:
           alias: JUDICIAL_API_S2S_SECRET
         - name: judicial-api-elinks-api-key
           alias: judicial_api_elinks_api_key
-        - name: judicial-topic-primary-connection-string
-          alias: JUDICIAL_TOPIC_PRIMARY_CONNECTION_STRING
         - name: OAUTH2-CLIENT-SECRET
           alias: OAUTH2_CLIENT_SECRET
         - name: OAUTH2-AUTH
@@ -66,7 +67,7 @@ java:
 
 servicebus:
   resourceGroup: rd-aks-pr-test
-  teamName: "RD"
+  teamName: RD
   location: ukwest
   serviceplan: standard
   setup:
