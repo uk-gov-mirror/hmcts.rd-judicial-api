@@ -15,7 +15,6 @@ java:
     POSTGRES_PORT: "{{ .Values.postgresql.auth.port}}"
     LAUNCH_DARKLY_ENV: "preview"
     ENVIRONMENT_NAME: "preview"
-    JRD_MQ_HOST: "$(JRD_MQ_HOST).servicebus.windows.net"
     JUDICIAL_TOPIC_PRIMARY_SEND_LISTEN_SHARED_ACCESS_KEY: "$(JRD_MQ_PASSWORD)"
     JRD_MQ_TOPIC_NAME: crd-aks-topic
     JRD_MQ_USERNAME: RootManageSharedAccessKey
@@ -49,13 +48,3 @@ java:
           alias: OAUTH2_CLIENT_AUTH
         - name: rd-sendgrid-api-key
           alias: RD_SENDGRID_API_KEY
-
-servicebus:
-  enabled: true
-  teamName: RD
-  resourceGroup: rd-aks
-  serviceplan: standard
-  setup:
-    topics:
-      - name: crd-aks-topic
-        subscriptionNeeded: yes
