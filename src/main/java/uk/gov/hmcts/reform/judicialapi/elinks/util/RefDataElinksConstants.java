@@ -48,8 +48,4 @@ public class RefDataElinksConstants {
     public static final String UPDATED_SINCE = "2015-01-01";
 
     public static final String LEAVERSSUCCESS = "Leavers Data Loaded Successfully";
-
-
-
-
 }
