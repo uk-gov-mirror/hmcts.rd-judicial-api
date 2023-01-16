@@ -62,8 +62,6 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 @Service
 public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
-    public static final String EPIMMS_ID = "epimmsId";
-    public static final String SERVICE_CODE = "serviceCode";
     @Autowired
     private ElinksFeignClient elinksFeignClient;
 
@@ -170,8 +168,16 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         String updatedSince;
         LocalDateTime maxSchedulerEndTime;
 
+
         maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
 
+
+        try {
+            maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
+        } catch (Exception ex) {
+            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
+        }
+        
         if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
             updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
         } else {
