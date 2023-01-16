@@ -208,7 +208,7 @@ public class ElinksController {
 
         return ResponseEntity
                 .status(response.getStatusCode())
-                .body(response);
+                .body(response.getBody());
     }
 
 
