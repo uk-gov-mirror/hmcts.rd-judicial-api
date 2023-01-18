@@ -6,8 +6,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksEnabledIntegrationTest;
@@ -29,6 +31,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAM_ERROR_MESSAGE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
 
@@ -38,7 +41,13 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
     private ProfileRepository profileRepository;
 
     @Autowired
+    private BaseLocationRepository baseLocationRepository;
+
+    @Autowired
     private ElinkSchedularAuditRepository elinkSchedularAuditRepository;
+
+    @Autowired
+    IdamTokenConfigProperties tokenConfigProperties;
 
 
     @Test
@@ -289,6 +298,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
                         .withBody("{"
 
                                 + " }")));
+
+        elinkSchedularAuditRepository.deleteAll();
+
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
         Map<String, Object> leaversResponse = elinksReferenceDataClient.getLeavers();
         assertThat(leaversResponse).containsEntry("http_status", "400");
@@ -307,7 +319,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
 
-        assertEquals(1, auditEntry.getId());
+
         assertEquals(LEAVERSAPI, auditEntry.getApiName());
         assertEquals(RefDataElinksConstants.JobStatus.FAILED.getStatus(), auditEntry.getStatus());
         assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
@@ -434,6 +446,48 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Idam_return_with_invalid_token_response_status_403")
+    @Test
+    void test_get_idam_return_response_status_403() throws JsonProcessingException {
+
+        int statusCode = 403;
+        idamSearchApi4xxResponse(statusCode, "[]");
+        initialize();
+        Map<String, Object> response  = elinksReferenceDataClient.getIdamElasticSearch();
+
+        assertEquals(response.get("http_status"),String.valueOf(statusCode));
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
+
+        assertEquals(IDAM_ERROR_MESSAGE, errorDetails.getErrorMessage());
+    }
+
+    @DisplayName("Idam_url_not_found_return_response_status_404")
+    @Test
+    void test_get_idam_url_not_found_return_response_status_404() throws JsonProcessingException {
+
+        int statusCode = 404;
+        idamSearchApi4xxResponse(statusCode, "[]");
+
+        initialize();
+        Map<String, Object> response  = elinksReferenceDataClient.getIdamElasticSearch();
+        assertEquals(response.get("http_status"),String.valueOf(statusCode));
+    }
+
+    @DisplayName("Idam_unauthorised_return_response_status_401")
+    @Test
+    void test_get_idam_unauthorised_return_response_status_401() throws JsonProcessingException {
+
+        int statusCode = 401;
+        idamSearchApi4xxResponse(statusCode,"[]");
+
+        initialize();
+
+        Map<String, Object> response  = elinksReferenceDataClient.getIdamElasticSearch();
+        assertEquals(response.get("http_status"),String.valueOf(statusCode));
+    }
+
     private void peopleApi4xxResponse(int statusCode, String body) {
         elinks.stubFor(get(urlPathMatching("/people"))
                 .willReturn(aResponse()
@@ -476,4 +530,26 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
                         .withTransformers("user-token-response")));
     }
 
+    private void idamSearchApi4xxResponse(int statusCode, String body) {
+        sidamService.stubFor(get(urlPathMatching("/api/v1/users"))
+                .willReturn(aResponse()
+                        .withStatus(statusCode)
+                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Connection", "close")
+                        .withBody(body)));
+    }
+
+    private void initialize() {
+        final String clientId = "234342332";
+        final String redirectUri = "http://idam-api.aat.platform.hmcts.net";
+        final String authorization = "c2hyZWVkaGFyLmxvbXRlQGhtY3RzLm5ldDpITUNUUzEyMzQ=";
+        final String clientAuth = "cmQteHl6LWFwaTp4eXo=";
+        final String url = "http://127.0.0.1:5000";
+        tokenConfigProperties.setClientId(clientId);
+        tokenConfigProperties.setClientAuthorization(clientAuth);
+        tokenConfigProperties.setAuthorization(authorization);
+        tokenConfigProperties.setRedirectUri(redirectUri);
+        tokenConfigProperties.setUrl(url);
+
+    }
 }

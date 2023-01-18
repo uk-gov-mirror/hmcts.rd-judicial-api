@@ -88,7 +88,7 @@ public class ElinksReferenceDataClient {
             return statusAndBody;
         }
 
-        return getLocationResponse(responseEntity);
+        return getResponse(responseEntity);
     }
 
     public Map<String, Object> getBaseLocations() {
@@ -110,7 +110,7 @@ public class ElinksReferenceDataClient {
             return statusAndBody;
         }
 
-        return getBaseLocationResponse(responseEntity);
+        return getResponse(responseEntity);
     }
   
 
@@ -134,20 +134,28 @@ public class ElinksReferenceDataClient {
             return statusAndBody;
         }
 
-        return getLeaversResponse(responseEntity);
+        return getResponse(responseEntity);
     }
 
+    public Map<String, Object>  getIdamElasticSearch() {
 
-    private Map<String, Object> getLeaversResponse(ResponseEntity<ElinkLeaversWrapperResponse> responseEntity) {
+        var stringBuilder = new StringBuilder();
 
-        var response = new HashMap();
+        ResponseEntity<Object> responseEntity = null;
+        HttpEntity<?> request =
+                new HttpEntity<Object>(getMultipleAuthHeaders("jrd-system-user", null));
+        try {
+            responseEntity = restTemplate.exchange(
+                    baseUrl + "/idam/elastic/search", HttpMethod.GET, request, Object.class);
 
-        response.put("http_status", responseEntity.getStatusCode().toString());
-        response.put("headers", responseEntity.getHeaders().toString());
-        response.put("body", responseEntity.getBody());
-        return response;
+        } catch (RestClientResponseException ex) {
+            var statusAndBody = new HashMap<String, Object>(2);
+            statusAndBody.put("http_status", String.valueOf(ex.getRawStatusCode()));
+            statusAndBody.put("response_body", ex.getResponseBodyAsString());
+            return statusAndBody;
+        }
+        return  getResponse(responseEntity);
     }
-
 
     private Map<String, Object> getLocationResponse(ResponseEntity<ElinkLocationWrapperResponse> responseEntity) {
       
@@ -169,7 +177,7 @@ public class ElinksReferenceDataClient {
         return response;
     }
   
-    private Map<String, Object> getResponse(ResponseEntity<ElinkPeopleWrapperResponse> responseEntity) {
+    private Map<String, Object> getResponse(ResponseEntity<?> responseEntity) {
 
         var response = new HashMap();
 
