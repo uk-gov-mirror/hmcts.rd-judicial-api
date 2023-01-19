@@ -50,13 +50,15 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
     IdamTokenConfigProperties tokenConfigProperties;
 
 
+    @DisplayName("Elinks People endpoint status verification for future update_since")
     @Test
     void test_get_people_return_response_status_400() throws JsonProcessingException  {
 
         int statusCode = 400;
         peopleApi4xxResponse(statusCode,null);
 
-        Map<String, Object> response = elinksReferenceDataClient.getPeoples();
+        String peopleUrl = "/people?updated_since=2025-01-01";
+        Map<String, Object> response = elinksReferenceDataClient.getPeoples(peopleUrl);
 
         assertThat(response).containsEntry("http_status", "400");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -66,6 +68,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks People endpoint status verification for unauthorized status")
     @Test
     void test_get_people_return_response_status_401() throws JsonProcessingException  {
 
@@ -82,6 +85,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks People endpoint status verification for forbidden status")
     @Test
     void test_get_people_return_response_status_403() throws JsonProcessingException  {
 
@@ -98,6 +102,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks People endpoint status verification for resource not found status")
     @Test
     void test_get_people_return_response_status_404() throws JsonProcessingException  {
 
@@ -114,6 +119,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks People endpoint status verification for Too many requests status")
     @Test
     void test_get_people_return_response_status_429() throws JsonProcessingException  {
 
@@ -130,7 +136,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
     }
 
-
+    @DisplayName("Elinks Location endpoint status verification for bad request status")
     @Test
     void test_get_locations_return_response_status_400() throws JsonProcessingException {
 
@@ -146,6 +152,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks Location endpoint status verification for unauthorized status")
     @Test
     void test_get_locations_return_response_status_401() throws JsonProcessingException {
 
@@ -161,6 +168,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks Location endpoint status verification for forbidden status")
     @Test
     void test_get_locations_return_response_status_403() throws JsonProcessingException {
 
@@ -176,6 +184,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks Location endpoint status verification for resource not found status")
     @Test
     void test_get_locations_return_response_status_404() throws JsonProcessingException {
 
@@ -192,6 +201,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
     }
 
 
+    @DisplayName("Elinks Location endpoint status verification for Too many requests status")
     @Test
     void test_get_locations_return_response_status_429() throws JsonProcessingException {
 
@@ -207,6 +217,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks BaseLocation endpoint status verification for bad request status")
     @Test
     void test_get_baseLocations_return_response_status_400() throws JsonProcessingException {
 
@@ -223,6 +234,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks BaseLocation endpoint status verification for unauthorized status")
     @Test
     void test_get_baseLocations_return_response_status_401() throws JsonProcessingException {
 
@@ -239,6 +251,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks BaseLocation endpoint status verification for forbidden status")
     @Test
     void test_get_baseLocations_return_response_status_403() throws JsonProcessingException {
 
@@ -255,6 +268,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks BaseLocation endpoint status verification for resource not found status")
     @Test
     void test_get_baseLocations_return_response_status_404() throws JsonProcessingException {
 
@@ -271,6 +285,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
     }
 
+    @DisplayName("Elinks BaseLocation endpoint status verification for Too many requests status")
     @Test
     void test_get_baseLocations_return_response_status_429() throws JsonProcessingException {
 
