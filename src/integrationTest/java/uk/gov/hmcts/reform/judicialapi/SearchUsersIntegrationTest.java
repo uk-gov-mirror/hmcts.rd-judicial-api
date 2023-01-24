@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.judicialapi;
 
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.judicialapi.controller.request.UserSearchRequest;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchString(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -32,7 +31,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @CsvSource({ "jrd-system-user,20013","jrd-system-user,200134","jrd-admin,20013","jrd-admin,200136"})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchStringAndServiceCodeAndLocation(String role,
                                                                                               String location) {
@@ -49,7 +48,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @CsvSource({ "jrd-system-user,20012","jrd-system-user,200123","jrd-admin,20012","jrd-admin,200124"})
     void shouldReturn200AndIgnoreLocationWhenServiceCodeIsBfa1(String role, String location) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -65,8 +64,8 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertEquals("test530@test.net", profiles.get(1).get("emailId"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
-    
-//    @ParameterizedTest
+
+    //@ParameterizedTest
     @CsvSource({ "jrd-system-user,20012","jrd-system-user,200123","jrd-admin,20012","jrd-admin,200124"})
     void shouldReturn200AndIgnoreLocationWhenServiceCodeIsAaa6(String role, String location) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -82,7 +81,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @CsvSource({ "jrd-system-user,20012","jrd-system-user,200123","jrd-admin,20012","jrd-admin,200124"})
     void shouldReturn200AndIgnoreLocationWhenServiceCodeIsAaa7(String role, String location) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -98,7 +97,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @CsvSource({ "jrd-system-user,20012","jrd-system-user,200123","jrd-admin,20012","jrd-admin,200124"})
     void shouldReturn200AndIgnoreLocationWhenServiceCodeIsAba5(String role, String location) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -114,7 +113,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @CsvSource({ "jrd-system-user,20012","jrd-system-user,200123","jrd-admin,20012","jrd-admin,200124"})
     void shouldReturn200AndIgnoreLocationWhenServiceCodeIsAba3(String role, String location) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -130,7 +129,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchStringAndLocation(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -145,7 +144,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchStringAndServiceCode(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -161,7 +160,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn401ForInvalidTokens(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -174,7 +173,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "401");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn400WhenSearchStringIsEmpty(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -189,7 +188,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertTrue(responseBody.contains("cannot be empty"));
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn400WhenSearchStringDoesNotContainRequiredLength(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -205,7 +204,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
                 + "apostrophe, hyphen"));
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn400WhenSearchStringContainsOtherThanLetters(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -221,7 +220,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
                 + "apostrophe, hyphen"));
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchStringWithEmptyAdditionalBoolean(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -241,7 +240,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchStringWithEmptyAdditionalBoolean02(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -264,7 +263,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileApostropheString(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -279,7 +278,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileApostropheStrings(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -294,7 +293,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileHyphenString(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -309,7 +308,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileHyphenStrings(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -324,7 +323,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileEmptySpace(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
@@ -339,7 +338,7 @@ class SearchUsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
-//    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn200WhenUserProfileEmptySpaces(String role) {
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
