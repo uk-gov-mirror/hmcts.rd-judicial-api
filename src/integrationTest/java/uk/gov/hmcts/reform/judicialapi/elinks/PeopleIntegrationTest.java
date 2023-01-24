@@ -92,7 +92,7 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(2, appointmentList.size());
         assertEquals(userprofile.get(0).getPersonalCode(), appointmentList.get(0).getPersonalCode());
         assertEquals(userprofile.get(0).getObjectId(),appointmentList.get(0).getObjectId());
-        assertEquals("1", appointmentList.get(0).getBaseLocationId());
+        assertEquals("0", appointmentList.get(0).getBaseLocationId());
         assertEquals("0", appointmentList.get(0).getRegionId());
         assertNull(appointmentList.get(0).getEpimmsId());
         assertNull(appointmentList.get(0).getServiceCode());
@@ -104,7 +104,7 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
         assertEquals(userprofile.get(0).getPersonalCode(), appointmentList.get(1).getPersonalCode());
         assertEquals(userprofile.get(0).getObjectId(),appointmentList.get(1).getObjectId());
-        assertEquals("1", appointmentList.get(1).getBaseLocationId());
+        assertEquals("0", appointmentList.get(1).getBaseLocationId());
         assertEquals("0", appointmentList.get(1).getRegionId());
         assertNull(appointmentList.get(1).getEpimmsId());
         assertNull(appointmentList.get(1).getServiceCode());
