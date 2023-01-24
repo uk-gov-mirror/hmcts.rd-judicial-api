@@ -41,7 +41,8 @@ class ElinkDataLoadSchedularJobTest {
 
         when(dataloadSchedularJobRepository.findByJobStartTime(any())).thenReturn(schedularJob);
         when(dataloadSchedularJobRepository.save(any())).thenReturn(schedularJob);
-        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(), LocalDateTime.now(), LocalDateTime.now());
+        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(),
+            LocalDateTime.now(), LocalDateTime.now());
 
         verify(dataloadSchedularJobRepository, times(1)).save(any());
 
@@ -58,7 +59,8 @@ class ElinkDataLoadSchedularJobTest {
 
         when(dataloadSchedularJobRepository.findByJobStartTime(any())).thenReturn(schedularJob);
         when(dataloadSchedularJobRepository.save(any())).thenReturn(schedularJob);
-        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(), LocalDateTime.now(), LocalDateTime.now());
+        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(),
+            LocalDateTime.now(), LocalDateTime.now());
 
         verify(dataloadSchedularJobRepository, times(1)).save(any());
 
