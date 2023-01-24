@@ -34,7 +34,7 @@ class LeaversIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @BeforeEach
     void setUp() {
-
+        profileRepository.deleteAll();
     }
 
     @DisplayName("Elinks Leavers endpoint status verification")

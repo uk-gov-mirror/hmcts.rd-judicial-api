@@ -36,7 +36,7 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @BeforeEach
     void setUp() {
-
+        profileRepository.deleteAll();
     }
 
 

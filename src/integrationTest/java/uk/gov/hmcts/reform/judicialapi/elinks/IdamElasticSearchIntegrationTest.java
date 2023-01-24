@@ -41,6 +41,7 @@ class IdamElasticSearchIntegrationTest extends ElinksEnabledIntegrationTest {
         tokenConfigProperties.setAuthorization(authorization);
         tokenConfigProperties.setRedirectUri(redirectUri);
         tokenConfigProperties.setUrl(url);
+        profileRepository.deleteAll();
     }
 
     @DisplayName("Idam Elastic Search status")
