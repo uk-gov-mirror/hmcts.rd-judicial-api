@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 
- class ElinkDataLoadSchedularJobTest {
+class ElinkDataLoadSchedularJobTest {
 
     @InjectMocks
     ElinkDataLoadSchedularJob dataLoadSchedularJob;
@@ -41,8 +41,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
         when(dataloadSchedularJobRepository.findByJobStartTime(any())).thenReturn(schedularJob);
         when(dataloadSchedularJobRepository.save(any())).thenReturn(schedularJob);
-        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(),
-            LocalDateTime.now(), LocalDateTime.now());
+        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(), LocalDateTime.now(), LocalDateTime.now());
 
         verify(dataloadSchedularJobRepository, times(1)).save(any());
 
@@ -59,8 +58,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
         when(dataloadSchedularJobRepository.findByJobStartTime(any())).thenReturn(schedularJob);
         when(dataloadSchedularJobRepository.save(any())).thenReturn(schedularJob);
-        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(),
-            LocalDateTime.now(), LocalDateTime.now());
+        dataLoadSchedularJob.schedulerJobStatus(schedularJob.getPublishingStatus(), LocalDateTime.now(), LocalDateTime.now());
 
         verify(dataloadSchedularJobRepository, times(1)).save(any());
 
