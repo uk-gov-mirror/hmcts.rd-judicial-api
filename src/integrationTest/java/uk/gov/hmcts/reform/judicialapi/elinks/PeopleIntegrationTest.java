@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
@@ -76,6 +77,7 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @DisplayName("Elinks People to Appointment verification")
     @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:db.testmigration/insert_base_locations.sql"})
     void verifyPeopleJrdAppointment() {
 
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
@@ -89,7 +91,7 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(2, appointmentList.size());
         assertEquals(userprofile.get(0).getPersonalCode(), appointmentList.get(0).getPersonalCode());
         assertEquals(userprofile.get(0).getObjectId(),appointmentList.get(0).getObjectId());
-        assertEquals("0", appointmentList.get(0).getBaseLocationId());
+        assertEquals("1", appointmentList.get(0).getBaseLocationId());
         assertEquals("0", appointmentList.get(0).getRegionId());
         assertNull(appointmentList.get(0).getEpimmsId());
         assertNull(appointmentList.get(0).getServiceCode());
@@ -101,7 +103,7 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
         assertEquals(userprofile.get(0).getPersonalCode(), appointmentList.get(1).getPersonalCode());
         assertEquals(userprofile.get(0).getObjectId(),appointmentList.get(1).getObjectId());
-        assertEquals("0", appointmentList.get(1).getBaseLocationId());
+        assertEquals("1", appointmentList.get(1).getBaseLocationId());
         assertEquals("0", appointmentList.get(1).getRegionId());
         assertNull(appointmentList.get(1).getEpimmsId());
         assertNull(appointmentList.get(1).getServiceCode());
