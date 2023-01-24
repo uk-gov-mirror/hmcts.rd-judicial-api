@@ -77,8 +77,6 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @DisplayName("Elinks People to Appointment verification")
     @Test
-    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:db.testmigration/"
-            + "insert_base_locations.sql"})
     void verifyPeopleJrdAppointment() {
 
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
