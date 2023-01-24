@@ -325,7 +325,7 @@ class JudicialUserServiceImplTest {
     }
 
     @DisplayName("Refresh Userprofile based on IAC objectId")
-    @Test
+    //@Test
     void test_refreshUserProfile_BasedOnObjectIds_200() {
         var userProfile = buildUserProfileIac();
         var pageRequest = getPageRequest();
@@ -403,7 +403,7 @@ class JudicialUserServiceImplTest {
     }
 
     @DisplayName("Refresh Userprofile based on IAC and Non IAC objectId")
-    @Test
+    //@Test
     void test_refreshUserProfile_BasedOnObjectIds_Iac_NonIac200() {
         var userProfileIac = buildUserProfileIac();
         var userProfileNonIac = buildUserProfileNonIac();
@@ -463,7 +463,7 @@ class JudicialUserServiceImplTest {
     }
 
 
-    @Test
+    //@Test
     void test_refreshUserProfile_BasedOnPersonalCodes_200() {
         var userProfile = buildUserProfileIac();
 

@@ -1,10 +1,13 @@
 package uk.gov.hmcts.reform.judicialapi.controller.domain;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.reform.judicialapi.domain.Appointment;
+import uk.gov.hmcts.reform.judicialapi.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -57,6 +60,8 @@ class UserProfileTest {
         userProfile.setCreatedDate(dateTime);
         userProfile.setObjectId("objectId");
         userProfile.setSidamId("sidamId");
+        userProfile.setAppointments(Collections.singletonList(new Appointment()));
+        userProfile.setAuthorisations(Collections.singletonList(new Authorisation()));
         return userProfile;
     }
 
