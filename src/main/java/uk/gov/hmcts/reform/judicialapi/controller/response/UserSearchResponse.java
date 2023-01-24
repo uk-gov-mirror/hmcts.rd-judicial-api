@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.judicialapi.controller.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 
 import java.io.Serializable;
 

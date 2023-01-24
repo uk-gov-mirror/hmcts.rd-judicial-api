@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uk.gov.hmcts.reform.judicialapi.domain.Authorisation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

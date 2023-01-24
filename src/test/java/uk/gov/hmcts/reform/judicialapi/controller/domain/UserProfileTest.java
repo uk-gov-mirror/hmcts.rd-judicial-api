@@ -3,11 +3,16 @@ package uk.gov.hmcts.reform.judicialapi.controller.domain;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static uk.gov.hmcts.reform.judicialapi.controller.TestSupport.createUserProfile;
 
 class UserProfileTest {
+
+    private static final LocalDate date = LocalDate.now();
+    private static final LocalDateTime dateTime = LocalDateTime.now();
 
     @Test
     void testUserProfile() {
@@ -32,6 +37,27 @@ class UserProfileTest {
         assertEquals(Boolean.TRUE, userProfile.getActiveFlag());
         assertEquals("objectId", userProfile.getObjectId());
         assertEquals("sidamId", userProfile.getSidamId());
+    }
+
+    public static UserProfile createUserProfile() {
+        UserProfile userProfile = new UserProfile();
+        userProfile.setPerId("1");
+        userProfile.setPersonalCode("personalCode");
+        userProfile.setKnownAs("knownAs");
+        userProfile.setSurname("surname");
+        userProfile.setFullName("name");
+        userProfile.setPostNominals("postNominals");
+        userProfile.setWorkPattern("workPattern");
+        userProfile.setEjudiciaryEmailId("emailId");
+        userProfile.setActiveFlag(Boolean.TRUE);
+        userProfile.setJoiningDate(date);
+        userProfile.setLastWorkingDate(date);
+        userProfile.setLastLoadedDate(dateTime);
+        userProfile.setExtractedDate(dateTime);
+        userProfile.setCreatedDate(dateTime);
+        userProfile.setObjectId("objectId");
+        userProfile.setSidamId("sidamId");
+        return userProfile;
     }
 
 }

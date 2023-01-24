@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.judicialapi.controller.controller.response;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.judicialapi.controller.response.AppointmentResponse;
-import uk.gov.hmcts.reform.judicialapi.domain.Appointment;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.judicialapi.controller.TestSupport.createAppointment;
@@ -18,13 +18,13 @@ class AppointmentResponseTest {
 
         assertThat(appointmentResponse.getAppointmentId()).isEqualTo(appointment.getOfficeAppointmentId().toString());
         assertThat(appointmentResponse.getBaseLocationId())
-                .isEqualTo(appointment.getBaseLocationType().getBaseLocationId());
+                .isEqualTo(appointment.getBaseLocation().getBaseLocationId());
         assertThat(appointmentResponse.getIsPrincipalAppointment())
                 .isEqualTo(appointment.getIsPrincipleAppointment().toString());
         assertThat(appointmentResponse.getStartDate()).isEqualTo(appointment.getStartDate().toString());
         assertThat(appointmentResponse.getEndDate()).isEqualTo(appointment.getEndDate().toString());
-        assertThat(appointmentResponse.getRegionId()).isEqualTo(appointment.getRegionType().getRegionId());
-        assertThat(appointmentResponse.getRegionDescEn()).isEqualTo(appointment.getRegionType().getRegionDescEn());
+        assertThat(appointmentResponse.getRegionId()).isEqualTo(appointment.getLocation().getRegionId());
+        assertThat(appointmentResponse.getRegionDescEn()).isEqualTo(appointment.getLocation().getRegionDescEn());
     }
 
     @Test

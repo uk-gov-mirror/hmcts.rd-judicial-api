@@ -9,11 +9,15 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -87,5 +91,18 @@ public class Appointment implements Serializable {
     @Size(max = 64)
     private String workPattern;
 
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "personal_code", referencedColumnName = "personal_code",
+        insertable = false, updatable = false, nullable = false)
+    private UserProfile userProfile;
 
+    @ManyToOne
+    @JoinColumn(name = "base_location_Id", referencedColumnName = "base_location_Id",
+        insertable = false, updatable = false, nullable = false)
+    private BaseLocation baseLocation;
+
+    @ManyToOne
+    @JoinColumn(name = "region_Id", referencedColumnName = "region_Id",
+        insertable = false, updatable = false, nullable = false)
+    private Location location;
 }

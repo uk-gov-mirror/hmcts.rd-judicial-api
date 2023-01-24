@@ -1,10 +1,11 @@
 package uk.gov.hmcts.reform.judicialapi.controller;
 
-import uk.gov.hmcts.reform.judicialapi.domain.Appointment;
-import uk.gov.hmcts.reform.judicialapi.domain.Authorisation;
-import uk.gov.hmcts.reform.judicialapi.domain.BaseLocationType;
-import uk.gov.hmcts.reform.judicialapi.domain.RegionType;
-import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
+
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,19 +21,17 @@ public class TestSupport {
     }
 
     public static Appointment createAppointment() {
-        BaseLocationType baseLocationType = createBaseLocationType();
-        RegionType regionType = createRegionType();
+        BaseLocation baseLocation = createBaseLocation();
+        Location location = createLocation();
 
         Appointment appointment = new Appointment();
         appointment.setOfficeAppointmentId(1234567L);
-        appointment.setBaseLocationType(baseLocationType);
-        appointment.setRegionType(regionType);
+        appointment.setBaseLocation(baseLocation);
+        appointment.setLocation(location);
         appointment.setIsPrincipleAppointment(Boolean.TRUE);
         appointment.setStartDate(date);
-        appointment.setActiveFlag(Boolean.TRUE);
         appointment.setStartDate(date);
         appointment.setEndDate(date);
-        appointment.setExtractedDate(dateTime);
         appointment.setCreatedDate(dateTime);
         appointment.setLastLoadedDate(dateTime);
         appointment.setUserProfile(new UserProfile());
@@ -44,7 +43,6 @@ public class TestSupport {
         Authorisation authorisation = new Authorisation();
         authorisation.setOfficeAuthId(2L);
         authorisation.setJurisdiction("Languages");
-        authorisation.setTicketId(233432L);
         authorisation.setStartDate(dateTime);
         authorisation.setEndDate(dateTime);
         authorisation.setCreatedDate(dateTime);
@@ -57,19 +55,15 @@ public class TestSupport {
 
     public static UserProfile createUserProfile() {
         UserProfile userProfile = new UserProfile();
-        userProfile.setPerId("1");
         userProfile.setPersonalCode("personalCode");
         userProfile.setKnownAs("knownAs");
         userProfile.setSurname("surname");
         userProfile.setFullName("name");
         userProfile.setPostNominals("postNominals");
-        userProfile.setWorkPattern("workPattern");
         userProfile.setEjudiciaryEmailId("emailId");
         userProfile.setActiveFlag(Boolean.TRUE);
-        userProfile.setJoiningDate(date);
         userProfile.setLastWorkingDate(date);
         userProfile.setLastLoadedDate(dateTime);
-        userProfile.setExtractedDate(dateTime);
         userProfile.setCreatedDate(dateTime);
         userProfile.setObjectId("objectId");
         userProfile.setSidamId("sidamId");
@@ -79,26 +73,25 @@ public class TestSupport {
         return userProfile;
     }
 
-    public static BaseLocationType createBaseLocationType() {
-        BaseLocationType baseLocationType = new BaseLocationType();
-        baseLocationType.setBaseLocationId("0");
-        baseLocationType.setCourtName("Court Name");
-        baseLocationType.setCourtType("Court Type");
-        baseLocationType.setAppointments(Collections.singletonList(new Appointment()));
-        baseLocationType.setCircuit("Circuit");
-        baseLocationType.setAreaOfExpertise("Area of Expertise");
-        return baseLocationType;
+    public static BaseLocation createBaseLocation() {
+        BaseLocation baseLocation = new BaseLocation();
+        baseLocation.setBaseLocationId("0");
+        baseLocation.setCourtName("Court Name");
+        baseLocation.setCourtType("Court Type");
+        baseLocation.setAppointments(Collections.singletonList(new Appointment()));
+        baseLocation.setCircuit("Circuit");
+        baseLocation.setAreaOfExpertise("Area of Expertise");
+        return baseLocation;
     }
 
 
-    public static RegionType createRegionType() {
-        RegionType regionType = new RegionType();
-        regionType.setRegionId("0");
-        regionType.setRegionDescEn("default");
-        regionType.setRegionDescCy("default");
-        regionType.setAppointments(Collections.singletonList(new Appointment()));
+    public static Location createLocation() {
+        Location location = new Location();
+        location.setRegionId("0");
+        location.setRegionDescEn("default");
+        location.setRegionDescCy("default");
 
-        return regionType;
+        return location;
     }
 
 }

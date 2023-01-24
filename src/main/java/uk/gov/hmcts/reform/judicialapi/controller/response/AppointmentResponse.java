@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uk.gov.hmcts.reform.judicialapi.domain.Appointment;
-import uk.gov.hmcts.reform.judicialapi.domain.RegionType;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -43,22 +43,22 @@ public class AppointmentResponse {
         
         if (nonNull(appointment)) {
             this.appointmentId = String.valueOf(appointment.getOfficeAppointmentId());
-            this.baseLocationId = isNull(appointment.getBaseLocationType()) ? EMPTY :
-                appointment.getBaseLocationType().getBaseLocationId();
+            this.baseLocationId = isNull(appointment.getBaseLocation()) ? EMPTY :
+                appointment.getBaseLocation().getBaseLocationId();
             this.isPrincipalAppointment = isNull(appointment.getIsPrincipleAppointment()) ? EMPTY :
                 appointment.getIsPrincipleAppointment().toString();
             this.startDate = isNull(appointment.getStartDate()) ? EMPTY : appointment.getStartDate().toString();
             this.endDate = isNull(appointment.getEndDate()) ? EMPTY : appointment.getEndDate().toString();
 
-            validateNonNull(appointment.getRegionType());
+            validateNonNull(appointment.getLocation());
         }
     }
 
-    public void validateNonNull(RegionType regionType) {
+    public void validateNonNull(Location location) {
 
-        if (nonNull(regionType)) {
-            this.regionId = regionType.getRegionId();
-            this.regionDescEn = regionType.getRegionDescEn();
+        if (nonNull(location)) {
+            this.regionId = location.getRegionId();
+            this.regionDescEn = location.getRegionDescEn();
         }
     }
 }

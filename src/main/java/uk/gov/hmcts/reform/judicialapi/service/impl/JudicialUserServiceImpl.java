@@ -23,12 +23,12 @@ import uk.gov.hmcts.reform.judicialapi.controller.response.LrdOrgInfoServiceResp
 import uk.gov.hmcts.reform.judicialapi.controller.response.OrmResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.UserProfileRefreshResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.UserSearchResponse;
-import uk.gov.hmcts.reform.judicialapi.domain.Appointment;
-import uk.gov.hmcts.reform.judicialapi.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.domain.RegionMapping;
 import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
-import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
 import uk.gov.hmcts.reform.judicialapi.repository.RegionMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.repository.ServiceCodeMappingRepository;
@@ -348,7 +348,7 @@ public class JudicialUserServiceImpl implements JudicialUserService {
     }
 
     private AppointmentRefreshResponse buildAppointmentRefreshResponseDto(
-            Appointment appt, UserProfile profile, List<RegionMapping> regionMappings) {
+        Appointment appt, UserProfile profile, List<RegionMapping> regionMappings) {
         log.info("{} : starting build Appointment Refresh Response Dto ", loggingComponentName);
 
         RegionMapping regionMapping = regionMappings.stream()
@@ -357,7 +357,7 @@ public class JudicialUserServiceImpl implements JudicialUserService {
                 .orElse(null);
 
         RegionMapping regionCircuitMapping = regionMappings.stream()
-                .filter(rm -> rm.getRegion().equalsIgnoreCase(appt.getBaseLocationType().getCircuit()))
+                .filter(rm -> rm.getRegion().equalsIgnoreCase(appt.getBaseLocation().getCircuit()))
                 .findFirst()
                 .orElse(null);
 
@@ -365,16 +365,15 @@ public class JudicialUserServiceImpl implements JudicialUserService {
         return AppointmentRefreshResponse.builder()
                 .baseLocationId(appt.getBaseLocationId())
                 .epimmsId(appt.getEpimmsId())
-                .courtName(appt.getBaseLocationType().getCourtName())
+                .courtName(appt.getBaseLocation().getCourtName())
                 .cftRegionID(getRegionId(appt.getEpimmsId(),regionMapping,regionCircuitMapping,REGION))
                 .cftRegion(getRegion(appt.getEpimmsId(),regionMapping,regionCircuitMapping,REGION))
                 .locationId(getRegionId(appt.getEpimmsId(),regionMapping,regionCircuitMapping,LOCATION))
                 .location(getRegion(appt.getEpimmsId(),regionMapping,regionCircuitMapping,LOCATION))
                 .isPrincipalAppointment(String.valueOf(appt.getIsPrincipleAppointment()))
-                .appointment(appt.getAppointment())
+                .appointment(appt.getAppointmentRolesMapping())
                 .appointmentType(appt.getAppointmentType())
                 .serviceCode(appt.getServiceCode())
-                .roles(getRoleIdList(profile.getJudicialRoleTypes()))
                 .startDate(null != appt.getStartDate() ? String.valueOf(appt.getStartDate()) : null)
                 .endDate(null != appt.getEndDate() ? String.valueOf(appt.getEndDate()) : null)
                 .build();
@@ -394,7 +393,7 @@ public class JudicialUserServiceImpl implements JudicialUserService {
     }
 
     private AuthorisationRefreshResponse buildAuthorisationRefreshResponseDto(
-            Authorisation auth, List<ServiceCodeMapping> serviceCodeMappings) {
+        Authorisation auth, List<ServiceCodeMapping> serviceCodeMappings) {
         log.info("{} : starting build Authorisation Refresh Response Dto ", loggingComponentName);
 
         List<String> serviceCode = serviceCodeMappings.stream()

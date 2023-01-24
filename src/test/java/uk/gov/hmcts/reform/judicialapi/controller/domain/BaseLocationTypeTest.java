@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.judicialapi.controller.domain;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.reform.judicialapi.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.domain.BaseLocationType;
+
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static uk.gov.hmcts.reform.judicialapi.controller.TestSupport.createBaseLocationType;
 
 class BaseLocationTypeTest {
 
@@ -20,5 +22,16 @@ class BaseLocationTypeTest {
         assertEquals("Court Name", baseLocationType.getCourtName());
         assertEquals("Circuit", baseLocationType.getCircuit());
         assertEquals("Area of Expertise", baseLocationType.getAreaOfExpertise());
+    }
+
+    public static BaseLocationType createBaseLocationType() {
+        BaseLocationType baseLocationType = new BaseLocationType();
+        baseLocationType.setBaseLocationId("0");
+        baseLocationType.setCourtName("Court Name");
+        baseLocationType.setCourtType("Court Type");
+        baseLocationType.setAppointments(Collections.singletonList(new Appointment()));
+        baseLocationType.setCircuit("Circuit");
+        baseLocationType.setAreaOfExpertise("Area of Expertise");
+        return baseLocationType;
     }
 }

@@ -6,9 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -17,7 +20,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BaseLocation {
+public class BaseLocation implements Serializable {
 
     @Id
     @Column(name = "base_location_Id")
@@ -44,4 +47,7 @@ public class BaseLocation {
     @JsonProperty(value = "orgunit4name")
     private String areaOfExpertise;
 
+    @OneToMany(targetEntity = uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment.class,
+        mappedBy = "baseLocation")
+    private List<Appointment> appointments;
 }

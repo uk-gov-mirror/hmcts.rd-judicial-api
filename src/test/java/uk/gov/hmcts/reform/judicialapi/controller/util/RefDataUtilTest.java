@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.judicialapi.controller.util;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import uk.gov.hmcts.reform.judicialapi.controller.TestSupport;
-import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 
 import java.util.ArrayList;
 import java.util.List;

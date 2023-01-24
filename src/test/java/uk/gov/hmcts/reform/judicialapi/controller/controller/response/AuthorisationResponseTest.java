@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.judicialapi.controller.controller.response;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.judicialapi.controller.response.AuthorisationResponse;
-import uk.gov.hmcts.reform.judicialapi.domain.Authorisation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.judicialapi.controller.TestSupport.createAuthorisation;

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.judicialapi.controller.response.AppointmentResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.AuthorisationResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.OrmResponse;
-import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 
 import java.util.Collections;
 import java.util.List;
