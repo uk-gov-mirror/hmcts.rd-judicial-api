@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -279,7 +280,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         for (AppointmentsRequest appointment: appointmentsRequests) {
 
             log.info("Retrieving appointment.getBaseLocationId() from DB " + appointment.getBaseLocationId());
-            if (baseLocationRepository.findById(appointment.getBaseLocationId()).isPresent()) {
+            if (!StringUtils.isEmpty(appointment.getBaseLocationId())
+                    && baseLocationRepository.findById(appointment.getBaseLocationId()).isPresent()) {
                 appointmentList.add(uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment.builder()
                         .personalCode(resultsRequest.getPersonalCode())
                         .objectId(resultsRequest.getObjectId())
