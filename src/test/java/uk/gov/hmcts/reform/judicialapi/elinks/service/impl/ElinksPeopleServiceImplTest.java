@@ -191,7 +191,7 @@ class ElinksPeopleServiceImplTest {
         verify(appointmentsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(appointmentsRepository, times(2)).saveAll(any());
 
-        verify(baseLocationRepository, times(16)).findById(any());
+        verify(baseLocationRepository, times(8)).findById(any());
         verify(authorisationsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(authorisationsRepository, times(2)).saveAll(any());
     }
@@ -224,7 +224,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(appointmentsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(appointmentsRepository, times(2)).saveAll(any());
-        verify(baseLocationRepository, times(16)).findById(any());
+        verify(baseLocationRepository, times(8)).findById(any());
 
         verify(authorisationsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(authorisationsRepository, times(2)).saveAll(any());
