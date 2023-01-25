@@ -37,13 +37,10 @@ public class ElinkDataIngestionSchedularAudit {
             audit.setSchedulerStartTime(schedulerStartTime);
             audit.setStatus(status);
             audit.setApiName(apiName);
-
             elinkSchedularAuditRepository.save(audit);
         } catch (Exception e) {
             log.error("{}:: Failure error Message {} in auditSchedulerStatus {}  ",
                 loggingComponentName, e.getMessage(), schedulerName);
         }
-
     }
-
 }
