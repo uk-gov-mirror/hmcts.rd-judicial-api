@@ -25,14 +25,14 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.judicialapi.controller.JrdUsersController;
 import uk.gov.hmcts.reform.judicialapi.controller.response.LrdOrgInfoServiceResponse;
+import uk.gov.hmcts.reform.judicialapi.domain.Appointment;
+import uk.gov.hmcts.reform.judicialapi.domain.Authorisation;
+import uk.gov.hmcts.reform.judicialapi.domain.BaseLocationType;
 import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.domain.RegionMapping;
+import uk.gov.hmcts.reform.judicialapi.domain.RegionType;
 import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
 import uk.gov.hmcts.reform.judicialapi.repository.RegionMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.repository.ServiceCodeMappingRepository;
@@ -175,38 +175,44 @@ public class JrdApiProviderTest {
 
     @NotNull
     private Page<UserProfile> getPageUserProfiles() {
-        var baseLocation = new BaseLocation();
-        baseLocation.setBaseLocationId("1");
-        baseLocation.setCourtName("Social Entitlement");
-        baseLocation.setCourtType("Test court type");
-        baseLocation.setAreaOfExpertise("Test area of expertise");
-        baseLocation.setCircuit("National");
+        var baseLocationType = new BaseLocationType();
+        baseLocationType.setBaseLocationId("1");
+        baseLocationType.setCourtName("Social Entitlement");
+        baseLocationType.setCourtType("Test court type");
+        baseLocationType.setAreaOfExpertise("Test area of expertise");
+        baseLocationType.setCircuit("National");
 
-        var location = new Location();
-        location.setRegionId("1");
-        location.setRegionDescEn("default");
-        location.setRegionDescCy("default");
+        var regionType = new RegionType();
+        regionType.setRegionId("1");
+        regionType.setRegionDescEn("default");
+        regionType.setRegionDescCy("default");
 
         var appointment = new Appointment();
         appointment.setOfficeAppointmentId(12L);
+        appointment.setPerId("testPerId");
         appointment.setStartDate(LocalDate.now());
         appointment.setEndDate(LocalDate.now());
+        appointment.setActiveFlag(Boolean.TRUE);
+        appointment.setExtractedDate(LocalDateTime.now());
         appointment.setCreatedDate(LocalDateTime.now());
         appointment.setLastLoadedDate(LocalDateTime.now());
-        appointment.setBaseLocation(baseLocation);
-        appointment.setLocation(location);
+        appointment.setBaseLocationType(baseLocationType);
+        appointment.setRegionType(regionType);
         appointment.setRegionId("1");
         appointment.setIsPrincipleAppointment(Boolean.TRUE);
         appointment.setPersonalCode("testPersonalCode");
         appointment.setEpimmsId("testEpimmsId");
         appointment.setServiceCode("testServiceCode");
         appointment.setObjectId("testObjectId");
+        appointment.setAppointment("testApp");
         appointment.setAppointmentType("testAppType");
         appointment.setBaseLocationId("testBaseLocID");
 
 
         var authorisation = new Authorisation();
         authorisation.setOfficeAuthId(1234L);
+        authorisation.setPerId("testPerId");
+        authorisation.setTicketId(1234L);
         authorisation.setJurisdiction("Languages");
         authorisation.setStartDate(LocalDateTime.now());
         authorisation.setEndDate(LocalDateTime.parse("2022-03-04T10:11:00.619526"));
@@ -226,12 +232,16 @@ public class JrdApiProviderTest {
         userProfile.setAppointments(appointments);
         userProfile.setAuthorisations(authorisations);
         userProfile.setEjudiciaryEmailId("e@mail.com");
+        userProfile.setPerId("testPerId");
         userProfile.setPersonalCode("testPersonalCode");
         userProfile.setKnownAs("testKnownAs");
         userProfile.setSurname("testSurname");
         userProfile.setFullName("testFullName");
         userProfile.setPostNominals("testPostNominals");
+        userProfile.setWorkPattern("testWorkPattern");
+        userProfile.setJoiningDate(LocalDate.now());
         userProfile.setLastWorkingDate(LocalDate.now());
+        userProfile.setExtractedDate(LocalDateTime.now());
         userProfile.setCreatedDate(LocalDateTime.now());
         userProfile.setLastLoadedDate(LocalDateTime.now());
         userProfile.setActiveFlag(Boolean.TRUE);
@@ -245,6 +255,7 @@ public class JrdApiProviderTest {
         judicialRoleType.setLocation("testLocation");
         judicialRoleType.setStartDate(LocalDateTime.now());
         judicialRoleType.setEndDate(LocalDateTime.now());
+        userProfile.setJudicialRoleTypes(Collections.singletonList(judicialRoleType));
 
         var userProfiles = Collections.singletonList(userProfile);
 

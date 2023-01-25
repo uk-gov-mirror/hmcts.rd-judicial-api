@@ -29,10 +29,10 @@ import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
 import uk.gov.hmcts.reform.judicialapi.repository.RegionMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.repository.ServiceCodeMappingRepository;
-import uk.gov.hmcts.reform.judicialapi.repository.UserProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.service.JudicialUserService;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 import uk.gov.hmcts.reform.judicialapi.util.RefDataConstants;
@@ -58,7 +58,7 @@ import static uk.gov.hmcts.reform.judicialapi.util.RefDataUtil.distinctByKeys;
 public class JudicialUserServiceImpl implements JudicialUserService {
 
     @Autowired
-    private UserProfileRepository userProfileRepository;
+    private ProfileRepository userProfileRepository;
 
     @Autowired
     private ServiceCodeMappingRepository serviceCodeMappingRepository;
