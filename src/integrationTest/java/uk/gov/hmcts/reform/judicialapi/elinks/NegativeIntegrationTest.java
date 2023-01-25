@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASELOCATIONAPI;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_ID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_BAD_REQUEST;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_FORBIDDEN;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
@@ -36,6 +37,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAM_ERROR_MESSAGE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
 
 class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
@@ -726,17 +728,17 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
         ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
-        assertEquals(LEAVERSAPI, auditEntry.getApiName());
-        assertEquals(RefDataElinksConstants.JobStatus.FAILED.getStatus(), auditEntry.getStatus());
+        assertEquals(LOCATIONIDFAILURE, auditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus(), auditEntry.getStatus());
         assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
         assertNotNull(auditEntry.getSchedulerStartTime());
         assertNotNull(auditEntry.getSchedulerEndTime());
 
         List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
         ElinkDataExceptionRecords exceptionEntry = elinksException.get(0);
-        assertEquals(LEAVERSAPI, exceptionEntry.getKey());
-        assertEquals(RefDataElinksConstants.JobStatus.FAILED.getStatus(), exceptionEntry.getErrorDescription());
-        assertEquals(JUDICIAL_REF_DATA_ELINKS, exceptionEntry.getFieldInError());
+        assertNotNull(exceptionEntry.getKey());
+        assertEquals(LOCATIONIDFAILURE, exceptionEntry.getErrorDescription());
+        assertEquals(BASE_LOCATION_ID, exceptionEntry.getFieldInError());
         assertNotNull(exceptionEntry.getSchedulerStartTime());
 
     }
