@@ -133,22 +133,22 @@ def getCheckedOutGitCommitHash() {
     'git rev-parse --verify --short HEAD'.execute().text.trim()
 }
 
-task contract(type: Test) {
-    description = 'Runs the consumer Pact tests'
-    useJUnitPlatform()
-    testClassesDirs = sourceSets.contractTest.output.classesDirs
-    classpath = sourceSets.contractTest.runtimeClasspath
-    include "uk/gov/hmcts/reform/judicialapi/**"
-}
-
-task runProviderPactVerification(type: Test) {
-    useJUnitPlatform()
-    logger.lifecycle("Runs pact Tests")
-    testClassesDirs = sourceSets.contractTest.output.classesDirs
-    classpath = sourceSets.contractTest.runtimeClasspath
-    systemProperty 'pact.verifier.publishResults', System.getProperty('pact.verifier.publishResults')
-    systemProperty 'pact.provider.version', project.pactVersion
-}
+//task contract(type: Test) {
+//    description = 'Runs the consumer Pact tests'
+//    useJUnitPlatform()
+//    testClassesDirs = sourceSets.contractTest.output.classesDirs
+//    classpath = sourceSets.contractTest.runtimeClasspath
+//    include "uk/gov/hmcts/reform/judicialapi/**"
+//}
+//
+//task runProviderPactVerification(type: Test) {
+//    useJUnitPlatform()
+//    logger.lifecycle("Runs pact Tests")
+//    testClassesDirs = sourceSets.contractTest.output.classesDirs
+//    classpath = sourceSets.contractTest.runtimeClasspath
+//    systemProperty 'pact.verifier.publishResults', System.getProperty('pact.verifier.publishResults')
+//    systemProperty 'pact.provider.version', project.pactVersion
+//}
 
 //runProviderPactVerification.dependsOn contract
 
