@@ -278,9 +278,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
         for (AppointmentsRequest appointment: appointmentsRequests) {
 
-            log.info("frustrated" + baseLocationRepository.getOne(appointment.getBaseLocationId()));
-
-            if (baseLocationRepository.getOne(appointment.getBaseLocationId()) != null) {
+            log.info("Retrieving appointment.getBaseLocationId() from DB " + appointment.getBaseLocationId());
+            if (baseLocationRepository.findById(appointment.getBaseLocationId()).isPresent()) {
                 appointmentList.add(uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment.builder()
                         .personalCode(resultsRequest.getPersonalCode())
                         .objectId(resultsRequest.getObjectId())
@@ -296,6 +295,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .workPattern(appointment.getWorkPattern())
                         .build());
             } else {
+                log.warn("Mapped Baselocation not found in base table" + appointment.getBaseLocationId());
+
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         schedulerStartTime,
                         appointment.getBaseLocationId(),
