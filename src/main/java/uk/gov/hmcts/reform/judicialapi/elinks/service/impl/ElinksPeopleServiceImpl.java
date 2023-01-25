@@ -275,7 +275,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
         final List<AppointmentsRequest> appointmentsRequests = resultsRequest.getAppointmentsRequests();
         final List<Appointment> appointmentList = new ArrayList<>();
-
+        String status = RefDataElinksConstants.JobStatus.SUCCESS.getStatus();
         for (AppointmentsRequest appointment: appointmentsRequests) {
 
             log.info("Retrieving appointment.getBaseLocationId() from DB " + appointment.getBaseLocationId());
@@ -296,18 +296,16 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .build());
             } else {
                 log.warn("Mapped Baselocation not found in base table " + appointment.getBaseLocationId());
-
+                status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         schedulerStartTime,
                         appointment.getBaseLocationId(),
                         BASE_LOCATION_ID, LOCATIONIDFAILURE, APPOINTMENT_TABLE);
-                elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                        schedulerStartTime,
-                        now(),
-                        RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus(), LOCATIONIDFAILURE);
-
             }
         }
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                schedulerStartTime, null, status, LOCATIONIDFAILURE);
+
         return appointmentList;
     }
 
