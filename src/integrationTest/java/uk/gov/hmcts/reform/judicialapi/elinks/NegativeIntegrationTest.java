@@ -329,7 +329,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
 
-        ElinkDataSchedularAudit auditEntry = elinksAudit.stream().filter( e -> e.getApiName().equals(LEAVERSAPI))
+        ElinkDataSchedularAudit auditEntry = elinksAudit.stream().filter(e -> e.getApiName().equals(LEAVERSAPI))
                 .findFirst().get();
 
         assertEquals(RefDataElinksConstants.JobStatus.FAILED.getStatus(), auditEntry.getStatus());
