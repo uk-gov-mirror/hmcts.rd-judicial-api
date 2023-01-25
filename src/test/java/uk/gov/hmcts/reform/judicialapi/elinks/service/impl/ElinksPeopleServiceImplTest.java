@@ -39,6 +39,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -169,7 +170,7 @@ class ElinksPeopleServiceImplTest {
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setCourtName("ABC");
-        when(baseLocationRepository.getOne(any())).thenReturn(location);
+        when(baseLocationRepository.findById(any())).thenReturn(Optional.of(location));
         ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
@@ -190,7 +191,7 @@ class ElinksPeopleServiceImplTest {
         verify(appointmentsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(appointmentsRepository, times(2)).saveAll(any());
 
-        verify(baseLocationRepository, times(16)).getOne(any());
+        verify(baseLocationRepository, times(16)).findById(any());
         verify(authorisationsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(authorisationsRepository, times(2)).saveAll(any());
     }
@@ -201,7 +202,7 @@ class ElinksPeopleServiceImplTest {
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setCourtName("ABC");
-        when(baseLocationRepository.getOne(any())).thenReturn(location);
+        when(baseLocationRepository.findById(any())).thenReturn(Optional.of(location));
         ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
@@ -223,7 +224,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(appointmentsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(appointmentsRepository, times(2)).saveAll(any());
-        verify(baseLocationRepository, times(16)).getOne(any());
+        verify(baseLocationRepository, times(16)).findById(any());
 
         verify(authorisationsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(authorisationsRepository, times(2)).saveAll(any());
