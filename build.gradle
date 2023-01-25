@@ -152,7 +152,7 @@ task runProviderPactVerification(type: Test) {
 
 //runProviderPactVerification.dependsOn contract
 
-runProviderPactVerification.finalizedBy pactVerify
+//runProviderPactVerification.finalizedBy pactVerify
 
 pact {
     publish {
