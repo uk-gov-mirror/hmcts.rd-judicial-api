@@ -724,7 +724,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         elinkSchedularAuditRepository.deleteAll();
         Map<String, Object> peoplesResponse = elinksReferenceDataClient.getPeoples();
-        assertThat(peoplesResponse).containsEntry("http_status", "200");
+        assertThat(peoplesResponse).containsEntry("http_status", "200 OK");
 
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
         ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
