@@ -88,9 +88,9 @@ class LeaversIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<ElinkDataSchedularAudit>  elinksAudit = elinkSchedularAuditRepository.findAll();
 
-        ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
+        ElinkDataSchedularAudit auditEntry = elinksAudit.stream().filter(e -> e.getApiName().equals(LEAVERSAPI))
+                .findFirst().get();
 
-        assertEquals(1, auditEntry.getId());
         assertEquals(LEAVERSAPI, auditEntry.getApiName());
         assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), auditEntry.getStatus());
         assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
