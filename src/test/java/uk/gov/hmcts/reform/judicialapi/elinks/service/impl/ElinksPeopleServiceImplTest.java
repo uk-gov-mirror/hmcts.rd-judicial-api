@@ -23,10 +23,12 @@ import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AuthorisationsR
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.PaginationRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.PeopleRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.ResultsRequest;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.ElinksFeignClient;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationMapppingRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
@@ -78,6 +80,10 @@ class ElinksPeopleServiceImplTest {
 
     @Spy
     private DataloadSchedularAuditRepository dataloadSchedularAuditRepository;
+
+    @Spy
+    private BaseLocationRepository baseLocationRepository;
+
 
     @InjectMocks
     private ElinksPeopleServiceImpl elinksPeopleServiceImpl;
@@ -157,14 +163,16 @@ class ElinksPeopleServiceImplTest {
 
     @Test
     void loadPeopleWhenAuditEntryPresentSuccess() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
-        String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
-
         LocalDateTime dateTime = LocalDateTime.now();
 
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
-
+        BaseLocation location = new BaseLocation();
+        location.setBaseLocationId("12345");
+        location.setCourtName("ABC");
+        when(baseLocationRepository.getOne(any())).thenReturn(location);
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
+        String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
         when(elinksFeignClient.getPeopleDetials(any(), any(), any(),
                  Boolean.parseBoolean(any()))).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
@@ -181,28 +189,29 @@ class ElinksPeopleServiceImplTest {
 
         verify(appointmentsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(appointmentsRepository, times(2)).saveAll(any());
-
+        verify(baseLocationRepository, times(8)).getOne(any());
         verify(authorisationsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(authorisationsRepository, times(2)).saveAll(any());
     }
 
     @Test
     void loadPeopleWhenAuditEntryNotPresentSuccess() throws JsonProcessingException {
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(null);
+        BaseLocation location = new BaseLocation();
+        location.setBaseLocationId("12345");
+        location.setCourtName("ABC");
+        when(baseLocationRepository.getOne(any())).thenReturn(location);
         ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(null);
-
         when(elinksFeignClient.getPeopleDetials(any(), any(), any(),
                 Boolean.parseBoolean(any()))).thenReturn(Response.builder()
                         .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
                 .thenReturn(Response.builder().request(mock(Request.class))
                         .body(body2, defaultCharset()).status(200).build());
-
         ResponseEntity<ElinkPeopleWrapperResponse> response = elinksPeopleServiceImpl.updatePeople();
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertThat(response.getBody().getMessage()).isEqualTo(PEOPLE_DATA_LOAD_SUCCESS);
-
 
         verify(elinksFeignClient, times(2)).getPeopleDetials(any(), any(), any(),
                 Boolean.parseBoolean(any()));
@@ -210,6 +219,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(appointmentsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(appointmentsRepository, times(2)).saveAll(any());
+        verify(baseLocationRepository, times(8)).getOne(any());
 
         verify(authorisationsRepository, times(2)).deleteByPersonalCodeIn(any());
         verify(authorisationsRepository, times(2)).saveAll(any());
@@ -350,10 +360,6 @@ class ElinksPeopleServiceImplTest {
                 Boolean.parseBoolean(any()))).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
-        DataAccessException dataAccessException = mock(DataAccessException.class);
-        when(appointmentsRepository.saveAll(any())).thenThrow(dataAccessException);
-
-
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         });
@@ -374,10 +380,6 @@ class ElinksPeopleServiceImplTest {
         when(elinksFeignClient.getPeopleDetials(any(), any(), any(),
                 Boolean.parseBoolean(any()))).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
-
-        DataAccessException dataAccessException = mock(DataAccessException.class);
-        when(authorisationsRepository.saveAll(any())).thenThrow(dataAccessException);
-
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
