@@ -277,6 +277,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         final List<Appointment> appointmentList = new ArrayList<>();
 
         for (AppointmentsRequest appointment: appointmentsRequests) {
+
+            log.info("frustrated" + baseLocationRepository.getOne(appointment.getBaseLocationId()));
+
             if (baseLocationRepository.getOne(appointment.getBaseLocationId()) != null) {
                 appointmentList.add(uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment.builder()
                         .personalCode(resultsRequest.getPersonalCode())
