@@ -1,15 +1,17 @@
 package uk.gov.hmcts.reform.judicialapi.elinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataExceptionRecords;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkDataExceptionRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksEnabledIntegrationTest;
@@ -47,17 +49,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
     private ElinkSchedularAuditRepository elinkSchedularAuditRepository;
 
     @Autowired
+    private ElinkDataExceptionRepository elinkDataExceptionRepository;
+
+    @Autowired
     IdamTokenConfigProperties tokenConfigProperties;
 
-    @BeforeEach
-    void setUp() {
-        cleanupData();
-    }
-
-    @AfterEach
-    void cleanUp() {
-        cleanupData();
-    }
 
     @DisplayName("Elinks People endpoint status verification for future update_since")
     @Test
@@ -70,8 +66,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples(peopleUrl);
 
         assertThat(response).containsEntry("http_status", "400");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
+        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks People endpoint status verification for unauthorized status")
@@ -84,8 +83,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "401");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
+        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks People endpoint status verification for forbidden status")
@@ -98,8 +100,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "403");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
+        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks People endpoint status verification for resource not found status")
@@ -112,8 +117,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "404");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
+        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks People endpoint status verification for Too many requests status")
@@ -126,9 +134,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "429");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
-
+        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks Location endpoint status verification for bad request status")
@@ -140,9 +150,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "400");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
-
+        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks Location endpoint status verification for unauthorized status")
@@ -154,8 +166,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "401");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
+        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks Location endpoint status verification for forbidden status")
@@ -167,8 +182,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "403");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
+        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks Location endpoint status verification for resource not found status")
@@ -180,8 +198,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "404");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
+        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
     }
 
 
@@ -194,8 +215,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "429");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
+        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for bad request status")
@@ -208,8 +232,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "400");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
+        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for unauthorized status")
@@ -222,8 +249,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "401");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
+        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for forbidden status")
@@ -236,8 +266,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "403");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
+        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for resource not found status")
@@ -250,8 +283,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "404");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
+        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for Too many requests status")
@@ -264,8 +300,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "429");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
+        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Elinks Leavers to test JRD Audit Negative Scenario Functionality verification")
@@ -343,9 +382,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "400");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
+        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
     @DisplayName("test_get_leavers_with_wrong_token_return_response_status_401()")
@@ -358,9 +399,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "401");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
+        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
     }
 
     @DisplayName("test_get_leavers_return_with_invalid_token_response_status_403()")
@@ -373,8 +416,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "403");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
+        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
     }
 
     @DisplayName("test_get_leavers_url_not_found_return_response_status_404()")
@@ -387,8 +433,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "404");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
+        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
     }
 
     @DisplayName("test_get_leavers_exceeding_limit_return_response_status_429()")
@@ -401,8 +450,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "429");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
+        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
     }
 
     @DisplayName("test_get_leavers_missing_mandatory_param_return_response_status_400()")
@@ -415,9 +467,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "400");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
-
+        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
     @DisplayName("test_get_leavers_future_since_then_return_response_status_400()")
@@ -430,9 +484,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "400");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
+        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Idam_return_with_invalid_token_response_status_403")
@@ -445,8 +501,11 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response  = elinksReferenceDataClient.getIdamElasticSearch();
 
         assertEquals(response.get("http_status"),String.valueOf(statusCode));
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorResponse errorDetails = objectMapper
+                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertThat(response.get("response_body").toString()).contains(IDAM_ERROR_MESSAGE);
+        assertEquals(IDAM_ERROR_MESSAGE, errorDetails.getErrorMessage());
     }
 
     @DisplayName("Idam_url_not_found_return_response_status_404")
@@ -539,8 +598,146 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
     }
 
-    private void cleanupData() {
-        elinkSchedularAuditRepository.deleteAll();
-    }
+    @DisplayName("peoples data exception and audit testing when base location id not present exclude appointments")
+    @Test
+    public void verifyPeoplesJrdExceptionRecordsBaseLocationNotFoundScenario() {
+        elinks.stubFor(get(urlPathMatching("/people"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Connection", "close")
+                        .withBody("{"
+                                + "    \"pagination\": {"
+                                + "      \"results\": 1,"
+                                + "      \"pages\": 1,"
+                                + "      \"current_page\": 1,"
+                                + "      \"results_per_page\": 1,"
+                                + "      \"more_pages\": false"
+                                + "  },"
+                                + "  \"results\": ["
+                                + "      {"
+                                + "          \"id\": \"552da697-4b3d-4aed-9c22-1e903b70aead\","
+                                + "          \"per_id\": 57818,"
+                                + "          \"personal_code\": \"0049931063\","
+                                + "          \"title\": \"Tribunal Judge\","
+                                + "          \"known_as\": \"Tester\","
+                                + "          \"surname\": \"TestAccount 2\","
+                                + "          \"fullname\": \"Tribunal Judge Tester TestAccount 2\","
+                                + "          \"post_nominals\": \"ABC\","
+                                + "      \"email\": \"Tester2@judiciarystaging.onmicrosoft.com\","
+                                + "          \"sex\": \"sex_unknown\","
+                                + "          \"work_phone\": null,"
+                                + "          \"disability\": false,"
+                                + "          \"retirement_date\": null,"
+                                + "          \"leaving_on\": null,"
+                                + "          \"appointments\": ["
+                                + "              {"
+                                + "                  \"appointment_id\": 114325,"
+                                + "                  \"role\": \"Tribunal Judge\","
+                                + "                  \"role_name\": \"Tribunal Judge\","
+                                + "                  \"role_name_id\": null,"
+                                + "                  \"type\": \"Courts\","
+                                + "                  \"court_name\": \"Worcester Combined Court - Crown\","
+                                + "                  \"court_type\": \"Crown Court\","
+                                + "                  \"circuit\": \"default\","
+                                + "                  \"bench\": null,"
+                                + "                  \"advisory_committee_area\": null,"
+                                + "                  \"location\": \"default\","
+                                + "                  \"base_location\": \"Worcester Combined Court - Crown\","
+                                + "                  \"base_location_id\": 1000,"
+                                + "                  \"is_principal\": false,"
+                                + "                  \"start_date\": \"2022-06-29\","
+                                + "                  \"end_date\": null,"
+                                + "                  \"superseded\": true,"
+                                + "                  \"contract_type\": \"fee_paid\","
+                                + "                  \"contract_type_id\": 1,"
+                                + "                  \"work_pattern\": \"Fee Paid Judiciary 5 Days Mon - Fri\","
+                                + "                  \"work_pattern_id\": 10,"
+                                + "                  \"fte_percent\": 100"
+                                + "              },"
+                                + "              {"
+                                + "                  \"appointment_id\": 114329,"
+                                + "                  \"role\": \"Magistrate\","
+                                + "                  \"role_name\": \"Magistrate\","
+                                + "                  \"role_name_id\": null,"
+                                + "                   \"type\": \"Courts\","
+                                + "                    \"court_name\": \"Central London County Court\","
+                                + "                   \"court_type\": \"County Court\","
+                                + "                  \"circuit\": \"default\","
+                                + "                  \"bench\": null,"
+                                + "                  \"advisory_committee_area\": null,"
+                                + "                  \"location\": \"default\","
+                                + "                  \"base_location\": \"Central London County Court\","
+                                + "                  \"base_location_id\": 1200,"
+                                + "                  \"is_principal\": true,"
+                                + "                  \"start_date\": \"2022-07-27\","
+                                + "                  \"end_date\": null,"
+                                + "                  \"superseded\": false,"
+                                + "                  \"contract_type\": \"salaried\","
+                                + "                  \"contract_type_id\": 0,"
+                                + "                  \"work_pattern\": \"Fee Paid Judiciary 5 Days Mon - Fri\","
+                                + "                  \"work_pattern_id\": 10,"
+                                + "                  \"fte_percent\": 100"
+                                + "              }"
+                                + "          ],"
+                                + "          \"training_records\": [],"
+                                + "          \"authorisations\": ["
+                                + "              {"
+                                + "                  \"jurisdiction\": \"Family\","
+                                + "                  \"tickets\": ["
+                                + "                      \"Private Law\""
+                                + "                  ]"
+                                + "              },"
+                                + "              {"
+                                + "                  \"jurisdiction\": \"Tribunals\","
+                                + "                  \"tickets\": ["
+                                + "                      \"05 - Industrial Injuries\""
+                                + "                  ]"
+                                + "              }"
+                                + "          ],"
+                                + "          \"authorisations_with_dates\": ["
+                                + "              {"
+                                + "                  \"authorisation_id\": 29701,"
+                                + "                  \"jurisdiction\": \"Family\","
+                                + "                  \"jurisdiction_id\": 26,"
+                                + "                  \"ticket\": \"Private Law\","
+                                + "                  \"ticket_id\": 315,"
+                                + "                  \"start_date\": \"2022-07-03\","
+                                + "                 \"end_date\": null"
+                                + "                },"
+                                + "                {"
+                                + "                \"authorisation_id\": 29700,"
+                                + "                 \"jurisdiction\": \"Tribunals\","
+                                + "                 \"jurisdiction_id\": 27,"
+                                + "                 \"ticket\": \"05 - Industrial Injuries\","
+                                + "                 \"ticket_id\": 367,"
+                                + "                 \"start_date\": \"2022-07-04\","
+                                + "                 \"end_date\": null"
+                                + "                }"
+                                + "            ]"
+                                + "        }"
+                                + "    ]"
+                                + " }")
+                ));
 
+        elinkSchedularAuditRepository.deleteAll();
+        Map<String, Object> peoplesResponse = elinksReferenceDataClient.getPeoples();
+        assertThat(peoplesResponse).containsEntry("http_status", "200");
+
+        List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
+        ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
+        assertEquals(LEAVERSAPI, auditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.FAILED.getStatus(), auditEntry.getStatus());
+        assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
+        assertNotNull(auditEntry.getSchedulerStartTime());
+        assertNotNull(auditEntry.getSchedulerEndTime());
+
+        List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
+        ElinkDataExceptionRecords exceptionEntry = elinksException.get(0);
+        assertEquals(LEAVERSAPI, exceptionEntry.getKey());
+        assertEquals(RefDataElinksConstants.JobStatus.FAILED.getStatus(), exceptionEntry.getErrorDescription());
+        assertEquals(JUDICIAL_REF_DATA_ELINKS, exceptionEntry.getFieldInError());
+        assertNotNull(exceptionEntry.getSchedulerStartTime());
+
+    }
 }
