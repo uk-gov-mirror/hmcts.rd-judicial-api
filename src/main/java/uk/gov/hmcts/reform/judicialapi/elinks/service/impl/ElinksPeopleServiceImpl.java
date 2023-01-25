@@ -295,7 +295,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .workPattern(appointment.getWorkPattern())
                         .build());
             } else {
-                log.warn("Mapped Baselocation not found in base table" + appointment.getBaseLocationId());
+                log.warn("Mapped Baselocation not found in base table " + appointment.getBaseLocationId());
 
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         schedulerStartTime,
