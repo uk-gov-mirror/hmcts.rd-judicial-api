@@ -150,7 +150,7 @@ task runProviderPactVerification(type: Test) {
     systemProperty 'pact.provider.version', project.pactVersion
 }
 
-runProviderPactVerification.dependsOn contract
+//runProviderPactVerification.dependsOn contract
 
 runProviderPactVerification.finalizedBy pactVerify
 
