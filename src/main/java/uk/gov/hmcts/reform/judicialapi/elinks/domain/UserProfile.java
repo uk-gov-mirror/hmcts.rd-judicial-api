@@ -81,14 +81,19 @@ public class UserProfile implements Serializable {
     @Size(max = 64)
     private String initials;
 
-    @OneToMany(targetEntity = uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment.class,
+    @OneToMany(targetEntity = Appointment.class,
         mappedBy = "userProfile", cascade = ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Fetch(FetchMode.SUBSELECT)
     private List<Appointment> appointments;
 
-    @OneToMany(targetEntity = uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation.class,
+    @OneToMany(targetEntity = Authorisation.class,
         mappedBy = "userProfile", cascade = ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Fetch(FetchMode.SUBSELECT)
     private List<Authorisation> authorisations;
+
+    @OneToMany(targetEntity = JudicialRoleType.class, mappedBy = "userProfile", cascade = ALL,
+        orphanRemoval = true, fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<JudicialRoleType> judicialRoleTypes;
     
 }

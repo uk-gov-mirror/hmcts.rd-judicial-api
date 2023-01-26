@@ -23,11 +23,11 @@ import uk.gov.hmcts.reform.judicialapi.controller.response.LrdOrgInfoServiceResp
 import uk.gov.hmcts.reform.judicialapi.controller.response.OrmResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.UserProfileRefreshResponse;
 import uk.gov.hmcts.reform.judicialapi.controller.response.UserSearchResponse;
-import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.domain.RegionMapping;
 import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
 import uk.gov.hmcts.reform.judicialapi.repository.RegionMappingRepository;

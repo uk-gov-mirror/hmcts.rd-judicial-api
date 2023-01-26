@@ -6,6 +6,7 @@ import au.com.dius.pact.provider.junitsupport.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactBroker;
+import au.com.dius.pact.provider.junitsupport.loader.VersionSelector;
 import au.com.dius.pact.provider.spring.junit5.MockMvcTestTarget;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,12 +25,12 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.judicialapi.controller.JrdUsersController;
 import uk.gov.hmcts.reform.judicialapi.controller.response.LrdOrgInfoServiceResponse;
-import uk.gov.hmcts.reform.judicialapi.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.domain.RegionMapping;
 import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
@@ -57,7 +58,8 @@ import static org.mockito.Mockito.when;
 @Provider("referenceData_judicial")
 @PactBroker(scheme = "${PACT_BROKER_SCHEME:http}",
         host = "${PACT_BROKER_URL:localhost}",
-        port = "${PACT_BROKER_PORT:80}")
+        port = "${PACT_BROKER_PORT:80}", consumerVersionSelectors = {
+        @VersionSelector(tag = "master")})
 @ContextConfiguration(classes = {JrdUsersController.class, JudicialUserServiceImpl.class})
 @TestPropertySource(properties = {"defaultPageSize=10", "refresh.pageSize=10", "refresh.sortColumn=objectId"})
 @IgnoreNoPactsToVerify
@@ -199,6 +201,7 @@ public class JrdApiProviderTest {
         appointment.setEpimmsId("testEpimmsId");
         appointment.setServiceCode("testServiceCode");
         appointment.setObjectId("testObjectId");
+        appointment.setAppointmentRolesMapping("testApp");
         appointment.setAppointmentType("testAppType");
         appointment.setBaseLocationId("testBaseLocID");
 
@@ -238,11 +241,11 @@ public class JrdApiProviderTest {
 
         var judicialRoleType = new JudicialRoleType();
         judicialRoleType.setRoleId("testRoleId");
-        judicialRoleType.setPerId("testPerId");
         judicialRoleType.setTitle("testTitle");
         judicialRoleType.setLocation("testLocation");
         judicialRoleType.setStartDate(LocalDateTime.now());
         judicialRoleType.setEndDate(LocalDateTime.now());
+        userProfile.setJudicialRoleTypes(Collections.singletonList(judicialRoleType));
 
         var userProfiles = Collections.singletonList(userProfile);
 
