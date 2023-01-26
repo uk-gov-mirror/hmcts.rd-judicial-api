@@ -56,18 +56,10 @@ public class RefDataElinksConstants {
 
     public static final String BASELOCATIONAPI = "BaseLocationAPI";
 
-    public static final String BASE_LOCATION_ID = "base_location_id";
-
-    public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
-
-
-    public static final String LOCATIONIDFAILURE = "Appointment Base Location ID not available in BASE LOCATION table";
-
     public enum JobStatus {
         IN_PROGRESS("IN_PROGRESS"),
         FAILED("FAILED"),
-        SUCCESS("SUCCESS"),
-        PARTIAL_SUCCESS("PARTIAL_SUCCESS");
+        SUCCESS("SUCCESS");
         String status;
         JobStatus(String status) {
             this.status = status;
