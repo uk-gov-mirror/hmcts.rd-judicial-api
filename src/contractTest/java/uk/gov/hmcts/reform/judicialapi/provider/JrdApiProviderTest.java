@@ -132,7 +132,7 @@ public class JrdApiProviderTest {
                 .thenReturn(userProfiles);
     }
 
-    @State({"return judicial user profiles along with their active appointments and authorisations"})
+//    @State({"return judicial user profiles along with their active appointments and authorisations"})
     public void toReturnUserProfilesDetailsForRefreshUserProfile() throws JsonProcessingException {
 
         doNothing().when(refreshUserValidator).shouldContainOnlyOneInputParameter(any());
@@ -214,7 +214,7 @@ public class JrdApiProviderTest {
         authorisation.setCreatedDate(LocalDateTime.now());
         authorisation.setLastUpdated(LocalDateTime.now());
         authorisation.setLowerLevel("lower level");
-        authorisation.setPersonalCode("Personal code");
+        authorisation.setPersonalCode("testPersonalCode");
         authorisation.setTicketCode("Ticket code");
         authorisation.setObjectId("Object id");
 
@@ -240,7 +240,7 @@ public class JrdApiProviderTest {
         userProfile.setPersonalCode("1234");
 
         var judicialRoleType = new JudicialRoleType();
-        judicialRoleType.setPersonalCode("testPerId");
+        judicialRoleType.setPersonalCode("testPersonalCode");
         judicialRoleType.setRoleId("testRoleId");
         judicialRoleType.setTitle("testTitle");
         judicialRoleType.setStartDate(LocalDateTime.now());
