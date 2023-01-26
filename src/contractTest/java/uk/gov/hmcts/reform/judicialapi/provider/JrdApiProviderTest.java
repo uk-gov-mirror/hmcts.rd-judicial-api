@@ -240,7 +240,7 @@ public class JrdApiProviderTest {
         userProfile.setPersonalCode("1234");
 
         var judicialRoleType = new JudicialRoleType();
-        judicialRoleType.setPersonalCode("testPersonalCode");
+        judicialRoleType.setPersonalCode("testPerId");
         judicialRoleType.setRoleId("testRoleId");
         judicialRoleType.setTitle("testTitle");
         judicialRoleType.setStartDate(LocalDateTime.now());
