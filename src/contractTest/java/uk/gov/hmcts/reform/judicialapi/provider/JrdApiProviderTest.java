@@ -132,7 +132,7 @@ public class JrdApiProviderTest {
                 .thenReturn(userProfiles);
     }
 
-//    @State({"return judicial user profiles along with their active appointments and authorisations"})
+    //@State({"return judicial user profiles along with their active appointments and authorisations"})
     public void toReturnUserProfilesDetailsForRefreshUserProfile() throws JsonProcessingException {
 
         doNothing().when(refreshUserValidator).shouldContainOnlyOneInputParameter(any());
