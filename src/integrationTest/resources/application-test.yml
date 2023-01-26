@@ -160,8 +160,14 @@ jrd:
         bus:
           host: ${JRD_MQ_HOST:rd-servicebus-sandbox.servicebus.windows.net}
           username: ${JRD_MQ_USERNAME:SendAndListenSharedAccessKey}
-          password: ${JUDICIAL_TOPIC_PRIMARY_SEND_LISTEN_SHARED_ACCESS_KEY:}
+          password: ${JUDICIAL_TOPIC_PRIMARY_SEND_LISTEN_SHARED_ACCESS_KEY:testkey}
           topic: ${JRD_MQ_TOPIC_NAME:rd-judicial-topic-sandbox}
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
     jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:50}
+
+launchdarkly:
+  sdk:
+    key: ${LD_SDK_KEY:}
+    environment: ${LAUNCH_DARKLY_ENV:preview}
+    user: rd
