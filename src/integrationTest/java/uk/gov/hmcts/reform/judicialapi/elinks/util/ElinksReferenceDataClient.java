@@ -13,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
@@ -69,6 +70,30 @@ public class ElinksReferenceDataClient {
         return getResponse(responseEntity);
     }
 
+    public Map<String, Object> getPeoples(String peopleUrl) {
+
+        var stringBuilder = new StringBuilder();
+
+        ResponseEntity<ElinkPeopleWrapperResponse> responseEntity;
+        HttpEntity<?> request =
+                new HttpEntity<Object>(getMultipleAuthHeaders("jrd-system-user", null));
+
+        try {
+
+            responseEntity = restTemplate.exchange(
+                    baseUrl + peopleUrl,HttpMethod.GET,request, ElinkPeopleWrapperResponse.class);
+
+        } catch (RestClientResponseException ex) {
+            var statusAndBody = new HashMap<String, Object>(2);
+            statusAndBody.put("http_status", String.valueOf(ex.getRawStatusCode()));
+            statusAndBody.put("response_body", ex.getResponseBodyAsString());
+            return statusAndBody;
+        }
+
+        return getResponse(responseEntity);
+    }
+
+
 
     public Map<String, Object> getLocations() {
 
@@ -88,9 +113,9 @@ public class ElinksReferenceDataClient {
             return statusAndBody;
         }
 
-        return getLocationResponse(responseEntity);
+        return getResponse(responseEntity);
     }
-  
+
 
     public Map<String, Object>  getLeavers() {
 
@@ -112,32 +137,52 @@ public class ElinksReferenceDataClient {
             return statusAndBody;
         }
 
-        return getLeaversResponse(responseEntity);
+        return getResponse(responseEntity);
     }
 
+    public Map<String, Object> getBaseLocations() {
 
-    private Map<String, Object> getLeaversResponse(ResponseEntity<ElinkLeaversWrapperResponse> responseEntity) {
+        ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity;
+        HttpEntity<?> request =
+            new HttpEntity<>(getMultipleAuthHeaders("jrd-system-user", null));
 
-        var response = new HashMap();
+        try {
 
-        response.put("http_status", responseEntity.getStatusCode().toString());
-        response.put("headers", responseEntity.getHeaders().toString());
-        response.put("body", responseEntity.getBody());
-        return response;
+            responseEntity = restTemplate.exchange(
+                baseUrl + "/reference_data/base_location",HttpMethod.GET,request,
+                ElinkBaseLocationWrapperResponse.class);
+
+        } catch (RestClientResponseException ex) {
+            var statusAndBody = new HashMap<String, Object>(2);
+            statusAndBody.put("http_status", String.valueOf(ex.getRawStatusCode()));
+            statusAndBody.put("response_body", ex.getResponseBodyAsString());
+            return statusAndBody;
+        }
+
+        return getResponse(responseEntity);
     }
 
+    public Map<String, Object>  getIdamElasticSearch() {
 
-    private Map<String, Object> getLocationResponse(ResponseEntity<ElinkLocationWrapperResponse> responseEntity) {
-      
-        var response = new HashMap();
+        var stringBuilder = new StringBuilder();
 
-        response.put("http_status", responseEntity.getStatusCode().toString());
-        response.put("headers", responseEntity.getHeaders().toString());
-        response.put("body", responseEntity.getBody());
-        return response;
+        ResponseEntity<Object> responseEntity = null;
+        HttpEntity<?> request =
+                new HttpEntity<Object>(getMultipleAuthHeaders("jrd-system-user", null));
+        try {
+            responseEntity = restTemplate.exchange(
+                    baseUrl + "/idam/elastic/search", HttpMethod.GET, request, Object.class);
+
+        } catch (RestClientResponseException ex) {
+            var statusAndBody = new HashMap<String, Object>(2);
+            statusAndBody.put("http_status", String.valueOf(ex.getRawStatusCode()));
+            statusAndBody.put("response_body", ex.getResponseBodyAsString());
+            return statusAndBody;
+        }
+        return  getResponse(responseEntity);
     }
-  
-    private Map<String, Object> getResponse(ResponseEntity<ElinkPeopleWrapperResponse> responseEntity) {
+
+    private Map<String, Object> getResponse(ResponseEntity<?> responseEntity) {
 
         var response = new HashMap();
 
