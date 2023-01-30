@@ -24,7 +24,7 @@ public class JudicialRoleType implements Serializable {
 
     @Id
     @Column(name = "role_id")
-    private String roleId;
+    private Integer roleId;
 
     @Column(name = "personal_code")
     private String personalCode;

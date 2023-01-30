@@ -47,7 +47,7 @@ public class BaseLocation implements Serializable {
     @JsonProperty(value = "orgunit4name")
     private String areaOfExpertise;
 
-    @OneToMany(targetEntity = uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment.class,
+    @OneToMany(targetEntity = Appointment.class,
         mappedBy = "baseLocation")
     private List<Appointment> appointments;
 }

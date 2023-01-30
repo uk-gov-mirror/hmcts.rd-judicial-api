@@ -374,6 +374,7 @@ public class JudicialUserServiceImpl implements JudicialUserService {
                 .appointment(appt.getAppointmentRolesMapping())
                 .appointmentType(appt.getAppointmentType())
                 .serviceCode(appt.getServiceCode())
+                .roles(getRoleIdList(profile.getJudicialRoleTypes()))
                 .startDate(null != appt.getStartDate() ? String.valueOf(appt.getStartDate()) : null)
                 .endDate(null != appt.getEndDate() ? String.valueOf(appt.getEndDate()) : null)
                 .build();
