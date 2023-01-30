@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperR
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.DataloadSchedulerJobAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
@@ -92,7 +93,8 @@ public class ElinksApiJobScheduler {
                 = retrieveLeaversDetails();
         ResponseEntity<Object> idamSearchResponse
                 = retrieveIdamElasticSearchDetails();
-        //Publish Api is pending
+        ResponseEntity<SchedulerJobStatusResponse> schedulerResponse
+            = retrieveAsbPublishDetails();
     }
 
     public ResponseEntity<ElinkLocationWrapperResponse> retrieveLocationDetails() {
@@ -181,4 +183,19 @@ public class ElinksApiJobScheduler {
 
     }
 
+    public ResponseEntity<SchedulerJobStatusResponse> retrieveAsbPublishDetails() {
+
+        String apiUrl = eLinksWrapperBaseUrl.concat(ELINKS_CONTROLLER_BASE_URL)
+            .concat("/idam/asb/publish");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(APPLICATION_JSON);
+
+        HttpEntity<String> request =
+            new HttpEntity<>(headers);
+
+        return restTemplate.exchange(apiUrl,
+            HttpMethod.GET, request, SchedulerJobStatusResponse.class);
+
+    }
 }
