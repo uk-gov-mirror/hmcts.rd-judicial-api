@@ -302,6 +302,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
     }
+
     @DisplayName("Elinks people to test JRD Audit Negative Scenario Functionality verification")
     @Test
     void verifyPeopleJrdAuditFunctionalityBadRequestScenario() {
