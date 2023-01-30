@@ -6,12 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksEnabledIntegrationTest;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 
 class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
@@ -33,6 +38,9 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @Autowired
     private AuthorisationsRepository authorisationsRepository;
+
+    @Autowired
+    private ElinkSchedularAuditRepository elinkSchedularAuditRepository;
 
     @BeforeEach
     void setUp() {
@@ -147,5 +155,25 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
         assertNotNull(authorisationList.get(1).getCreatedDate());
         assertNotNull(authorisationList.get(1).getLastUpdated());
 
+    }
+
+
+    @DisplayName("Elinks People to Audit verification")
+    @Test
+    void verifyLeaversJrdAuditFunctionality() {
+
+        Map<String, Object> response = elinksReferenceDataClient.getPeoples();
+        assertThat(response).containsEntry("http_status", "200 OK");
+        ElinkPeopleWrapperResponse profiles = (ElinkPeopleWrapperResponse)response.get("body");
+        assertEquals("People data loaded successfully", profiles.getMessage());
+
+        List<ElinkDataSchedularAudit>  elinksAudit = elinkSchedularAuditRepository.findAll();
+        ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
+        assertEquals(1, auditEntry.getId());
+        assertEquals(PEOPLEAPI, auditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), auditEntry.getStatus());
+        assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
+        assertNotNull(auditEntry.getSchedulerStartTime());
+        assertNotNull(auditEntry.getSchedulerEndTime());
     }
 }
