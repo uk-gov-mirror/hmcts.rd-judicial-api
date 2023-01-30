@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.judicialapi.controller.request.RefreshRoleRequest;
 import uk.gov.hmcts.reform.judicialapi.util.AuthorizationEnabledIntegrationTest;
@@ -37,7 +38,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC2 - Scenario-Retrieve using ObjectId")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
      void shouldReturn_200_ValidParameters_objectIds_01(String role) {
 
@@ -65,7 +66,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC3  - Scenario-Retrieve based on SIDAM ID(s)")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_200_ValidParameters_sidamIds_01(String role) {
 
@@ -91,7 +92,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
 
 
     @DisplayName("AC4  - Scenario- Get Bad Request when all params are empty")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_200_ValidParameters_ccdPageSize(String role) {
 
@@ -110,7 +111,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC6 - Scenario: Full list of Judicial user details is sorted based on the sort_column")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_200_ValidParameters_sorted(String role) {
 
@@ -130,7 +131,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC7 - Scenario: Full list of Judicial user is sorted based on the descending order")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = {"jrd-admin"})
     void sortedDescendingOrder(String role) {
 
@@ -150,7 +151,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC9 - Scenario: Get Bad Request when no parameter is passed")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
      void shouldReturn_400_ValidParameters_ccdServiceEmpty(String role) {
 
@@ -165,7 +166,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("Get Bad Request When CCDServiceName Contain Comma Separated")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-admin"})
     void shouldReturn_400_ValidParameters_ResponseHeader(String role) {
 
@@ -183,7 +184,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC26 - Scenario : Judge has an Active IAC Appointment with an Active IAC Authorisation")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_200_ValidParameters_objectIds_02(String role) {
 
@@ -216,7 +217,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC27  - Scenario-Retrieve based on Personal Code(s)")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_200_ValidParameters_personalCodes_01(String role) {
 
@@ -240,7 +241,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("AC28  - Scenario-Retrieve based on Personal Code(s) return 404")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_404_InValid_personalCodes_01(String role) {
 
@@ -257,7 +258,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("Scenario-Feature flag is not released")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn403WhenLdFeatureDisabled(String role) {
         var launchDarklyMap = new HashMap<String, String>();
@@ -308,7 +309,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("Validate soft delete service code scenario")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_200_ValidParameters_Mrd_Delete_time(String role) {
 
@@ -341,7 +342,7 @@ class RefreshUserProfileIntegrationTest extends AuthorizationEnabledIntegrationT
     }
 
     @DisplayName("Non-Tribunal cft region and location")
-    //@ParameterizedTest
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn_200_Non_Tribunal_scenario_01(String role) {
 

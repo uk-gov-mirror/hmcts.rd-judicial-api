@@ -154,4 +154,8 @@ withPipeline(type, product, component) {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'build/reports/tests/**/*'
     }
 
+    enablePactAs([
+        AppPipelineDsl.PactRoles.PROVIDER
+    ])
+
 }

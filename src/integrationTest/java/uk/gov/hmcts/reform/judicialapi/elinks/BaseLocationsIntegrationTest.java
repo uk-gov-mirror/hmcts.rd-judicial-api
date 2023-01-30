@@ -56,12 +56,17 @@ class BaseLocationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
 
-        assertEquals(1, baseLocationList.size());
+        assertEquals(2, baseLocationList.size());
         assertEquals("0", baseLocationList.get(0).getBaseLocationId());
         assertEquals("default", baseLocationList.get(0).getCourtName());
         assertEquals("default", baseLocationList.get(0).getCourtType());
         assertEquals("default", baseLocationList.get(0).getCircuit());
         assertEquals("default", baseLocationList.get(0).getAreaOfExpertise());
+        assertEquals("1029", baseLocationList.get(1).getBaseLocationId());
+        assertEquals("Aberconwy", baseLocationList.get(1).getCourtName());
+        assertEquals("Old Gwynedd", baseLocationList.get(1).getCourtType());
+        assertEquals("National", baseLocationList.get(1).getCircuit());
+        assertEquals("LJA", baseLocationList.get(1).getAreaOfExpertise());
     }
 
     @DisplayName("Elinks Base Location to JRD Audit Functionality verification")
@@ -74,12 +79,17 @@ class BaseLocationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
 
-        assertEquals(1, baseLocationList.size());
+        assertEquals(2, baseLocationList.size());
         assertEquals("0", baseLocationList.get(0).getBaseLocationId());
         assertEquals("default", baseLocationList.get(0).getCourtName());
         assertEquals("default", baseLocationList.get(0).getCourtType());
         assertEquals("default", baseLocationList.get(0).getCircuit());
         assertEquals("default", baseLocationList.get(0).getAreaOfExpertise());
+        assertEquals("1029", baseLocationList.get(1).getBaseLocationId());
+        assertEquals("Aberconwy", baseLocationList.get(1).getCourtName());
+        assertEquals("Old Gwynedd", baseLocationList.get(1).getCourtType());
+        assertEquals("National", baseLocationList.get(1).getCircuit());
+        assertEquals("LJA", baseLocationList.get(1).getAreaOfExpertise());
 
         List<ElinkDataSchedularAudit>  elinksAudit = elinkSchedularAuditRepository.findAll();
 

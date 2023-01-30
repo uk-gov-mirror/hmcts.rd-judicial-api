@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.elinks;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +56,13 @@ class LocationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<Location> locationsList = locationRepository.findAll();
 
-        assertEquals(1, locationsList.size());
+        assertEquals(2, locationsList.size());
         assertEquals("0", locationsList.get(0).getRegionId());
         assertEquals("default", locationsList.get(0).getRegionDescEn());
         assertEquals("default", locationsList.get(0).getRegionDescCy());
+        assertEquals("1", locationsList.get(1).getRegionId());
+        assertEquals("National", locationsList.get(1).getRegionDescEn());
+        Assertions.assertNull(locationsList.get(1).getRegionDescCy());
     }
 
     @DisplayName("Elinks  Location to JRD Audit Functionality verification")
@@ -71,10 +75,13 @@ class LocationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<Location> locationsList = locationRepository.findAll();
 
-        assertEquals(1, locationsList.size());
+        assertEquals(2, locationsList.size());
         assertEquals("0", locationsList.get(0).getRegionId());
         assertEquals("default", locationsList.get(0).getRegionDescEn());
         assertEquals("default", locationsList.get(0).getRegionDescCy());
+        assertEquals("1", locationsList.get(1).getRegionId());
+        assertEquals("National", locationsList.get(1).getRegionDescEn());
+        Assertions.assertNull(locationsList.get(1).getRegionDescCy());
 
         List<ElinkDataSchedularAudit>  elinksAudit = elinkSchedularAuditRepository.findAll();
 

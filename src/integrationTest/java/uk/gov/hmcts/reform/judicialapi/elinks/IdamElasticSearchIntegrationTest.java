@@ -41,7 +41,6 @@ class IdamElasticSearchIntegrationTest extends ElinksEnabledIntegrationTest {
         tokenConfigProperties.setAuthorization(authorization);
         tokenConfigProperties.setRedirectUri(redirectUri);
         tokenConfigProperties.setUrl(url);
-        profileRepository.deleteAll();
     }
 
     @DisplayName("Idam Elastic Search status")
@@ -55,6 +54,7 @@ class IdamElasticSearchIntegrationTest extends ElinksEnabledIntegrationTest {
     @DisplayName("SIADM id verification")
     @Test
     void verifyPeopleJrdUserProfile() {
+        profileRepository.deleteAll();
 
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
         assertThat(response).containsEntry("http_status", "200 OK");
