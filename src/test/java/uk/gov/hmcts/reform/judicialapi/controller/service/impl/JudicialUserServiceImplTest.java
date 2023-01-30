@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
@@ -325,7 +326,7 @@ class JudicialUserServiceImplTest {
     }
 
     @DisplayName("Refresh Userprofile based on IAC objectId")
-    //@Test
+    @Test
     void test_refreshUserProfile_BasedOnObjectIds_200() {
         var userProfile = buildUserProfileIac();
         var pageRequest = getPageRequest();
@@ -403,7 +404,7 @@ class JudicialUserServiceImplTest {
     }
 
     @DisplayName("Refresh Userprofile based on IAC and Non IAC objectId")
-    //@Test
+    @Test
     void test_refreshUserProfile_BasedOnObjectIds_Iac_NonIac200() {
         var userProfileIac = buildUserProfileIac();
         var userProfileNonIac = buildUserProfileNonIac();
@@ -463,7 +464,7 @@ class JudicialUserServiceImplTest {
     }
 
 
-    //@Test
+    @Test
     void test_refreshUserProfile_BasedOnPersonalCodes_200() {
         var userProfile = buildUserProfileIac();
 
@@ -664,6 +665,7 @@ class JudicialUserServiceImplTest {
         location.setRegionDescEn("National");
 
         var appointment = new Appointment();
+        appointment.setPersonalCode("1");
         appointment.setEpimmsId("1234");
         appointment.setOfficeAppointmentId(1L);
         appointment.setIsPrincipleAppointment(true);
@@ -677,6 +679,7 @@ class JudicialUserServiceImplTest {
         appointment.setRegionId("1");
 
         var appointmentTwo = new Appointment();
+        appointmentTwo.setPersonalCode("1");
         appointmentTwo.setEpimmsId(null);
         appointmentTwo.setOfficeAppointmentId(1L);
         appointmentTwo.setIsPrincipleAppointment(true);
@@ -690,6 +693,7 @@ class JudicialUserServiceImplTest {
         appointment.setRegionId("2");
 
         var appointmentThree = new Appointment();
+        appointmentThree.setPersonalCode("1");
         appointmentThree.setEpimmsId(null);
         appointmentThree.setOfficeAppointmentId(1L);
         appointmentThree.setIsPrincipleAppointment(true);
@@ -703,6 +707,7 @@ class JudicialUserServiceImplTest {
         appointment.setRegionId("2");
 
         var appointmentFour = new Appointment();
+        appointmentFour.setPersonalCode("1");
         appointmentFour.setEpimmsId("10");
         appointmentFour.setOfficeAppointmentId(1L);
         appointmentFour.setIsPrincipleAppointment(true);
@@ -716,6 +721,7 @@ class JudicialUserServiceImplTest {
         appointment.setRegionId("3");
 
         var authorisation = new Authorisation();
+        authorisation.setPersonalCode("1");
         authorisation.setOfficeAuthId(1L);
         authorisation.setJurisdiction("Languages");
         authorisation.setStartDate(null);
@@ -723,10 +729,10 @@ class JudicialUserServiceImplTest {
         authorisation.setCreatedDate(LocalDateTime.now());
         authorisation.setLastUpdated(LocalDateTime.now());
         authorisation.setLowerLevel("Welsh");
-        authorisation.setPersonalCode("");
         authorisation.setTicketCode(null);
 
         var authorisationOne = new Authorisation();
+        authorisationOne.setPersonalCode("2");
         authorisationOne.setOfficeAuthId(1L);
         authorisationOne.setJurisdiction("Languages");
         authorisationOne.setStartDate(LocalDateTime.now());
@@ -734,10 +740,10 @@ class JudicialUserServiceImplTest {
         authorisationOne.setCreatedDate(LocalDateTime.now());
         authorisationOne.setLastUpdated(LocalDateTime.now());
         authorisationOne.setLowerLevel("Welsh");
-        authorisationOne.setPersonalCode("");
         authorisationOne.setTicketCode("373");
 
         var authorisationTwo = new Authorisation();
+        authorisationTwo.setPersonalCode("2");
         authorisationTwo.setOfficeAuthId(1L);
         authorisationTwo.setJurisdiction("Languages");
         authorisationTwo.setStartDate(LocalDateTime.now());
@@ -745,11 +751,27 @@ class JudicialUserServiceImplTest {
         authorisationTwo.setCreatedDate(LocalDateTime.now());
         authorisationTwo.setLastUpdated(LocalDateTime.now());
         authorisationTwo.setLowerLevel("Welsh");
-        authorisationTwo.setPersonalCode("");
         authorisationTwo.setTicketCode("100");
 
+        var judicialRoleType = new JudicialRoleType();
+        judicialRoleType.setRoleId(1);
+        judicialRoleType.setPersonalCode("1");
+        judicialRoleType.setTitle("Test1");
+
+        var judicialRoleType1 = new JudicialRoleType();
+        judicialRoleType1.setRoleId(2);
+        judicialRoleType1.setPersonalCode("1");
+        judicialRoleType1.setTitle("Test2");
+        judicialRoleType1.setEndDate(LocalDateTime.now().minusDays(3));
+
+        var judicialRoleType2 = new JudicialRoleType();
+        judicialRoleType2.setRoleId(3);
+        judicialRoleType2.setPersonalCode("1");
+        judicialRoleType2.setTitle("Test3");
+        judicialRoleType2.setEndDate(LocalDateTime.now().plusDays(3));
+
         var userProfile = new UserProfile();
-        userProfile.setPersonalCode("Emp");
+        userProfile.setPersonalCode("1");
         userProfile.setKnownAs("TestEmp");
         userProfile.setSurname("Test");
         userProfile.setFullName("Test1");
@@ -762,9 +784,11 @@ class JudicialUserServiceImplTest {
         userProfile.setObjectId("");
         userProfile.setSidamId("4c0ff6a3-8fd6-803b-301a-29d9dacccca8");
 
+        authorisation.setUserProfile(userProfile);
         baseLocation.setAppointments(List.of(appointment,appointmentTwo,appointmentThree,appointmentFour));
         userProfile.setAppointments(List.of(appointment,appointmentTwo,appointmentThree,appointmentFour));
         userProfile.setAuthorisations(List.of(authorisation,authorisationOne,authorisationTwo));
+        userProfile.setJudicialRoleTypes(List.of(judicialRoleType,judicialRoleType1,judicialRoleType2));
 
         return userProfile;
     }
@@ -782,6 +806,7 @@ class JudicialUserServiceImplTest {
         location.setRegionDescEn("Nationals");
 
         var appointment = new Appointment();
+        appointment.setPersonalCode("2");
         appointment.setEpimmsId(" ");
         appointment.setOfficeAppointmentId(1L);
         appointment.setIsPrincipleAppointment(true);
@@ -789,12 +814,15 @@ class JudicialUserServiceImplTest {
         appointment.setEndDate(null);
         appointment.setCreatedDate(LocalDateTime.now());
         appointment.setLastLoadedDate(LocalDateTime.now());
+        appointment.setBaseLocation(baseLocation);
+        appointment.setLocation(location);
         appointment.setServiceCode("BFA1");
         appointment.setRegionId("1");
 
 
 
         var authorisation = new Authorisation();
+        authorisation.setPersonalCode("2");
         authorisation.setOfficeAuthId(1L);
         authorisation.setJurisdiction("Languages");
         authorisation.setStartDate(LocalDateTime.now());
@@ -802,11 +830,28 @@ class JudicialUserServiceImplTest {
         authorisation.setCreatedDate(LocalDateTime.now());
         authorisation.setLastUpdated(LocalDateTime.now());
         authorisation.setLowerLevel("Welsh");
-        authorisation.setPersonalCode("100");
         authorisation.setTicketCode("373");
 
+
+        var judicialRoleType = new JudicialRoleType();
+        judicialRoleType.setRoleId(1);
+        judicialRoleType.setPersonalCode("1");
+        judicialRoleType.setTitle("Test1");
+
+        var judicialRoleType1 = new JudicialRoleType();
+        judicialRoleType1.setRoleId(2);
+        judicialRoleType1.setPersonalCode("1");
+        judicialRoleType1.setTitle("Test2");
+        judicialRoleType1.setEndDate(LocalDateTime.now().minusDays(3));
+
+        var judicialRoleType2 = new JudicialRoleType();
+        judicialRoleType2.setRoleId(3);
+        judicialRoleType2.setPersonalCode("1");
+        judicialRoleType2.setTitle("Test3");
+        judicialRoleType2.setEndDate(LocalDateTime.now().plusDays(3));
+
         var userProfile = new UserProfile();
-        userProfile.setPersonalCode("Emp");
+        userProfile.setPersonalCode("2");
         userProfile.setKnownAs("TestEmp");
         userProfile.setSurname("Test");
         userProfile.setFullName("Test1");
@@ -823,6 +868,7 @@ class JudicialUserServiceImplTest {
         baseLocation.setAppointments(List.of(appointment));
         userProfile.setAppointments(List.of(appointment));
         userProfile.setAuthorisations(List.of(authorisation));
+        userProfile.setJudicialRoleTypes(List.of(judicialRoleType,judicialRoleType1,judicialRoleType2));
 
         return userProfile;
 
@@ -841,6 +887,7 @@ class JudicialUserServiceImplTest {
         location.setRegionDescEn("Nationals");
 
         var appointmentOne = new Appointment();
+        appointmentOne.setPersonalCode("3");
         appointmentOne.setEpimmsId(" ");
         appointmentOne.setOfficeAppointmentId(1L);
         appointmentOne.setIsPrincipleAppointment(true);
@@ -854,6 +901,7 @@ class JudicialUserServiceImplTest {
         appointmentOne.setRegionId("2");
 
         var appointmentTwo = new Appointment();
+        appointmentTwo.setPersonalCode("3");
         appointmentTwo.setEpimmsId(" ");
         appointmentTwo.setOfficeAppointmentId(1L);
         appointmentTwo.setIsPrincipleAppointment(true);
@@ -868,6 +916,7 @@ class JudicialUserServiceImplTest {
 
 
         var authorisationOne = new Authorisation();
+        authorisationOne.setPersonalCode("3");
         authorisationOne.setOfficeAuthId(1L);
         authorisationOne.setJurisdiction("Languages");
         authorisationOne.setStartDate(LocalDateTime.now());
@@ -875,10 +924,10 @@ class JudicialUserServiceImplTest {
         authorisationOne.setCreatedDate(LocalDateTime.now());
         authorisationOne.setLastUpdated(LocalDateTime.now());
         authorisationOne.setLowerLevel("Welsh");
-        authorisationOne.setPersonalCode("100");
         authorisationOne.setTicketCode("366");
 
         var authorisationTwo = new Authorisation();
+        authorisationTwo.setPersonalCode("3");
         authorisationTwo.setOfficeAuthId(1L);
         authorisationTwo.setJurisdiction("Languages");
         authorisationTwo.setStartDate(LocalDateTime.now());
@@ -886,11 +935,27 @@ class JudicialUserServiceImplTest {
         authorisationTwo.setCreatedDate(LocalDateTime.now());
         authorisationTwo.setLastUpdated(LocalDateTime.now());
         authorisationTwo.setLowerLevel("Welsh");
-        authorisationTwo.setPersonalCode("100");
         authorisationTwo.setTicketCode(" ");
 
+        var judicialRoleType = new JudicialRoleType();
+        judicialRoleType.setRoleId(1);
+        judicialRoleType.setPersonalCode("1");
+        judicialRoleType.setTitle("Test1");
+
+        var judicialRoleType1 = new JudicialRoleType();
+        judicialRoleType1.setRoleId(2);
+        judicialRoleType1.setPersonalCode("1");
+        judicialRoleType1.setTitle("Test2");
+        judicialRoleType1.setEndDate(LocalDateTime.now().minusDays(3));
+
+        var judicialRoleType2 = new JudicialRoleType();
+        judicialRoleType2.setRoleId(3);
+        judicialRoleType2.setPersonalCode("1");
+        judicialRoleType2.setTitle("Test3");
+        judicialRoleType2.setEndDate(LocalDateTime.now().plusDays(3));
+
         var userProfile = new UserProfile();
-        userProfile.setPersonalCode("Emp");
+        userProfile.setPersonalCode("3");
         userProfile.setKnownAs("TestEmp");
         userProfile.setSurname("Test");
         userProfile.setFullName("Test1");
@@ -903,9 +968,11 @@ class JudicialUserServiceImplTest {
         userProfile.setObjectId("asd12345-0987asdas-asdas8asdas");
         userProfile.setSidamId("4c0ff6a3-8fd6-803b-301a-29d9dacccca8");
 
+        authorisationOne.setUserProfile(userProfile);
         baseLocation.setAppointments(List.of(appointmentOne,appointmentTwo));
         userProfile.setAppointments(List.of(appointmentOne,appointmentTwo));
         userProfile.setAuthorisations(List.of(authorisationOne,authorisationTwo));
+        userProfile.setJudicialRoleTypes(List.of(judicialRoleType,judicialRoleType1,judicialRoleType2));
 
         return userProfile;
 
