@@ -34,6 +34,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAM_ERROR_MESSAGE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 
 class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
@@ -300,6 +301,34 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
                 .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
         assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
+    }
+    @DisplayName("Elinks people to test JRD Audit Negative Scenario Functionality verification")
+    @Test
+    void verifyPeopleJrdAuditFunctionalityBadRequestScenario() {
+        elinks.stubFor(get(urlPathMatching("/people"))
+                .willReturn(aResponse()
+                        .withStatus(400)
+                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Connection", "close")
+                        .withBody("{"
+
+                                + " }")));
+
+        elinkSchedularAuditRepository.deleteAll();
+        Map<String, Object> leaversResponse = elinksReferenceDataClient.getPeoples();
+        assertThat(leaversResponse).containsEntry("http_status", "400");
+        String profiles = leaversResponse.get("response_body").toString();
+        assertTrue(profiles.contains("Syntax error or Bad request"));
+
+        List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
+
+        ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
+
+        assertEquals(PEOPLEAPI, auditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.FAILED.getStatus(), auditEntry.getStatus());
+        assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
+        assertNotNull(auditEntry.getSchedulerStartTime());
+        assertNotNull(auditEntry.getSchedulerEndTime());
     }
 
     @DisplayName("Elinks Leavers to test JRD Audit Negative Scenario Functionality verification")
@@ -584,7 +613,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         final String redirectUri = "http://idam-api.aat.platform.hmcts.net";
         final String authorization = "c2hyZWVkaGFyLmxvbXRlQGhtY3RzLm5ldDpITUNUUzEyMzQ=";
         final String clientAuth = "cmQteHl6LWFwaTp4eXo=";
-        final String url = "http://127.0.0.1:5000";
+        final String url = "http://127.0.0.1:5001";
         tokenConfigProperties.setClientId(clientId);
         tokenConfigProperties.setClientAuthorization(clientAuth);
         tokenConfigProperties.setAuthorization(authorization);

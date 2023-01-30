@@ -52,6 +52,8 @@ public class RefDataElinksConstants {
     public static final String JUDICIAL_REF_DATA_ELINKS = "judicial-ref-data-elinks";
 
     public static final String LEAVERSAPI = "LeaversAPI";
+
+    public static final String PEOPLEAPI = "PeopleAPI";
     public static final String LOCATIONAPI = "LocationAPI";
 
     public static final String BASELOCATIONAPI = "BaseLocationAPI";
