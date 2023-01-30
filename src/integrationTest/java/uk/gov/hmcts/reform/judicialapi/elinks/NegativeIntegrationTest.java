@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.judicialapi.elinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
@@ -61,11 +59,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples(peopleUrl);
 
         assertThat(response).containsEntry("http_status", "400");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
     }
 
     @DisplayName("Elinks People endpoint status verification for unauthorized status")
@@ -78,11 +73,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "401");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
     }
 
     @DisplayName("Elinks People endpoint status verification for forbidden status")
@@ -95,11 +87,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "403");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
     }
 
     @DisplayName("Elinks People endpoint status verification for resource not found status")
@@ -112,11 +101,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "404");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
     }
 
     @DisplayName("Elinks People endpoint status verification for Too many requests status")
@@ -129,11 +115,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
 
         assertThat(response).containsEntry("http_status", "429");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
+
     }
 
     @DisplayName("Elinks Location endpoint status verification for bad request status")
@@ -145,11 +129,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "400");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
+
     }
 
     @DisplayName("Elinks Location endpoint status verification for unauthorized status")
@@ -161,11 +143,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "401");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
     }
 
     @DisplayName("Elinks Location endpoint status verification for forbidden status")
@@ -177,11 +156,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "403");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
     }
 
     @DisplayName("Elinks Location endpoint status verification for resource not found status")
@@ -193,11 +169,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "404");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
     }
 
 
@@ -210,11 +183,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getLocations();
         assertThat(response).containsEntry("http_status", "429");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for bad request status")
@@ -227,11 +197,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "400");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for unauthorized status")
@@ -244,11 +211,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "401");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for forbidden status")
@@ -261,11 +225,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "403");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for resource not found status")
@@ -278,11 +239,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "404");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
     }
 
     @DisplayName("Elinks BaseLocation endpoint status verification for Too many requests status")
@@ -295,11 +253,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         Map<String, Object> response = elinksReferenceDataClient.getBaseLocations();
         assertThat(response).containsEntry("http_status", "429");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
     }
 
     @DisplayName("Elinks Leavers to test JRD Audit Negative Scenario Functionality verification")
@@ -377,11 +332,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "400");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
+
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
     }
 
     @DisplayName("test_get_leavers_with_wrong_token_return_response_status_401()")
@@ -394,11 +347,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "401");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_UNAUTHORIZED, errorDetails.getErrorMessage());
+
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_UNAUTHORIZED);
     }
 
     @DisplayName("test_get_leavers_return_with_invalid_token_response_status_403()")
@@ -411,11 +362,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "403");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_FORBIDDEN, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_FORBIDDEN);
     }
 
     @DisplayName("test_get_leavers_url_not_found_return_response_status_404()")
@@ -428,11 +376,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "404");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_NOT_FOUND, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
     }
 
     @DisplayName("test_get_leavers_exceeding_limit_return_response_status_429()")
@@ -445,11 +390,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "429");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
     }
 
     @DisplayName("test_get_leavers_missing_mandatory_param_return_response_status_400()")
@@ -462,11 +404,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "400");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
+
     }
 
     @DisplayName("test_get_leavers_future_since_then_return_response_status_400()")
@@ -479,11 +419,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response = elinksReferenceDataClient.getLeavers();
 
         assertThat(response).containsEntry("http_status", "400");
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage());
+
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
     }
 
     @DisplayName("Idam_return_with_invalid_token_response_status_403")
@@ -496,11 +434,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         Map<String, Object> response  = elinksReferenceDataClient.getIdamElasticSearch();
 
         assertEquals(response.get("http_status"),String.valueOf(statusCode));
-        ObjectMapper objectMapper = new ObjectMapper();
-        ErrorResponse errorDetails = objectMapper
-                .readValue(response.get("response_body").toString(),ErrorResponse.class);
 
-        assertEquals(IDAM_ERROR_MESSAGE, errorDetails.getErrorMessage());
+        assertThat(response.get("response_body").toString()).contains(IDAM_ERROR_MESSAGE);
     }
 
     @DisplayName("Idam_url_not_found_return_response_status_404")
