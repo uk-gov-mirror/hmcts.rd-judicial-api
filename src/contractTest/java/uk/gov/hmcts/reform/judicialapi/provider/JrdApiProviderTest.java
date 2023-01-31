@@ -241,7 +241,7 @@ public class JrdApiProviderTest {
 
         var judicialRoleType = new JudicialRoleType();
         judicialRoleType.setPersonalCode("testPersonalCode");
-        judicialRoleType.setRoleId("testRoleId");
+        judicialRoleType.setRoleId(1);
         judicialRoleType.setTitle("testTitle");
         judicialRoleType.setStartDate(LocalDateTime.now());
         judicialRoleType.setEndDate(LocalDateTime.now());
