@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.judicialapi.elinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,15 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
     @Autowired
     IdamTokenConfigProperties tokenConfigProperties;
 
+    @BeforeEach
+    void setUp() {
+        cleanupData();
+    }
+
+    @AfterEach
+    void cleanUp() {
+        cleanupData();
+    }
 
     @DisplayName("Elinks People endpoint status verification for future update_since")
     @Test
@@ -527,4 +538,9 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         tokenConfigProperties.setUrl(url);
 
     }
+
+    private void cleanupData() {
+        elinkSchedularAuditRepository.deleteAll();
+    }
+
 }
