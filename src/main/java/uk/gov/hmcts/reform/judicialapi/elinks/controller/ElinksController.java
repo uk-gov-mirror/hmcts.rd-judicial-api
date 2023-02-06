@@ -1,16 +1,22 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.controller;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.Customer;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
@@ -18,9 +24,13 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperRespons
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksCacheService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IdamElasticSearchService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BAD_REQUEST;
@@ -51,6 +61,12 @@ public class ElinksController {
 
     @Autowired
     PublishSidamIdService publishSidamIdService;
+
+    @Autowired
+    ElinksCacheService elinksCacheService;
+
+    @Autowired
+    CacheManager cacheManager;
 
     @ApiResponses({
             @ApiResponse(
@@ -271,5 +287,36 @@ public class ElinksController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
+
+    @GetMapping(path = "/cache",
+            produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Customer> getDataFromCache(
+
+            @ApiParam(
+                    name =  "customerId",
+                    type = "String",
+                    value = "1",
+                    example = "1",
+                    required = true)
+            @RequestParam String customerId
+    ) {
+
+      List<String> cacheNames = cacheManager.getCacheNames().stream().toList();
+      log.info("Cache Names => "+ cacheNames);
+
+        CaffeineCache caffeineCache = (CaffeineCache) cacheManager.getCache("userProfileCacheManager");
+        Cache<Object, Object> nativeCache = caffeineCache.getNativeCache();
+        for (Map.Entry<Object, Object> entry : nativeCache.asMap().entrySet()) {
+            System.out.println("Key = " + entry.getKey());
+            System.out.println("Value = " + entry.getValue());
+        }
+
+        Customer custResponse = elinksCacheService.getCustomer(
+                Long.parseLong(customerId));
+
+        return ResponseEntity.status(HttpStatus.OK).body(custResponse);
+
+    }
+
 
 }
