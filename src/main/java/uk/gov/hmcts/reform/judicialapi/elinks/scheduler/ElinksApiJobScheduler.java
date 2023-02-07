@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperR
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.DataloadSchedulerJobAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
@@ -62,25 +63,9 @@ public class ElinksApiJobScheduler {
 
             dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
 
-            try {
-                log.info("ElinksApiJobScheduler.loadElinksData Job execution in progress");
 
-                loadElinksData();
-
-                LocalDateTime jobEndTime = now();
-                audit.setJobEndTime(jobEndTime);
-                audit.setPublishingStatus(RefDataElinksConstants.JobStatus.SUCCESS.getStatus());
-
-                dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
-
-            } catch (Exception exception) {
-                log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure");
-
-                LocalDateTime jobEndTime = now();
-                audit.setJobEndTime(jobEndTime);
-                audit.setPublishingStatus(RefDataElinksConstants.JobStatus.FAILED.getStatus());
-                dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
-            }
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution in progress");
+            loadElinksData();
             log.info("ElinksApiJobScheduler.loadElinksData Job execution completed successful");
         }
 
@@ -88,19 +73,42 @@ public class ElinksApiJobScheduler {
 
     public void loadElinksData() {
 
-        ResponseEntity<ElinkLocationWrapperResponse> locationResponse
+        try{
+            ResponseEntity<ElinkLocationWrapperResponse> locationResponse
                 = retrieveLocationDetails();
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Location");
+        }
+        try{
         ResponseEntity<ElinkBaseLocationWrapperResponse> baseLocationResponse
                 = retrieveBaseLocationDetails();
-
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Base Location");
+        }
+        try{
         ResponseEntity<ElinkPeopleWrapperResponse> peopleResponse
                 = retrievePeopleDetails();
-
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for People Response");
+        }
+        try{
         ResponseEntity<ElinkLeaversWrapperResponse> leaversResponse
                 = retrieveLeaversDetails();
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Leavers Response");
+        }
+        try{
         ResponseEntity<Object> idamSearchResponse
                 = retrieveIdamElasticSearchDetails();
-        //Publish Api is pending
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for idamSearch Response");
+        }
+        try{
+        ResponseEntity<SchedulerJobStatusResponse> schedulerResponse
+            = retrieveAsbPublishDetails();
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Publish ASB Response");
+        }
     }
 
     public ResponseEntity<ElinkLocationWrapperResponse> retrieveLocationDetails() {
@@ -186,6 +194,22 @@ public class ElinksApiJobScheduler {
 
         return restTemplate.exchange(apiUrl,
                 HttpMethod.GET, request, Object.class);
+
+    }
+
+    public ResponseEntity<SchedulerJobStatusResponse> retrieveAsbPublishDetails() {
+
+        String apiUrl = eLinksWrapperBaseUrl.concat(ELINKS_CONTROLLER_BASE_URL)
+            .concat("/sidam/asb/publish");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(APPLICATION_JSON);
+
+        HttpEntity<String> request =
+            new HttpEntity<>(headers);
+
+        return restTemplate.exchange(apiUrl,
+            HttpMethod.GET, request, SchedulerJobStatusResponse.class);
 
     }
 
