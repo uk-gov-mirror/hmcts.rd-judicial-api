@@ -159,6 +159,26 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
     }
 
+
+    @DisplayName("Elinks People to Audit verification")
+    @Test
+    void verifyLeaversJrdAuditFunctionality() {
+
+        Map<String, Object> response = elinksReferenceDataClient.getPeoples();
+        assertThat(response).containsEntry("http_status", "200 OK");
+        ElinkPeopleWrapperResponse profiles = (ElinkPeopleWrapperResponse)response.get("body");
+        assertEquals("People data loaded successfully", profiles.getMessage());
+
+        List<ElinkDataSchedularAudit>  elinksAudit = elinkSchedularAuditRepository.findAll();
+        ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
+        assertEquals(1, auditEntry.getId());
+        assertEquals(PEOPLEAPI, auditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), auditEntry.getStatus());
+        assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
+        assertNotNull(auditEntry.getSchedulerStartTime());
+        assertNotNull(auditEntry.getSchedulerEndTime());
+    }
+
     private void cleanupData() {
         elinkSchedularAuditRepository.deleteAll();
     }
