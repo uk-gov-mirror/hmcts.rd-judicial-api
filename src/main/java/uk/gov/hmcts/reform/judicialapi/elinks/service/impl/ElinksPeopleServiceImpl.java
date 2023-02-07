@@ -301,7 +301,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         schedulerStartTime,
-                        appointment.getBaseLocationId(),
+                        resultsRequest.getPersonalCode(),
                         BASE_LOCATION_ID, LOCATIONIDFAILURE, APPOINTMENT_TABLE);
             }
         }
