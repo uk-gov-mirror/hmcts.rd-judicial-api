@@ -26,6 +26,30 @@
         <cve>CVE-2021-4235</cve>
         <cve>CVE-2022-3064</cve>
         <cve>CVE-2022-45143</cve>
-
+        <cve>CVE-2022-45143</cve>
+        <cve>CVE-2021-43797</cve>
+        <cve>CVE-2022-41915</cve>
+        <cve>CVE-2022-24823</cve>
+        <cve>CVE-2022-41881</cve>
+        <cve>CVE-2019-16869</cve>
+        <cve>CVE-2015-2156</cve>
+        <cve>CVE-2021-37136</cve>
+        <cve>CVE-2021-37137</cve>
+        <cve>CVE-2019-20445</cve>
+        <cve>CVE-2019-20444</cve>
+        <cve>CVE-2021-21295</cve>
+        <cve>CVE-2021-21290</cve>
+        <cve>CVE-2014-3488</cve>
+        <cve>CVE-2021-21409</cve>
     </suppress>
+
+    <suppress>
+        <notes>CVE-2022-22978 suppression (false positive), because spring security already at (5.7.5) this is higher than the vulnerable versions
+            (5.5.x prior to 5.5.7, 5.6.x prior to 5.6.4)
+            https://tanzu.vmware.com/security/cve-2022-22978</notes>
+        <cve>CVE-2022-22978</cve>
+        <cve>CVE-2022-22976</cve>
+        <cve>CVE-2021-22044</cve>
+    </suppress>
+    
 </suppressions>

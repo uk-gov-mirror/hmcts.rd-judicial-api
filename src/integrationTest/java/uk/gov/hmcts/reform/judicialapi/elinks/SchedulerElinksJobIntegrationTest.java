@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.judicialapi.elinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.JOSEException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -53,6 +55,16 @@ class SchedulerElinksJobIntegrationTest extends ElinksEnabledIntegrationTest {
     @Autowired
     IdamTokenConfigProperties tokenConfigProperties;
 
+    @BeforeEach
+    void setUp() {
+        cleanupData();
+    }
+
+    @AfterEach
+    void cleanUp() {
+        cleanupData();
+    }
+
     @DisplayName("Elinks load eLinks scheduler status verification success case")
     @Test
     @Order(1)
@@ -61,11 +73,9 @@ class SchedulerElinksJobIntegrationTest extends ElinksEnabledIntegrationTest {
         dataloadSchedulerJobRepository.deleteAll();
 
         elinksApiJobScheduler.loadElinksJob();
+        List<DataloadSchedulerJob> audits = dataloadSchedulerJobRepository.findAll();
 
-        DataloadSchedulerJob jobDetails = dataloadSchedulerJobRepository.findAll().get(0);
-
-        assertThat(jobDetails).isNotNull();
-        assertThat(jobDetails.getPublishingStatus()).isNotNull();
+        assertThat(audits).isEmpty();
 
     }
 
@@ -84,10 +94,8 @@ class SchedulerElinksJobIntegrationTest extends ElinksEnabledIntegrationTest {
         elinksApiJobScheduler.loadElinksJob();
 
         List<DataloadSchedulerJob> audits = dataloadSchedulerJobRepository.findAll();
-        DataloadSchedulerJob jobDetails = dataloadSchedulerJobRepository.findAll().get(0);
 
-        assertThat(jobDetails).isNotNull();
-        assertThat(jobDetails.getPublishingStatus()).isNotNull();
+        assertThat(audits).isEmpty();
     }
 
 
@@ -101,5 +109,9 @@ class SchedulerElinksJobIntegrationTest extends ElinksEnabledIntegrationTest {
                         .withHeader("Connection", "close")
                         .withBody(body)
                 ));
+    }
+
+    private void cleanupData() {
+        elinkSchedularAuditRepository.deleteAll();
     }
 }
