@@ -10,6 +10,9 @@ public class RefDataElinksConstants {
 
     public static final String BAD_REQUEST = "Syntax error or Bad Request";
     public static final String FORBIDDEN_ERROR = "Your source IP address is not whitelisted";
+    public static final String BASE_LOCATION_ID = "base_location_id";
+    public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
+    public static final String LOCATIONIDFAILURE = "Appointment Base Location ID not available in BASE LOCATION table";
     public static final String UNAUTHORIZED_ERROR =
             "A valid access token hasn't been provided in the right form";
     public static final String NO_DATA_FOUND = "The given attribute name does not exist in the reference data";
@@ -62,7 +65,8 @@ public class RefDataElinksConstants {
     public enum JobStatus {
         IN_PROGRESS("IN_PROGRESS"),
         FAILED("FAILED"),
-        SUCCESS("SUCCESS");
+        SUCCESS("SUCCESS"),
+        PARTIAL_SUCCESS("PARTIAL_SUCCESS");
         String status;
         JobStatus(String status) {
             this.status = status;

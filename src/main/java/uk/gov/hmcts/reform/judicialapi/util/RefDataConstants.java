@@ -5,6 +5,7 @@ public class RefDataConstants {
 
     private RefDataConstants() {
     }
+
     public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
     public static final String ONLY_ONE_PARAMETER_REQUIRED =
             "At a time only one param should be allowed of ccdServiceName, Sidam_ids , Object_Ids or Personal_Codes";
