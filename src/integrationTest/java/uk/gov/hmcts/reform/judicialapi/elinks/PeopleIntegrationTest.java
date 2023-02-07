@@ -162,7 +162,7 @@ class PeopleIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @DisplayName("Elinks People to Audit verification")
     @Test
-    void verifyLeaversJrdAuditFunctionality() {
+    void verifyPeopleJrdAuditFunctionality() {
 
         Map<String, Object> response = elinksReferenceDataClient.getPeoples();
         assertThat(response).containsEntry("http_status", "200 OK");
