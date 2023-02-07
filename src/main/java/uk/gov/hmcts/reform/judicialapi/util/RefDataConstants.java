@@ -5,7 +5,6 @@ public class RefDataConstants {
 
     private RefDataConstants() {
     }
-
     public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
     public static final String ONLY_ONE_PARAMETER_REQUIRED =
             "At a time only one param should be allowed of ccdServiceName, Sidam_ids , Object_Ids or Personal_Codes";
@@ -18,9 +17,6 @@ public class RefDataConstants {
     public static final String PAGE_SIZE = "Page Size";
     public static final String SORT_DIRECTION = "Sort Direction";
     public static final String SORT_COLUMN = "Sort Column";
-
-
-
     public static final String ERROR_IN_PARSING_THE_FEIGN_RESPONSE = "Error in parsing %s Feign Response";
     public static final String LRD_ERROR = "An error occurred while retrieving data from Location Reference Data";
 
@@ -80,8 +76,6 @@ public class RefDataConstants {
     public static final String BASE_LOCATION_ID = "base_location_id";
 
     public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
-
-
     public static final String LOCATIONIDFAILURE = "Appointment Base Location ID not available in BASE LOCATION table";
 
     public enum JobStatus {
