@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataExceptionRecords;
@@ -79,7 +78,8 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         assertThat(response).containsEntry("http_status", "400");
 
-        assertEquals(ELINKS_ERROR_RESPONSE_BAD_REQUEST, errorDetails.getErrorMessage()); }
+        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
+    }
 
     @DisplayName("Elinks People endpoint status verification for unauthorized status")
     @Test
@@ -549,7 +549,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @DisplayName("peoples data exception and audit testing when base location id not present exclude appointments")
     @Test
-    public void verifyPeoplesJrdExceptionRecordsBaseLocationNotFoundScenario() {
+    void verifyPeoplesJrdExceptionRecordsBaseLocationNotFoundScenario() {
         elinks.stubFor(get(urlPathMatching("/people"))
                 .willReturn(aResponse()
                         .withStatus(200)
