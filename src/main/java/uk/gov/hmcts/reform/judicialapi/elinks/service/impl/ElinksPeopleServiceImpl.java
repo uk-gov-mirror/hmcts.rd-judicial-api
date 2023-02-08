@@ -64,6 +64,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.REGION_DEFAULT_ID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
@@ -129,6 +130,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
+
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(), null, RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
 
         int pageValue = Integer.parseInt(page);
         do {
@@ -306,8 +310,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             }
         }
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime, null, status, LOCATIONIDFAILURE);
-
+                schedulerStartTime, null, status, PEOPLEAPI);
         return appointmentList;
     }
 

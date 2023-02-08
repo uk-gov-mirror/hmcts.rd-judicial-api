@@ -56,6 +56,8 @@ public class RefDataElinksConstants {
 
     public static final String BASELOCATIONAPI = "BaseLocationAPI";
 
+    public static final String PEOPLEAPI = "PeopleAPI";
+
     public static final String BASE_LOCATION_ID = "base_location_id";
 
     public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
