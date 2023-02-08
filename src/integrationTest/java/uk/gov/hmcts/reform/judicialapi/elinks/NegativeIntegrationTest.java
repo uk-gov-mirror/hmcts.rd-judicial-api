@@ -27,17 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASELOCATIONAPI;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_ID;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_BAD_REQUEST;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_FORBIDDEN;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAM_ERROR_MESSAGE;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.*;
 
 class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
@@ -675,7 +665,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
         ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
-        assertEquals(LOCATIONIDFAILURE, auditEntry.getApiName());
+        assertEquals(PEOPLEAPI, auditEntry.getApiName());
         assertEquals(RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus(), auditEntry.getStatus());
         assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
         assertNotNull(auditEntry.getSchedulerStartTime());
