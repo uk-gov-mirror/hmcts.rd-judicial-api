@@ -18,7 +18,9 @@ public class RefDataElinksConstants {
     public static final String TOO_MANY_REQUESTS = "You have exceeded the request limit (20 requests in 20 seconds)";
 
     public static final String LOCATION_DATA_LOAD_SUCCESS = "Location(RegionType) Loaded successfully";
-
+    public static final String BASE_LOCATION_ID = "base_location_id";
+    public static final String LOCATIONIDFAILURE = "Appointment Base Location ID not available in BASE LOCATION table";
+    public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
     public static final String BASE_LOCATION_DATA_LOAD_SUCCESS = "Base Location Loaded successfully";
 
     public static final String ELINKS_ACCESS_ERROR = "An error occurred while retrieving data from Elinks";
@@ -62,7 +64,8 @@ public class RefDataElinksConstants {
     public enum JobStatus {
         IN_PROGRESS("IN_PROGRESS"),
         FAILED("FAILED"),
-        SUCCESS("SUCCESS");
+        SUCCESS("SUCCESS"),
+        PARTIAL_SUCCESS("PARTIAL_SUCCESS");
         String status;
         JobStatus(String status) {
             this.status = status;
