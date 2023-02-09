@@ -677,7 +677,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
         ElinkDataSchedularAudit auditEntry = elinksAudit.get(0);
         assertEquals(PEOPLEAPI, auditEntry.getApiName());
-        assertEquals(RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), auditEntry.getStatus());
+        assertEquals(RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus(), auditEntry.getStatus());
         assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
         assertNotNull(auditEntry.getSchedulerStartTime());
 

@@ -113,6 +113,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String lastUpdated;
 
+    private int statusCounter = 0;
+
     @Value("${elinks.people.perPage}")
     private String perPage;
 
@@ -130,10 +132,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
+        LocalDateTime schedulerStartTime = now();
+        String status = RefDataElinksConstants.JobStatus.SUCCESS.getStatus();
+        int pageValue = Integer.parseInt(page);
 
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                now(), null, RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
-        int pageValue = Integer.parseInt(page);
+                schedulerStartTime, null, RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
+
         do {
             Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++);
             httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
@@ -156,6 +161,12 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             pauseThread(Long.valueOf(threadPauseTime));
         } while (isMorePagesAvailable);
 
+        if (statusCounter > 0) {
+            status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
+        }
+        
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                schedulerStartTime, now(), status, PEOPLEAPI);
         updateEpimsServiceCodeMapping();
 
         ElinkPeopleWrapperResponse response = new ElinkPeopleWrapperResponse();
@@ -276,11 +287,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         buildAppointmentDto(ResultsRequest resultsRequest) {
 
         LocalDateTime schedulerStartTime = now();
-        int counter = 0;
 
         final List<AppointmentsRequest> appointmentsRequests = resultsRequest.getAppointmentsRequests();
         final List<Appointment> appointmentList = new ArrayList<>();
-        String status = RefDataElinksConstants.JobStatus.SUCCESS.getStatus();
         for (AppointmentsRequest appointment: appointmentsRequests) {
             log.info("Retrieving appointment.getBaseLocationId() from DB " + appointment.getBaseLocationId());
             if (!StringUtils.isEmpty(appointment.getBaseLocationId())
@@ -301,18 +310,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .build());
             } else {
                 log.warn("Mapped Baselocation not found in base table " + appointment.getBaseLocationId());
-                counter++;
+                statusCounter++;
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         schedulerStartTime,
                         resultsRequest.getPersonalCode(),
                         BASE_LOCATION_ID, LOCATIONIDFAILURE, APPOINTMENT_TABLE);
             }
         }
-        if (counter > 0) {
-            status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
-        }
-        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime, now(), status, PEOPLEAPI);
 
         return appointmentList;
     }
