@@ -131,6 +131,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
 
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(), null, RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
         int pageValue = Integer.parseInt(page);
         do {
             Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++);
