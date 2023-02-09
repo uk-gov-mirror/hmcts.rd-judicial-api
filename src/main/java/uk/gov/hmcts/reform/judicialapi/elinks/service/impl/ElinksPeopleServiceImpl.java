@@ -274,12 +274,12 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         buildAppointmentDto(ResultsRequest resultsRequest) {
 
         LocalDateTime schedulerStartTime = now();
+        int counter = 0;
 
         final List<AppointmentsRequest> appointmentsRequests = resultsRequest.getAppointmentsRequests();
         final List<Appointment> appointmentList = new ArrayList<>();
         String status = RefDataElinksConstants.JobStatus.SUCCESS.getStatus();
         for (AppointmentsRequest appointment: appointmentsRequests) {
-
             log.info("Retrieving appointment.getBaseLocationId() from DB " + appointment.getBaseLocationId());
             if (!StringUtils.isEmpty(appointment.getBaseLocationId())
                     && baseLocationRepository.findById(appointment.getBaseLocationId()).isPresent()) {
@@ -299,15 +299,19 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .build());
             } else {
                 log.warn("Mapped Baselocation not found in base table " + appointment.getBaseLocationId());
-                status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
+                counter++;
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         schedulerStartTime,
                         resultsRequest.getPersonalCode(),
                         BASE_LOCATION_ID, LOCATIONIDFAILURE, APPOINTMENT_TABLE);
             }
         }
+        if (counter > 0) {
+            status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
+        }
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime, null, status, PEOPLEAPI);
+                schedulerStartTime, now(), status, PEOPLEAPI);
+
         return appointmentList;
     }
 
