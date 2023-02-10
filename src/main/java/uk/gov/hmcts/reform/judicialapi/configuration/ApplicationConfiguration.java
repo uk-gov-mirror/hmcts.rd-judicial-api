@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.authorisation.ServiceAuthorisationApi;
 import uk.gov.hmcts.reform.authorisation.generators.ServiceAuthTokenGenerator;
 
+
 @Configuration
 @Slf4j
 public class ApplicationConfiguration {
