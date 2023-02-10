@@ -63,7 +63,6 @@ public class ElinksApiJobScheduler {
 
             dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
 
-
             log.info("ElinksApiJobScheduler.loadElinksData Job execution in progress");
             loadElinksData();
             log.info("ElinksApiJobScheduler.loadElinksData Job execution completed successful");
