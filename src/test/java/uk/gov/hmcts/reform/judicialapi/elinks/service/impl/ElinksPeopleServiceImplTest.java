@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -78,6 +79,9 @@ class ElinksPeopleServiceImplTest {
 
     @Spy
     private DataloadSchedularAuditRepository dataloadSchedularAuditRepository;
+
+    @Spy
+    private ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
     @InjectMocks
     private ElinksPeopleServiceImpl elinksPeopleServiceImpl;

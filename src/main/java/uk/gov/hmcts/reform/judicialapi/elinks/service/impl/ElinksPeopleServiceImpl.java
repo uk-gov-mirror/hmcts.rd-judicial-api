@@ -34,6 +34,8 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
 import java.sql.PreparedStatement;
@@ -46,6 +48,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.LocalDateTime.now;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.DATA_UPDATE_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ACCESS_ERROR;
@@ -54,6 +57,8 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.REGION_DEFAULT_ID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
@@ -84,6 +89,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private DataloadSchedularAuditRepository dataloadSchedularAuditRepository;
 
     @Autowired
+    ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
+
+    @Autowired
     JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -110,10 +118,15 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
+        LocalDateTime schedulerStartTime = now();
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                schedulerStartTime,
+                null,
+                RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
 
         int pageValue = Integer.parseInt(page);
         do {
-            Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++);
+            Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
             httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
             ResponseEntity<Object> responseEntity;
 
@@ -124,18 +137,21 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         && Optional.ofNullable(elinkPeopleResponseRequest.getPagination()).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getResultsRequests()).isPresent()) {
                     isMorePagesAvailable = elinkPeopleResponseRequest.getPagination().getMorePages();
-                    processPeopleResponse(elinkPeopleResponseRequest);
+                    processPeopleResponse(elinkPeopleResponseRequest, schedulerStartTime);
                 } else {
+                    auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                     throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                 }
             } else {
+                auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                 handleELinksErrorResponse(httpStatus);
             }
-            pauseThread(Long.valueOf(threadPauseTime));
+            pauseThread(Long.valueOf(threadPauseTime),schedulerStartTime);
         } while (isMorePagesAvailable);
 
-        updateEpimsServiceCodeMapping();
 
+        updateEpimsServiceCodeMapping(schedulerStartTime);
+        auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.SUCCESS.getStatus());
         ElinkPeopleWrapperResponse response = new ElinkPeopleWrapperResponse();
         response.setMessage(PEOPLE_DATA_LOAD_SUCCESS);
 
@@ -144,21 +160,29 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 .body(response);
     }
 
-    private Response getPeopleResponseFromElinks(int currentPage) {
+    private void auditStatus(LocalDateTime schedulerStartTime, String status) {
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                schedulerStartTime,
+                now(),status,PEOPLEAPI);
+    }
+
+    private Response getPeopleResponseFromElinks(int currentPage, LocalDateTime schedulerStartTime) {
         String updatedSince = getUpdateSince();
         try {
             return elinksFeignClient.getPeopleDetials(updatedSince, perPage, String.valueOf(currentPage),
                     Boolean.parseBoolean(includePreviousAppointments));
         } catch (FeignException ex) {
+            auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         }
     }
 
-    private static void pauseThread(Long thredPauseTime) {
+    private void pauseThread(Long thredPauseTime, LocalDateTime schedulerStartTime) {
         try {
             Thread.sleep(thredPauseTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, THREAD_INVOCATION_EXCEPTION,
                     THREAD_INVOCATION_EXCEPTION);
         }
@@ -183,7 +207,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
 
-    private void processPeopleResponse(PeopleRequest elinkPeopleResponseRequest) {
+    private void processPeopleResponse(PeopleRequest elinkPeopleResponseRequest, LocalDateTime schedulerStartTime) {
         try {
             // filter the profiles that do have email address for leavers
             List<ResultsRequest> resultsRequests = elinkPeopleResponseRequest.getResultsRequests()
@@ -223,6 +247,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 authorisationsRepository.saveAll(authorisations);
             }
         } catch (Exception ex) {
+            auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
 
@@ -277,29 +302,33 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     // moved the logic to outside
-    public void updateEpimsServiceCodeMapping() {
+    public void updateEpimsServiceCodeMapping(LocalDateTime schedulerStartTime) {
+        try {
+            List<Triple<String, String, String>> epimsLocationId = new ArrayList<>();
+            List<String> locationIds = appointmentsRepository.fetchAppointmentBaseLocation();
+            List<LocationMapping> locationMappings = locationMappingRepository.findAllById(locationIds);
 
-        List<Triple<String, String,String>> epimsLocationId = new ArrayList<>();
-        List<String> locationIds = appointmentsRepository.fetchAppointmentBaseLocation();
-        List<LocationMapping> locationMappings  = locationMappingRepository.findAllById(locationIds);
-
-        String updateEpimmsid = "UPDATE dbjudicialdata.judicial_office_appointment SET epimms_id = ? , "
+            String updateEpimmsid = "UPDATE dbjudicialdata.judicial_office_appointment SET epimms_id = ? , "
                     + " service_code = ? WHERE base_location_id = ?";
-        locationMappings.stream().filter(location -> nonNull(location.getJudicialBaseLocationId())).forEach(s ->
-                epimsLocationId.add(Triple.of(s.getJudicialBaseLocationId(), s.getEpimmsId(),s.getServiceCode())));
-        log.info("Insert Query batch Response from IDAM" + epimsLocationId.size());
-        jdbcTemplate.batchUpdate(
+            locationMappings.stream().filter(location -> nonNull(location.getJudicialBaseLocationId())).forEach(s ->
+                    epimsLocationId.add(Triple.of(s.getJudicialBaseLocationId(), s.getEpimmsId(), s.getServiceCode())));
+            log.info("Insert Query batch Response from IDAM" + epimsLocationId.size());
+            jdbcTemplate.batchUpdate(
                     updateEpimmsid,
-                epimsLocationId,
+                    epimsLocationId,
                     10,
                     new ParameterizedPreparedStatementSetter<Triple<String, String, String>>() {
-                public void setValues(PreparedStatement ps, Triple<String, String, String> argument)
+                        public void setValues(PreparedStatement ps, Triple<String, String, String> argument)
                                 throws SQLException {
-                    ps.setString(1, argument.getMiddle());
-                    ps.setString(2, argument.getRight());
-                    ps.setString(3, argument.getLeft());
-                    }
-                });
+                            ps.setString(1, argument.getMiddle());
+                            ps.setString(2, argument.getRight());
+                            ps.setString(3, argument.getLeft());
+                        }
+                    });
+        } catch (Exception ex) {
+            auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
+            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
+        }
     }
 
     private UserProfile buildUserProfileDto(
@@ -369,6 +398,4 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         }
     }
-
-
 }

@@ -41,60 +41,74 @@ public class ElinksApiJobScheduler {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Value("${elinks.scheduler.enabled:false}")
+    private boolean isSchedulerEnabled;
+
+
     public static final String ELINKS_CONTROLLER_BASE_URL =
             "/refdata/internal/elink";
 
     @Scheduled(cron = "${elinks.scheduler.cronExpression}")
     public void loadElinksJob() {
 
-        log.info("ElinksApiJobScheduler.loadElinksData{} Job execution Start " + eLinksWrapperBaseUrl);
+        if (isSchedulerEnabled) {
 
-        DataloadSchedulerJob audit = new DataloadSchedulerJob();
-        LocalDateTime jobStartTime = now();
+            log.info("ElinksApiJobScheduler.loadElinksData{} Job execution Start " + eLinksWrapperBaseUrl);
 
-        audit.setJobStartTime(jobStartTime);
-        audit.setPublishingStatus(RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus());
+            DataloadSchedulerJob audit = new DataloadSchedulerJob();
+            LocalDateTime jobStartTime = now();
 
-        dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
+            audit.setJobStartTime(jobStartTime);
+            audit.setPublishingStatus(RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus());
 
-        try {
+            dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
+
+
             log.info("ElinksApiJobScheduler.loadElinksData Job execution in progress");
-
             loadElinksData();
-
-            LocalDateTime jobEndTime = now();
-            audit.setJobEndTime(jobEndTime);
-            audit.setPublishingStatus(RefDataElinksConstants.JobStatus.SUCCESS.getStatus());
-
-            dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
-
-        } catch (Exception exception) {
-            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure");
-
-            LocalDateTime jobEndTime = now();
-            audit.setJobEndTime(jobEndTime);
-            audit.setPublishingStatus(RefDataElinksConstants.JobStatus.FAILED.getStatus());
-            dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed successful");
         }
-        log.info("ElinksApiJobScheduler.loadElinksData Job execution completed successful");
+
     }
 
     public void loadElinksData() {
 
-        ResponseEntity<ElinkLocationWrapperResponse> locationResponse
+        try{
+            ResponseEntity<ElinkLocationWrapperResponse> locationResponse
                 = retrieveLocationDetails();
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Location");
+        }
+        try{
         ResponseEntity<ElinkBaseLocationWrapperResponse> baseLocationResponse
                 = retrieveBaseLocationDetails();
-
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Base Location");
+        }
+        try{
         ResponseEntity<ElinkPeopleWrapperResponse> peopleResponse
                 = retrievePeopleDetails();
-
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for People Response");
+        }
+        try{
         ResponseEntity<ElinkLeaversWrapperResponse> leaversResponse
                 = retrieveLeaversDetails();
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Leavers Response");
+        }
+        try{
         ResponseEntity<Object> idamSearchResponse
                 = retrieveIdamElasticSearchDetails();
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for idamSearch Response");
+        }
+        try{
         ResponseEntity<SchedulerJobStatusResponse> schedulerResponse
             = retrieveAsbPublishDetails();
+        } catch(Exception ex) {
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Publish ASB Response");
+        }
     }
 
     public ResponseEntity<ElinkLocationWrapperResponse> retrieveLocationDetails() {
@@ -186,7 +200,7 @@ public class ElinksApiJobScheduler {
     public ResponseEntity<SchedulerJobStatusResponse> retrieveAsbPublishDetails() {
 
         String apiUrl = eLinksWrapperBaseUrl.concat(ELINKS_CONTROLLER_BASE_URL)
-            .concat("/idam/asb/publish");
+            .concat("/sidam/asb/publish");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(APPLICATION_JSON);
@@ -198,4 +212,5 @@ public class ElinksApiJobScheduler {
             HttpMethod.GET, request, SchedulerJobStatusResponse.class);
 
     }
+
 }
