@@ -34,10 +34,10 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ERRORDESCRIPTIONFORINTTEST;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAM_ERROR_MESSAGE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 
 class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
@@ -684,7 +684,7 @@ class NegativeIntegrationTest extends ElinksEnabledIntegrationTest {
         List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
         ElinkDataExceptionRecords exceptionEntry = elinksException.get(0);
         assertNotNull(exceptionEntry.getKey());
-        assertEquals(LOCATIONIDFAILURE, exceptionEntry.getErrorDescription());
+        assertEquals(ERRORDESCRIPTIONFORINTTEST, exceptionEntry.getErrorDescription());
         assertEquals(BASE_LOCATION_ID, exceptionEntry.getFieldInError());
         assertNotNull(exceptionEntry.getSchedulerStartTime());
 

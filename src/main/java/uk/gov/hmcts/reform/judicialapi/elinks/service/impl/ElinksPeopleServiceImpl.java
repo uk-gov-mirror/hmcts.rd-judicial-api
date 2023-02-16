@@ -113,7 +113,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String lastUpdated;
 
-    private int statusCounter = 0;
+    private boolean baseLocationUnavailableFlag = false;
 
     @Value("${elinks.people.perPage}")
     private String perPage;
@@ -137,7 +137,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         int pageValue = Integer.parseInt(page);
 
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime, null, RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
+                schedulerStartTime, null, RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(),
+                PEOPLEAPI);
 
         do {
             Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++);
@@ -161,7 +162,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             pauseThread(Long.valueOf(threadPauseTime));
         } while (isMorePagesAvailable);
 
-        if (statusCounter > 0) {
+        if (baseLocationUnavailableFlag) {
             status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
         }
         
@@ -234,7 +235,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             List<String>  personalCodesToDelete = userProfiles.stream().map(UserProfile::getPersonalCode).toList();
 
             appointmentsRepository.deleteByPersonalCodeIn(personalCodesToDelete);
-            List<uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment> appointments =  resultsRequests.stream()
+            List<uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment> appointments =
+                    resultsRequests.stream()
                     .filter(resultsRequest -> !CollectionUtils.isEmpty(resultsRequest.getAppointmentsRequests()))
                     .map(this::buildAppointmentDto)
                     .flatMap(Collection::stream)
@@ -261,8 +263,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     }
 
-    private List<uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation> buildAuthorisationsDto(ResultsRequest
-                                                                                                       resultsRequest) {
+    private List<uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation> buildAuthorisationsDto(
+            ResultsRequest resultsRequest) {
         final List<AuthorisationsRequest> authorisationsRequests = resultsRequest.getAuthorisationsRequests();
         final List<Authorisation> authorisationList = new ArrayList<>();
 
@@ -310,15 +312,29 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .build());
             } else {
                 log.warn("Mapped Baselocation not found in base table " + appointment.getBaseLocationId());
-                statusCounter++;
+                baseLocationUnavailableFlag = true;
+                String baseLocationId = appointment.getBaseLocationId();
+                String errorDescription = appendBaseLocationIdInErroDescription(LOCATIONIDFAILURE, baseLocationId);
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         schedulerStartTime,
                         resultsRequest.getPersonalCode(),
-                        BASE_LOCATION_ID, LOCATIONIDFAILURE, APPOINTMENT_TABLE);
+                        BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE);
             }
         }
 
         return appointmentList;
+    }
+
+    private String appendBaseLocationIdInErroDescription(String errorDescription, String wordToAppend) {
+
+        String wordAfterWhichAppend = ":";
+        String newErrorDescription = errorDescription.substring(0, errorDescription.indexOf(wordAfterWhichAppend)
+                + wordAfterWhichAppend.length())
+                + " " + wordToAppend + " "
+                + errorDescription.substring(errorDescription.indexOf(wordAfterWhichAppend)
+                + wordAfterWhichAppend.length(), errorDescription.length());
+        System.out.println(newErrorDescription);
+        return newErrorDescription;
     }
 
     // moved the logic to outside

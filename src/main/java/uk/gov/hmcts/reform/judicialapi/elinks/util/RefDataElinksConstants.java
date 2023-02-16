@@ -62,8 +62,11 @@ public class RefDataElinksConstants {
 
     public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
 
+    public static final String LOCATIONIDFAILURE = "Appointment Base Location ID : "
+            + "not available in BASE LOCATION table";
 
-    public static final String LOCATIONIDFAILURE = "Appointment Base Location ID not available in BASE LOCATION table";
+    public static final String ERRORDESCRIPTIONFORINTTEST = "Appointment Base Location ID : 1000  "
+            + "not available in BASE LOCATION table";
 
     public enum JobStatus {
         IN_PROGRESS("IN_PROGRESS"),
