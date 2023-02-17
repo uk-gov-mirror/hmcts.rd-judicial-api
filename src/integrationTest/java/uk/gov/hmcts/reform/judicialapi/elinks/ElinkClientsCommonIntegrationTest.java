@@ -707,8 +707,8 @@ class ElinkClientsCommonIntegrationTest extends ElinksEnabledIntegrationTest {
     private void initialize() {
         final String clientId = "234342332";
         final String redirectUri = "http://idam-api.aat.platform.hmcts.net";
-        final String authorization = "authorization_value";
-        final String clientAuth = "clientAuth_value";
+        final String authorization = "c2hyZWVkaGFyLmxvbXRlQGhtY3RzLm5ldDpITUNUUzEyMzQ=";
+        final String clientAuth = "cmQteHl6LWFwaTp4eXo=";
         final String url = "http://127.0.0.1:5000";
         tokenConfigProperties.setClientId(clientId);
         tokenConfigProperties.setClientAuthorization(clientAuth);
