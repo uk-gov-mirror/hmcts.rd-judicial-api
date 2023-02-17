@@ -70,11 +70,13 @@ public class ElinksApiJobScheduler {
 
             if(Optional.ofNullable(latestEntry).isPresent()) {
 
-                LocalDate startDate = latestEntry.getJobStartTime().toLocalDate();
-                LocalDate endDate = latestEntry.getJobEndTime().toLocalDate();
+                LocalDate startDate = Optional.ofNullable(latestEntry.getJobStartTime()).isPresent() ? latestEntry
+                        .getJobStartTime().toLocalDate() : null;
+                LocalDate endDate = Optional.ofNullable(latestEntry.getJobEndTime()).isPresent() ? latestEntry
+                        .getJobEndTime().toLocalDate() : null;
                 LocalDate currentDate = jobStartTime.toLocalDate();
 
-                if (startDate.equals(currentDate) || endDate.equals(currentDate)) {
+                if (currentDate.equals(startDate) || currentDate.equals(endDate)) {
                     log.info("JRD load failed since job has already ran for the day");
                     elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                             jobStartTime,
