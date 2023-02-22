@@ -440,7 +440,7 @@ class ElinkClientsCommonIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
         ElinkDataExceptionRecords exceptionEntry = elinksException.get(0);
-        assertNotNull(exceptionEntry.getKey());
+        assertEquals("0049931063",exceptionEntry.getKey());
         assertEquals(ERRORDESCRIPTIONFORINTTEST, exceptionEntry.getErrorDescription());
         assertEquals(BASE_LOCATION_ID, exceptionEntry.getFieldInError());
         assertNotNull(exceptionEntry.getSchedulerStartTime());
@@ -494,12 +494,7 @@ class ElinkClientsCommonIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
 
-        assertEquals(1, baseLocationList.size());
-        assertEquals("0", baseLocationList.get(0).getBaseLocationId());
-        assertEquals("default", baseLocationList.get(0).getCourtName());
-        assertEquals("default", baseLocationList.get(0).getCourtType());
-        assertEquals("default", baseLocationList.get(0).getCircuit());
-        assertEquals("default", baseLocationList.get(0).getAreaOfExpertise());
+        assertEquals(0, baseLocationList.size());
 
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
 
