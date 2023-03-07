@@ -320,6 +320,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .lastLoadedDate(now())
                         .appointmentRolesMapping(appointment.getAppointmentRolesMapping())
                         .appointmentType(appointment.getAppointmentType())
+                        .workPattern(appointment.getWorkPattern())
                         .build());
             } else {
                 log.warn("Mapped Base location not found in base table " + appointment.getBaseLocationId());

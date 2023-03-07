@@ -141,11 +141,11 @@ class ElinksPeopleServiceImplTest {
         AppointmentsRequest appointmentsRequest1 = AppointmentsRequest.builder()
                 .baseLocationId("baselocId").circuit("circuit").location("location")
                 .isPrincipleAppointment(true).startDate("1991-12-19").endDate("2022-12-20")
-                .appointmentRolesMapping("appointment").appointmentType("type").build();
+                .appointmentRolesMapping("appointment").appointmentType("type").workPattern("pattern").build();
         AppointmentsRequest appointmentsRequest2 = AppointmentsRequest.builder()
                 .baseLocationId("baselocId").circuit("circuit").location("location")
                 .isPrincipleAppointment(true).startDate("1991-12-19").endDate("2022-12-20")
-                .appointmentRolesMapping("appointment").appointmentType("type").build();
+                .appointmentRolesMapping("appointment").appointmentType("type").workPattern("pattern").build();
         List<AppointmentsRequest> appointmentsRequests = Arrays.asList(appointmentsRequest1,appointmentsRequest2);
 
         AuthorisationsRequest authorisation1 = AuthorisationsRequest.builder().jurisdiction("juristriction")
