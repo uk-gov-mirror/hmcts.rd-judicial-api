@@ -1,5 +1,5 @@
 
-DROP TABLE dbjudicialdata.dataload_schedular_audit IF EXISTS;
+DROP TABLE if exists dbjudicialdata.dataload_schedular_audit;
 
 CREATE TABLE dbjudicialdata.dataload_schedular_audit (
 	id serial NOT NULL,
