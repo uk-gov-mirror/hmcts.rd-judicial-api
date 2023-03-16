@@ -1,7 +1,4 @@
 -- NB Flyway requires lowercase for table names
---To drop schema for integration testing
-DROP SCHEMA if EXISTS dbjudicialdata CASCADE;
-
 CREATE SCHEMA IF NOT EXISTS dbjudicialdata;
 
 -- Create table script : base_location_type
@@ -99,6 +96,8 @@ CREATE TABLE dbjudicialdata.judicial_office_appointment (
    	CONSTRAINT per_id_fk FOREIGN KEY (per_id) REFERENCES dbjudicialdata.judicial_user_profile(per_id),
    	CONSTRAINT region_id_fk1 FOREIGN KEY (region_id) REFERENCES dbjudicialdata.region_type(region_id)
 );
+
+
 
 
 
