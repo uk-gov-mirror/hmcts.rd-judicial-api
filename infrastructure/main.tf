@@ -6,6 +6,7 @@ locals {
   s2s_rg_prefix               = "rpe-service-auth-provider"
   s2s_key_vault_name          = var.env == "preview" || var.env == "spreview" ? join("-", ["s2s", "aat"]) : join("-", ["s2s", var.env])
   s2s_vault_resource_group    = var.env == "preview" || var.env == "spreview" ? join("-", [local.s2s_rg_prefix, "aat"]) : join("-", [local.s2s_rg_prefix, var.env])
+  vm_availabilty_zones  = [1, 2]
 }
 
 data "azurerm_key_vault" "rd_key_vault" {
@@ -26,6 +27,12 @@ data "azurerm_key_vault_secret" "s2s_secret" {
 resource "azurerm_key_vault_secret" "judicial_s2s_secret" {
   name          = "judicial-api-s2s-secret"
   value         = data.azurerm_key_vault_secret.s2s_secret.value
+  key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
+}
+
+resource "azurerm_key_vault_secret" "vm_password" {
+  name          = "vm-password"
+  value         = random_string.password.result
   key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
 }
 
@@ -72,3 +79,51 @@ module "db-judicial-ref-data" {
   common_tags         = var.common_tags
   postgresql_version  = var.postgresql_version
 }
+
+module "vm_database" {
+  count                = 1
+  source               = "git@github.com:hmcts/terraform-vm-module.git?ref=master"
+  vm_type              = "windows"
+  vm_name              = "rd-vm"
+  vm_resource_group    = "rd-aks-pr-test"
+  vm_location          = "uksouth"
+  vm_size              = "Standard_D2_v5"
+  vm_admin_name        = "rdElinks"
+  vm_admin_password    = random_string.password.result
+  vm_availabilty_zones = local.vm_availabilty_zones[count.index]
+
+
+
+  nic_name      = "rd_nic"
+
+  ipconfig_name = "rd_ipConfig"
+  vm_subnet_id  = data.azurerm_subnet.vm_subnet.id
+
+
+  marketplace_sku       = "2016-Datacenter"
+  marketplace_publisher = "MicrosoftWindowsServer"
+  marketplace_product   = "WindowsServer"
+
+
+}
+
+data "azurerm_subnet" "vm_subnet" {
+  name                 = "aks-01"
+  virtual_network_name = "cft-preview-vnet"
+  resource_group_name  = "cft-preview-network-rg"
+}
+
+resource "azurerm_key_vault_secret" "vm_password" {
+  name          = "vm-password"
+  value         = random_string.password.result
+  key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
+}
+resource "random_string" "password" {
+  length  = 16
+  special = true
+  upper   = true
+  lower   = true
+  number  = true
+}
+
+
