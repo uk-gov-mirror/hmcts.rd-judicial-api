@@ -80,31 +80,43 @@ module "db-judicial-ref-data" {
   postgresql_version  = var.postgresql_version
 }
 
-module "vm_database" {
-  count                = 1
-  source               = "git@github.com:hmcts/terraform-vm-module.git?ref=master"
-  vm_type              = "windows"
-  vm_name              = "rd-vm"
-  vm_resource_group    = "rd-aks-pr-test"
-  vm_location          = "uksouth"
-  vm_size              = "Standard_D2_v5"
-  vm_admin_name        = "rdElinks"
-  vm_admin_password    = random_string.password.result
-  vm_availabilty_zones = local.vm_availabilty_zones[count.index]
 
 
 
-  nic_name      = "rd_nic"
+resource "azurerm_network_interface" "example" {
+  name                = "example-nic"
+  location            = "uksouth"
+  resource_group_name = "rd-aks-pr-test"
 
-  ipconfig_name = "rd_ipConfig"
-  vm_subnet_id  = data.azurerm_subnet.vm_subnet.id
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = data.azurerm_subnet.vm_subnet.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
 
+resource "azurerm_windows_virtual_machine" "example" {
+  name                = "example-machine"
+  resource_group_name = "rd-aks-pr-test"
+  location            = "uksouth"
+  size                = "Standard_F2"
+  admin_username      = "rdUser"
+  admin_password      =  random_string.password.result
+  network_interface_ids = [
+    azurerm_network_interface.example.id,
+  ]
 
-  marketplace_sku       = "2016-Datacenter"
-  marketplace_publisher = "MicrosoftWindowsServer"
-  marketplace_product   = "WindowsServer"
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
 
-
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2016-Datacenter"
+    version   = "latest"
+  }
 }
 
 data "azurerm_subnet" "vm_subnet" {
