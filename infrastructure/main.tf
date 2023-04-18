@@ -83,7 +83,7 @@ resource "azurerm_key_vault_secret" "vm_password" {
 }
 
 data "azurerm_key_vault_secret" "vmpass" {
-  name          = "vmpass"
+  name          = "vm-password"
   key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
 }
 
