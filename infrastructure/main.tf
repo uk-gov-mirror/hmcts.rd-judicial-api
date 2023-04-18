@@ -82,10 +82,6 @@ resource "azurerm_key_vault_secret" "vm_password" {
   key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
 }
 
-data "azurerm_key_vault_secret" "vmpass" {
-  name          = "vm-password"
-  key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
-}
 
 resource "random_string" "password" {
   length  = 16
@@ -95,7 +91,5 @@ resource "random_string" "password" {
   number  = true
 }
 
-output "pass" {
-  value = data.azurerm_key_vault_secret.vmpass.value
-}
+
 
