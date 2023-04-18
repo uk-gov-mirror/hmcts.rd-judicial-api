@@ -30,11 +30,7 @@ resource "azurerm_key_vault_secret" "judicial_s2s_secret" {
   key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
 }
 
-resource "azurerm_key_vault_secret" "vm_password" {
-  name          = "vm-password"
-  value         = random_string.password.result
-  key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
-}
+
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name          = join("-", [var.component, "POSTGRES-USER"])
@@ -80,56 +76,17 @@ module "db-judicial-ref-data" {
   postgresql_version  = var.postgresql_version
 }
 
-
-
-
-resource "azurerm_network_interface" "example" {
-  name                = "example-nic"
-  location            = "uksouth"
-  resource_group_name = "rd-aks-pr-test"
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = data.azurerm_subnet.vm_subnet.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
-resource "azurerm_windows_virtual_machine" "example" {
-  name                = "example-machine"
-  resource_group_name = "rd-aks-pr-test"
-  location            = "uksouth"
-  size                = "Standard_F2"
-  admin_username      = "rdUser"
-  admin_password      =  random_string.password.result
-  network_interface_ids = [
-    azurerm_network_interface.example.id,
-  ]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2016-Datacenter"
-    version   = "latest"
-  }
-}
-
-data "azurerm_subnet" "vm_subnet" {
-  name                 = "aks-01"
-  virtual_network_name = "cft-preview-vnet"
-  resource_group_name  = "cft-preview-network-rg"
-}
-
 resource "azurerm_key_vault_secret" "vm_password" {
   name          = "vm-password"
   value         = random_string.password.result
   key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
 }
+
+data "azurerm_key_vault_secret" "vmpass" {
+  name          = "vmpass"
+  key_vault_id  = data.azurerm_key_vault.rd_key_vault.id
+}
+
 resource "random_string" "password" {
   length  = 16
   special = true
@@ -138,4 +95,7 @@ resource "random_string" "password" {
   number  = true
 }
 
+output "pass" {
+  value = data.azurerm_key_vault_secret.vmpass.value
+}
 
