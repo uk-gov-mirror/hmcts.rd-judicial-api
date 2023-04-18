@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.judicialapi.elinks.scheduler;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -61,6 +62,7 @@ public class ElinksApiJobScheduler {
             "/refdata/internal/elink";
 
     @Scheduled(cron = "${elinks.scheduler.cronExpression}")
+    @SchedulerLock(name = "lockedTask", lockAtMostFor = "PT5M", lockAtLeastFor = "PT2M")
     public void loadElinksJob() {
 
         if (isSchedulerEnabled) {
