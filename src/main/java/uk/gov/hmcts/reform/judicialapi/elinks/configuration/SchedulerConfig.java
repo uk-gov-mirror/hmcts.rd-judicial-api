@@ -13,8 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(value = "elinks.scheduler.enabled", matchIfMissing = true, havingValue = "true")
-@EnableSchedulerLock(defaultLockAtMostFor = "PT20M")
+@EnableSchedulerLock(defaultLockAtMostFor = "${elinks.scheduler.defaultLockAtMostFor}")
 public class SchedulerConfig {
+
     @Bean
     public LockProvider getLockProvider(@Autowired JdbcTemplate jdbcTemplate) {
         return new JdbcTemplateLockProvider(jdbcTemplate, "dbjudicialdata.lock_details_provider");

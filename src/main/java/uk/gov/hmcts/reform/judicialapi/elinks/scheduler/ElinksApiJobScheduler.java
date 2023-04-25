@@ -58,11 +58,11 @@ public class ElinksApiJobScheduler {
     DataloadSchedulerJobRepository dataloadSchedulerJobRepository;
 
 
-    public static final String ELINKS_CONTROLLER_BASE_URL =
-            "/refdata/internal/elink";
+    public static final String ELINKS_CONTROLLER_BASE_URL = "/refdata/internal/elink";
 
     @Scheduled(cron = "${elinks.scheduler.cronExpression}")
-    @SchedulerLock(name = "lockedTask", lockAtMostFor = "PT5M", lockAtLeastFor = "PT2M")
+    @SchedulerLock(name = "lockedTask", lockAtMostFor = "${elinks.scheduler.lockAtMostFor}",
+            lockAtLeastFor = "${elinks.scheduler.lockAtLeastFor}")
     public void loadElinksJob() {
 
         if (isSchedulerEnabled) {
