@@ -174,5 +174,6 @@ class SchedulerElinksJobIntegrationTest extends ElinksEnabledIntegrationTest {
         elinkSchedularAuditRepository.deleteAll();
         elinkDataExceptionRepository.deleteAll();
         dataloadSchedulerJobRepository.deleteAll();
+        authorisationsRepository.deleteAll();
     }
 }
