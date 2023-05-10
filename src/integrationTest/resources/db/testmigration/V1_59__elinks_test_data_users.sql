@@ -43,9 +43,9 @@ VALUES(179, '1029', '1', true, '1995-03-27', NULL,
 INSERT INTO dbjudicialdata.judicial_office_authorisation
 (judicial_office_auth_id, jurisdiction, start_date, end_date, created_date,
 last_updated, lower_level, personal_code, ticket_code, object_id,authorisation_id,jurisdiction_id)
-VALUES(7, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
+VALUES(1015, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
 '2021-08-11 09:14:30.054', '2021-08-11 09:14:30.054', 'Family Court', '27', NULL, '1111122223333',7,1),
-(8, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
+(1016, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
 '2021-08-11 09:14:30.054', '2021-08-11 09:14:30.054', 'Family Court', '27', '373', '1111122223333',8,2),
-(9, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
+(1017, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
 '2021-08-11 09:14:30.054', '2021-08-11 09:14:30.054', 'Family Court', '28', '364', '1111122223333',9,3);
