@@ -110,14 +110,14 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
         elinks.stubFor(get(urlPathMatching("/reference_data/location"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Content-Type", V2.MediaType.SERVICE)
                         .withHeader("Connection", "close")
                         .withBody(locationResponseValidationJson)));
 
         elinks.stubFor(get(urlPathMatching("/reference_data/base_location"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Content-Type", V2.MediaType.SERVICE)
                         .withHeader("Connection", "close")
                         .withBody(baselocationResponseValidationJson)
                         .withTransformers("user-token-response")));
@@ -132,7 +132,7 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
         elinks.stubFor(get(urlPathMatching("/leavers"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Content-Type", V2.MediaType.SERVICE)
                         .withHeader("Connection", "close")
                         .withBody(leaversResponseValidationJson)));
 
