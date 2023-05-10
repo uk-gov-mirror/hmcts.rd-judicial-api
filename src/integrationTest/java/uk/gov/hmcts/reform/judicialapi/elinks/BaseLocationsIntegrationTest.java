@@ -62,9 +62,9 @@ class BaseLocationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
 
-        assertEquals(6, baseLocationList.size());
+        assertEquals(7, baseLocationList.size());
         assertEquals("Aberconwy",baseLocationList.get(0).getCourtName());
-        assertEquals("1",baseLocationList.get(0).getBaseLocationId());
+        assertEquals("1029",baseLocationList.get(0).getBaseLocationId());
         assertEquals("Old Gwynedd",baseLocationList.get(0).getCourtType());
     }
 

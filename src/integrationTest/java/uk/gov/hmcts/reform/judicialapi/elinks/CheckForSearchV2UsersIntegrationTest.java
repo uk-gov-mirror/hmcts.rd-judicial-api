@@ -1,5 +1,7 @@
-package uk.gov.hmcts.reform.judicialapi.elinks.util;
+package uk.gov.hmcts.reform.judicialapi.elinks;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -15,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-class SearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrationTest {
 
     @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
