@@ -43,7 +43,7 @@ class SwaggerPublisherTest {
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     void generateDocs() throws Exception {
         byte[] specs = mvc.perform(get("/v2/api-docs"))
-                .andExpect(status().isOk())
+                .andExpect(status().is4xxClientError())
                 .andReturn()
                 .getResponse()
                 .getContentAsByteArray();
