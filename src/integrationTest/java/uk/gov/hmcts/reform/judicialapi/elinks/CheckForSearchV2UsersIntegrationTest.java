@@ -31,6 +31,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(3, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
+        assertEquals("Ms", profiles.get(0).get("postNominals"));
+        assertEquals("B.K", profiles.get(0).get("initials"));
         assertEquals("test528@test.net", profiles.get(1).get("emailId"));
         assertEquals("test529@test.net", profiles.get(2).get("emailId"));
         assertThat(response).containsEntry("http_status", "200 OK");
@@ -50,6 +52,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(2, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
+        assertEquals("S.K", profiles.get(0).get("initials"));
+        assertEquals("Mr", profiles.get(0).get("postNominals"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -66,6 +70,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(2, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
+        assertEquals("B.K", profiles.get(0).get("initials"));
+        assertEquals("Ms", profiles.get(0).get("postNominals"));
         assertEquals("test528@test.net", profiles.get(1).get("emailId"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
@@ -83,6 +89,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
+        assertEquals("S.K", profiles.get(0).get("initials"));
+        assertEquals("Mr", profiles.get(0).get("postNominals"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -99,6 +107,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
+        assertEquals("S.K", profiles.get(0).get("initials"));
+        assertEquals("Mr", profiles.get(0).get("personalCode"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -115,6 +125,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
+        assertEquals("S.K", profiles.get(0).get("initials"));
+        assertEquals("Mr", profiles.get(0).get("personalCode"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -131,6 +143,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
+        assertEquals("S.K", profiles.get(0).get("initials"));
+        assertEquals("Mr", profiles.get(0).get("personalCode"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -146,6 +160,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(1, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
+        assertEquals("B.K", profiles.get(0).get("initials"));
+        assertEquals("Ms", profiles.get(0).get("postNominals"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -161,7 +177,11 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var profiles = (List<Map<String, String>>)response.get("body");
         assertEquals(2, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
+        assertEquals("B.K", profiles.get(0).get("initials"));
+        assertEquals("Ms", profiles.get(0).get("postNominals"));
         assertEquals("test528@test.net", profiles.get(1).get("emailId"));
+        assertEquals("S.K", profiles.get(1).get("initials"));
+        assertEquals("Mr", profiles.get(1).get("postNominals"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
