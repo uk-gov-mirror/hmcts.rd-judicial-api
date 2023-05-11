@@ -108,7 +108,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
         assertEquals("S.K", profiles.get(0).get("initials"));
-        assertEquals("Mr", profiles.get(0).get("personalCode"));
+        assertEquals("27", profiles.get(0).get("personalCode"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -126,7 +126,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
         assertEquals("S.K", profiles.get(0).get("initials"));
-        assertEquals("Mr", profiles.get(0).get("personalCode"));
+        assertEquals("27", profiles.get(0).get("personalCode"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -144,7 +144,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
         assertEquals("S.K", profiles.get(0).get("initials"));
-        assertEquals("Mr", profiles.get(0).get("personalCode"));
+        assertEquals("27", profiles.get(0).get("personalCode"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
