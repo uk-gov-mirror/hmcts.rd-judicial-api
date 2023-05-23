@@ -29,12 +29,12 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var response = judicialReferenceDataClient.searchUsers(
                 userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>)response.get("body");
-        assertEquals(3, profiles.size());
+        assertEquals(4, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
         assertEquals("Ms", profiles.get(0).get("postNominals"));
         assertEquals("B.K", profiles.get(0).get("initials"));
         assertEquals("test528@test.net", profiles.get(1).get("emailId"));
-        assertEquals("test529@test.net", profiles.get(2).get("emailId"));
+        assertEquals("test531@test.net", profiles.get(2).get("emailId"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -50,10 +50,30 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var response = judicialReferenceDataClient.searchUsers(
                 userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>)response.get("body");
-        assertEquals(2, profiles.size());
+        assertEquals(1, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
         assertEquals("S.K", profiles.get(0).get("initials"));
         assertEquals("Mr", profiles.get(0).get("postNominals"));
+        assertThat(response).containsEntry("http_status", "200 OK");
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({ "jrd-system-user,20013","jrd-system-user,200134","jrd-admin,20013","jrd-admin,200136"})
+    void shouldReturn200WhenUserProfileRequestedWithAppointmentAndServiceCodeAndLocation(String role,
+                                                                                              String location) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("test")
+            .location(location)
+            .serviceCode("ABA3")
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        assertEquals(2, profiles.size());
+        assertEquals("test531@test.net", profiles.get(1).get("emailId"));
+        assertEquals("J.K", profiles.get(1).get("initials"));
+        assertEquals("Mr", profiles.get(1).get("postNominals"));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
 
@@ -68,7 +88,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var response = judicialReferenceDataClient.searchUsers(
                 userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>)response.get("body");
-        assertEquals(2, profiles.size());
+        assertEquals(3, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
         assertEquals("B.K", profiles.get(0).get("initials"));
         assertEquals("Ms", profiles.get(0).get("postNominals"));
@@ -141,7 +161,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var response = judicialReferenceDataClient.searchUsers(
             userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>)response.get("body");
-        assertEquals(1, profiles.size());
+        assertEquals(2, profiles.size());
         assertEquals("test528@test.net", profiles.get(0).get("emailId"));
         assertEquals("S.K", profiles.get(0).get("initials"));
         assertEquals("27", profiles.get(0).get("personalCode"));
@@ -175,7 +195,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var response = judicialReferenceDataClient.searchUsers(
                 userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>)response.get("body");
-        assertEquals(2, profiles.size());
+        assertEquals(3, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
         assertEquals("B.K", profiles.get(0).get("initials"));
         assertEquals("Ms", profiles.get(0).get("postNominals"));
@@ -254,13 +274,13 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
         var response = judicialReferenceDataClient.searchUsers(
                 userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>)response.get("body");
-        assertEquals(3, profiles.size());
+        assertEquals(4, profiles.size());
         assertEquals("test530@test.net", profiles.get(0).get("emailId"));
         assertEquals("test528@test.net", profiles.get(1).get("emailId"));
-        assertEquals("test529@test.net", profiles.get(2).get("emailId"));
+        assertEquals("test531@test.net", profiles.get(2).get("emailId"));
         assertEquals("29", profiles.get(0).get("personalCode"));
         assertEquals("27", profiles.get(1).get("personalCode"));
-        assertEquals("28", profiles.get(2).get("personalCode"));
+        assertEquals("31", profiles.get(2).get("personalCode"));
 
         assertThat(response).containsEntry("http_status", "200 OK");
     }
