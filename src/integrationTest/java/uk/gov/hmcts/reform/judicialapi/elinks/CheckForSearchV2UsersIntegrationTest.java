@@ -39,6 +39,122 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
     }
 
     @ParameterizedTest
+    @CsvSource({"jrd-system-user,BBA3",
+        "jrd-admin,BBA3",
+        "jrd-system-user,BFA1",
+        "jrd-admin,BFA1",})
+    void shouldReturn200WhenUserProfileRequestedForGivenSearchStringForsscsAndIac(String role,String serviceCode) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("one")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        assertEquals(1, profiles.size());
+        assertEquals("One531@test.net", profiles.get(0).get("emailId"));
+        assertEquals("Mr", profiles.get(0).get("postNominals"));
+        assertEquals("J.K", profiles.get(0).get("initials"));
+        assertEquals("32", profiles.get(0).get("personalCode"));
+        assertThat(response).containsEntry("http_status", "200 OK");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"jrd-system-user,BBA3",
+        "jrd-admin,BBA3",
+        "jrd-system-user,BFA1",
+        "jrd-admin,BFA1",})
+    void shouldReturn200WhenUserProfileRequestedForSscsAndIacExpired(String role,String serviceCode) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("two")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        assertEquals(0, profiles.size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"jrd-system-user,BBA3",
+        "jrd-admin,BBA3",
+        "jrd-system-user,BFA1",
+        "jrd-admin,BFA1",})
+    void shouldReturn200WhenUserProfileRequestedForSscsAndIacAppointmentActiveAuthExpired(String role,
+                                                                                          String serviceCode) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("three")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        assertEquals(0, profiles.size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"jrd-system-user,BBA3",
+        "jrd-admin,BBA3",
+        "jrd-system-user,BFA1",
+        "jrd-admin,BFA1",})
+    void shouldReturn200WhenUserProfileRequestedForSscsAndIacAppointmentExpiredAuthActive(String role,
+                                                                                          String serviceCode) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("four")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        assertEquals(0, profiles.size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"jrd-system-user,BBA3",
+        "jrd-admin,BBA3",
+        "jrd-system-user,BFA1",
+        "jrd-admin,BFA1",})
+    void shouldReturn200WhenUserProfileRequestedForSscsAndIacAppointmentActiveSscsAuthActive(String role,
+                                                                                             String serviceCode) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("five")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        if (("BBA3").equals(serviceCode)) {
+            assertEquals(1, profiles.size());
+        } else if (("BFA1").equals(serviceCode)) {
+            assertEquals(0, profiles.size());
+        }
+
+    }
+
+    @ParameterizedTest
+    @CsvSource({"jrd-system-user,BBA3",
+        "jrd-admin,BBA3",
+        "jrd-system-user,BFA1",
+        "jrd-admin,BFA1",})
+    void shouldReturn200WhenUserProfileRequestedSscsAppointmentExpiredIacSscsAuthActive(String role,
+                                                                                             String serviceCode) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("six")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        if (("BBA3").equals(serviceCode)) {
+            assertEquals(0, profiles.size());
+        } else if (("BFA1").equals(serviceCode)) {
+            assertEquals(1, profiles.size());
+        }
+
+    }
+
+
+    @ParameterizedTest
     @CsvSource({ "jrd-system-user,20013","jrd-system-user,200134","jrd-admin,20013","jrd-admin,200136"})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchStringAndServiceCodeAndLocation(String role,
                                                                                               String location) {
