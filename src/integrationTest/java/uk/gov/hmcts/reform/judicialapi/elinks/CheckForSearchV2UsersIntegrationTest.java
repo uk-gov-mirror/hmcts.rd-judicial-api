@@ -153,6 +153,23 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
 
     }
 
+    @ParameterizedTest
+    @CsvSource({"jrd-system-user,ABA5",
+        "jrd-admin,ABA5",
+        "jrd-system-user,ABA3",
+        "jrd-admin,ABA3",})
+    void shouldReturn200WhenUserProfileRequestedFamilyAppointmentActiveAuthExpires(String role,
+                                                                                        String serviceCode) {
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("seven")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        assertEquals(1, profiles.size());
+
+    }
 
     @ParameterizedTest
     @CsvSource({ "jrd-system-user,20013","jrd-system-user,200134","jrd-admin,20013","jrd-admin,200136"})
