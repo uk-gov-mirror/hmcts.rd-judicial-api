@@ -5,6 +5,8 @@ name: rd-judicial-api
 version: 0.0.23
 maintainers:
   - name: Reference Data Team
+job:
+  concurrencyPolicy: Allow
 dependencies:
   - name: java
     version: 4.0.13
