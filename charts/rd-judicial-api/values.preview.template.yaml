@@ -57,5 +57,5 @@ servicebus:
   sbNamespace: rd
   setup:
     topics:
-      - name: jrdapi-aks-topic
+      - name: jrdapi-topic
         subscriptionNeeded: yes
