@@ -47,9 +47,7 @@ java:
     JRD_MQ_PASSWORD:
       secretRef: rd-sb-preview
       key: primaryKey
-    JRD_MQ_HOST:
-      secretRef: rd-sb-preview
-      key: namespaceName
+
 servicebus:
   enabled: true
   teamName: RD
