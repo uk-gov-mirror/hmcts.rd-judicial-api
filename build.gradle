@@ -10,14 +10,14 @@ plugins {
     id 'pmd'
     id 'com.github.ben-manes.versions' version '0.42.0'
     id "info.solidsoft.pitest" version '1.7.0'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'io.spring.dependency-management' version '1.1.0'
     id 'org.sonarqube' version '3.3'
-    id 'org.springframework.boot' version '2.4.12'
+    id 'org.springframework.boot' version '2.7.12'
     id "org.flywaydb.flyway" version "8.4.2"
     id "io.freefair.lombok" version "5.3.3.3"
-    id 'uk.gov.hmcts.java' version '0.12.12'
+    id 'uk.gov.hmcts.java' version '0.12.39'
     id 'au.com.dius.pact' version '4.1.7'
-    id 'org.owasp.dependencycheck' version '8.0.1'
+    id 'org.owasp.dependencycheck' version '8.0.2'
 }
 
 apply plugin: 'java'
@@ -212,11 +212,11 @@ task migratePostgresDatabase(type: org.flywaydb.gradle.task.FlywayMigrateTask) {
 }
 
 task fortifyScan(type: JavaExec)  {
-    main = "uk.gov.hmcts.fortifyclient.FortifyClientMainApp"
-    classpath += sourceSets.test.runtimeClasspath
-    jvmArgs = ['--add-opens=java.base/java.lang.reflect=ALL-UNNAMED']
-    // This is a temporary fix to prevent the nightly build from failing if the Fortify scan detects issues
-    ignoreExitValue = true
+  mainClass.set("uk.gov.hmcts.fortifyclient.FortifyClientMainApp")
+  classpath += sourceSets.test.runtimeClasspath
+  jvmArgs = ['--add-opens=java.base/java.lang.reflect=ALL-UNNAMED']
+  // This is a temporary fix to prevent the nightly build from failing if the Fortify scan detects issues
+  ignoreExitValue = true
 }
 
 jacoco {
@@ -331,6 +331,7 @@ dependencies {
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version: versions.springBoot
 
+    implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.70'
     implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.5'
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
@@ -356,6 +357,8 @@ dependencies {
 
     implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
     implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.8'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.5'
 
     implementation 'com.github.hmcts:service-auth-provider-java-client:4.0.3'
 
@@ -400,6 +403,8 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
     implementation "com.github.hmcts.java-logging:logging:${versions.reformLogging}"
     implementation "com.github.hmcts.java-logging:logging-appinsights:${versions.reformLogging}"
+    
+    
 
 
 
@@ -454,7 +459,6 @@ dependencies {
 
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
 
-    contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
     contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact_version
 
     contractTestImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
