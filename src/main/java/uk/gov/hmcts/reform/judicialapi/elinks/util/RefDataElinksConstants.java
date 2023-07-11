@@ -59,13 +59,38 @@ public class RefDataElinksConstants {
 
     public static final String BASE_LOCATION_ID = "base_location_id";
 
+    public static final String LOCATION = "location";
+
+    public static final String JUDICIALROLETYPE = "judicial_role_type";
+
+    public static final String USER_PROFILE = "jrd_user_profile";
+
+    public static final String APPOINTMENTTYPE = "appointment type";
+
     public static final String LOCATIONIDFAILURE = "Appointment Base Location ID : "
             + "not available in BASE LOCATION table";
+
+    public static final String APPOINTMENTIDFAILURE = "Appointment  ID : "
+        + "is failed to load";
+
+    public static final String AUTHORISATIONIDFAILURE = "Appointment  ID : "
+        + "is failed to load";
+
+    public static final String CFTREGIONIDFAILURE = "Location  : "
+        + "not available for CFT Region ID in LOCATION table";
+
+    public static final String USERPROFILEFAILURE = "UserProfile  : "
+        + "failed to load";
+
+    public static final String APPOINTMENTTYPENOTMATCHING = "Appointment type  : "
+        + "not matching";
 
     public static final String ERRORDESCRIPTIONFORINTTEST = "Appointment Base Location ID : 1000  "
             + "not available in BASE LOCATION table";
 
     public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
+
+    public static final String AUTHORISATION_TABLE = "judicial_office_authorisation";
 
     public static final String ASB_PUBLISH_SIDAM_ERROR = "An error occurred while Publishing SIDAM to ASB";
 
@@ -80,6 +105,9 @@ public class RefDataElinksConstants {
 
     public static final String ASB_PUBLISH_TOPIC_ERROR
         = "An error occurred while Publishing message to service bus topic";
+
+    public static final String SPTW
+        = "SPTW-";
 
     public static final String FORBIDEN_ERROR = "Forbidden Error: Access denied for invalid permissions";
 

@@ -78,4 +78,10 @@ public class UserProfile implements Serializable {
     @Column(name = "title")
     @Size(max = 64)
     private String title;
+
+    @Column(name = "retirement_date")
+    @Size(max = 64)
+    private LocalDate retirementDate;
+
+
 }

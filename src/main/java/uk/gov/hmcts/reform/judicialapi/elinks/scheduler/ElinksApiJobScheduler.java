@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.DataloadSchedulerJob;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedulerJobRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
@@ -83,7 +82,8 @@ public class ElinksApiJobScheduler {
                     elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                             jobStartTime,
                             "ElinksApiJobScheduler" + jobStartTime,
-                            "Schedular_Run_date", "JRD load failed since job has already ran for the day", "ElinksApiJobScheduler");
+                            "Schedular_Run_date", "JRD load failed since job has already ran for the day",
+                        "ElinksApiJobScheduler",null);
                     return;
                 }
             }
@@ -109,12 +109,6 @@ public class ElinksApiJobScheduler {
                 = retrieveLocationDetails();
         } catch(Exception ex) {
             log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Location");
-        }
-        try{
-        ResponseEntity<ElinkBaseLocationWrapperResponse> baseLocationResponse
-                = retrieveBaseLocationDetails();
-        } catch(Exception ex) {
-            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Base Location");
         }
         try{
         ResponseEntity<ElinkPeopleWrapperResponse> peopleResponse
@@ -156,23 +150,6 @@ public class ElinksApiJobScheduler {
 
         return restTemplate.exchange(apiUrl,
                 HttpMethod.GET, request, ElinkLocationWrapperResponse.class);
-
-    }
-
-    public ResponseEntity<ElinkBaseLocationWrapperResponse> retrieveBaseLocationDetails() {
-
-
-        String apiUrl = eLinksWrapperBaseUrl.concat(ELINKS_CONTROLLER_BASE_URL)
-                .concat("/reference_data/base_location");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(APPLICATION_JSON);
-
-        HttpEntity<String> request =
-                new HttpEntity<>(headers);
-
-        return restTemplate.exchange(apiUrl,
-                HttpMethod.GET, request, ElinkBaseLocationWrapperResponse.class);
 
     }
 

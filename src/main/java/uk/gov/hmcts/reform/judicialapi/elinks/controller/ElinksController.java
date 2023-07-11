@@ -84,50 +84,10 @@ public class ElinksController {
     })
     @GetMapping (path = "/reference_data/location",
             produces =V2.MediaType.SERVICE)
-    public ResponseEntity<ElinkLocationWrapperResponse> loadLocation(){
+    public ResponseEntity<ElinkBaseLocationWrapperResponse> loadLocation(){
 
 
         return eLinksService.retrieveLocation();
-    }
-
-
-    @ApiResponses({
-            @ApiResponse(
-                    code = 200,
-                    message = "Get list of Base locations and populate base location type.",
-                    response = ElinkBaseLocationWrapperResponse.class
-            ),
-            @ApiResponse(
-                    code = 400,
-                    message = BAD_REQUEST
-            ),
-            @ApiResponse(
-                    code = 401,
-                    message = UNAUTHORIZED_ERROR
-            ),
-            @ApiResponse(
-                    code = 403,
-                    message = FORBIDDEN_ERROR
-            ),
-            @ApiResponse(
-                    code = 404,
-                    message = NO_DATA_FOUND
-            ),
-            @ApiResponse(
-                    code = 429,
-                    message = TOO_MANY_REQUESTS
-            ),
-            @ApiResponse(
-                    code = 500,
-                    message = INTERNAL_SERVER_ERROR
-            )
-    })
-    @GetMapping(  path = "/reference_data/base_location",
-            produces = V2.MediaType.SERVICE)
-    public ResponseEntity<ElinkBaseLocationWrapperResponse> loadBaseLocationType() {
-
-        return eLinksService.retrieveBaseLocation();
-
     }
 
     @ApiResponses({
