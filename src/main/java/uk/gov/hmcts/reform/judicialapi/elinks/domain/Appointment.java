@@ -75,10 +75,6 @@ public class Appointment implements Serializable {
     @Size(max = 64)
     private String objectId;
 
-    @Column(name = "appointment")
-    @Size(max = 64)
-    private String appointmentRolesMapping;
-
     @Column(name = "appointment_type")
     @Size(max = 32)
     private String appointmentType;

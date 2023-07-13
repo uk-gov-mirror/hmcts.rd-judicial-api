@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.util;
 
+import java.util.List;
+
 public class RefDataElinksConstants {
 
     private RefDataElinksConstants() {
@@ -59,11 +61,15 @@ public class RefDataElinksConstants {
 
     public static final String BASE_LOCATION_ID = "base_location_id";
 
-    public static final String LOCATION = "location";
+    public static final String LOCATION = "Location";
 
     public static final String JUDICIALROLETYPE = "judicial_role_type";
 
     public static final String USER_PROFILE = "jrd_user_profile";
+
+    public static final String APPOINTMENT = "appointments";
+
+    public static final String AUTHORISATION = "authorisations_with_dates";
 
     public static final String APPOINTMENTTYPE = "appointment type";
 
@@ -79,6 +85,9 @@ public class RefDataElinksConstants {
     public static final String CFTREGIONIDFAILURE = "Location  : "
         + "not available for CFT Region ID in LOCATION table";
 
+    public static final String INVALIDROLENAMES = "Role Name  : "
+        + " invalid";
+
     public static final String USERPROFILEFAILURE = "UserProfile  : "
         + "failed to load";
 
@@ -89,6 +98,7 @@ public class RefDataElinksConstants {
             + "not available in BASE LOCATION table";
 
     public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
+
 
     public static final String AUTHORISATION_TABLE = "judicial_office_authorisation";
 
@@ -129,4 +139,8 @@ public class RefDataElinksConstants {
     public static final String IDAM_ERROR_MESSAGE = "Error during the IDAM elastic search query";
 
     public static final String IDAM_TOKEN_ERROR_MESSAGE = "Idam Service Failed while bearer token generate";
+
+    public static final List<String> INVALID_ROLES = List.of("CRTS TRIB - RS Admin User",
+        "MAGS - AC Admin User","Person on a List","Unknown","Senior Coroner","Assistant Coroner",
+        "Area Coroner","Acting Senior Coroner","Initial Automated Record");
 }

@@ -29,10 +29,9 @@ public class Location implements Serializable {
 
     @Column(name = "cft_region_desc_en")
     @Size(max = 256)
-    @JsonProperty(value = "cftRegionDescEn")
-    private String cftRegionDescEn;
+    private String regionDescEn;
 
-    @Column(name = "region_desc_cy")
+    @Column(name = "cft_region_desc_cy")
     @Size(max = 256)
     private String regionDescCy;
 }

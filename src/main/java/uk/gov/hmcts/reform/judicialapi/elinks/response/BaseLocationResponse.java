@@ -68,7 +68,7 @@ public class BaseLocationResponse implements Serializable {
     private static LocalDateTime convertToLocalDateTime(String date) {
         if (Optional.ofNullable(date).isPresent()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            return LocalDate.parse(date, formatter).atStartOfDay();
+            return LocalDateTime.parse(date, formatter);
         }
         return null;
     }
