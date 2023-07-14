@@ -70,7 +70,7 @@
         <cve>CVE-2023-20883</cve>
         <cve>CVE-2023-34462</cve>
         <cve>CVE-2023-2976</cve>
-        <cve>VE-2023-35116</cve>
+        <cve>CVE-2023-35116</cve>
     </suppress>
     
 </suppressions>
