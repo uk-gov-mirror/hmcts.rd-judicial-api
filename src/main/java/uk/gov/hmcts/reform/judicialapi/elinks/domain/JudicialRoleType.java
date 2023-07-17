@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -22,12 +23,14 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @Getter
 @Setter
+@SequenceGenerator(name = "judicial_role_type_id_sequence",
+    sequenceName = "judicial_role_type_id_sequence",  schema = "dbjudicialdata", allocationSize = 1)
 public class JudicialRoleType {
 
     @Id
     @Column(name = "role_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "judicial_role_type_id_sequence")
-    private String roleId;
+    private long roleId;
 
     @Column(name = "personal_code")
     @Size(max = 32)

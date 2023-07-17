@@ -80,7 +80,6 @@ public class UserProfile implements Serializable {
     private String title;
 
     @Column(name = "retirement_date")
-    @Size(max = 64)
     private LocalDate retirementDate;
 
 

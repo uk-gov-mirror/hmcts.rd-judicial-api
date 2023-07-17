@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface AuthorisationsRepository extends JpaRepository<Authorisation, Long> {
 
-    void deleteByPersonalCodeIn(List<String> personalCode);
+    void deleteByAppointmentId(String appointmentId);
+    void deleteByPersonalCode(String personalCode);
 }

@@ -6,11 +6,11 @@ import uk.gov.hmcts.reform.judicialapi.elinks.domain.LocationMapping;
 
 public interface LocationMapppingRepository  extends JpaRepository<LocationMapping, String> {
 
-    /*@Query(value = "select epimmsId from LocationMapping where judicialBaseLocationId =:locationId ")
-    String fetchEpimmsIdfromLocationId(String locationId);
+    @Query(value = "select lm from uk.gov.hmcts.reform.judicialapi.elinks.domain.LocationMapping lm  where judicialBaseLocationId =:locationId ")
+    LocationMapping fetchEpimmsIdfromLocationId(String locationId);
 
-    @Query(value = "select serviceCode from LocationMapping where judicialBaseLocationId =:locationId ")
+    /*@Query(value = "select service_code from LocationMapping where judicialBaseLocationId =:locationId ")
     String fetchServiceCodefromLocationId(String locationId);*/
 
-    LocationMapping findByJudicialBaseLocationIdIgnoreCase(String locationId);
+    /*LocationMapping findByJudicialBaseLocationIdIgnoreCase(String judicialBaseLocationId);*/
 }

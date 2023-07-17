@@ -13,12 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AppointmentsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AuthorisationsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.PeopleRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.ResultsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RoleRequest;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.LocationMapping;
@@ -138,7 +140,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private String includePreviousAppointments;
 
     @Override
-    @Transactional("transactionManager")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
@@ -180,7 +182,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
         }
 
-        updateEpimsServiceCodeMapping(schedulerStartTime);
+        /*updateEpimsServiceCodeMapping(schedulerStartTime);*/
         auditStatus(schedulerStartTime, status);
         ElinkPeopleWrapperResponse response = new ElinkPeopleWrapperResponse();
         response.setMessage(PEOPLE_DATA_LOAD_SUCCESS);
@@ -236,7 +238,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         return updatedSince;
     }
 
-
     private void processPeopleResponse(PeopleRequest elinkPeopleResponseRequest, LocalDateTime schedulerStartTime) {
         try {
             // filter the profiles that do have email address for leavers
@@ -269,16 +270,15 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private void saveRoleDetails(String personalCode, List<RoleRequest> judiciaryRoles) {
 
         for (RoleRequest roleRequest: judiciaryRoles) {
-            JudicialRoleType judicialRoleType = JudicialRoleType.builder()
-                .title(roleRequest.getName())
-                .startDate(convertToLocalDateTime(roleRequest.getStartDate()))
-                .endDate(convertToLocalDateTime(roleRequest.getEndDate()))
-                .personalCode(personalCode)
-                .jurisdictionRoleId(roleRequest.getJudiciaryRoleId())
-                .build();
 
             try {
-                judicialRoleTypeRepository.save(judicialRoleType);
+                judicialRoleTypeRepository.save(JudicialRoleType.builder()
+                    .title(roleRequest.getName())
+                    .startDate(convertToLocalDateTime(roleRequest.getStartDate()))
+                    .endDate(convertToLocalDateTime(roleRequest.getEndDate()))
+                    .personalCode(personalCode)
+                    .jurisdictionRoleId(roleRequest.getJudiciaryRoleId())
+                    .build());
             } catch (Exception e) {
                 log.warn("Role type  not loaded for " + personalCode);
                 partialSuccessFlag = true;
@@ -293,7 +293,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
 
     private boolean saveUserProfile(ResultsRequest resultsRequest) {
-        UserProfile userProfile = UserProfile.builder()
+
+        try {
+       UserProfile userProfile=UserProfile.builder()
             .personalCode(resultsRequest.getPersonalCode())
             .knownAs(resultsRequest.getKnownAs())
             .surname(resultsRequest.getSurname())
@@ -309,10 +311,10 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             .title(resultsRequest.getTitle())
             .retirementDate(convertToLocalDate(resultsRequest.getRetirementDate()))
             .build();
-
-        try {
             profileRepository.save(userProfile);
-            appointmentsRepository.deleteByPersonalCodeIn(List.of(userProfile.getPersonalCode()));
+            authorisationsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
+            appointmentsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
+            judicialRoleTypeRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
             return true;
         } catch (Exception e) {
             log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
@@ -332,25 +334,22 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
         final List<AppointmentsRequest> validappointmentsRequests =
             validateAppointmentRequest(appointmentsRequests,personalCode);
-
+        Appointment appointment;
         for (AppointmentsRequest appointmentsRequest: validappointmentsRequests) {
             log.info("Retrieving appointment.getBaseLocationId() from DB " + appointmentsRequest.getBaseLocationId());
             // Check for base location in static table
 
             String baseLocationId = fetchBaseLocationId(appointmentsRequest);
             try {
-                appointmentsRepository
-                    .save(uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment.builder()
+                        appointment=Appointment.builder()
                         .baseLocationId(baseLocationId)
                         .regionId(fetchRegionId(appointmentsRequest.getLocation()))
                         .isPrincipleAppointment(appointmentsRequest.getIsPrincipleAppointment())
                         .startDate(convertToLocalDate(appointmentsRequest.getStartDate()))
                         .endDate(convertToLocalDate(appointmentsRequest.getEndDate()))
                         .personalCode(personalCode)
-                        .epimmsId(locationMappingRepository
-                            .findByJudicialBaseLocationIdIgnoreCase(baseLocationId).getEpimmsId())
-                        .serviceCode(locationMappingRepository
-                            .findByJudicialBaseLocationIdIgnoreCase(baseLocationId).getServiceCode())
+                        .epimmsId(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getEpimmsId())
+                        .serviceCode(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getServiceCode())
                         .objectId(objectId)
                         .appointment(appointmentsRequest.getRoleName())
                         .appointmentType(appointmentsRequest.getContractType()
@@ -365,8 +364,10 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                             .getContractTypeId())
                         .location(appointmentsRequest.getLocation())
                         .joBaseLocationId(appointmentsRequest.getBaseLocationId())
-                        .build());
-                authorisationsRepository.deleteByPersonalCodeIn(List.of(personalCode));
+                        .build();
+                        authorisationsRepository.deleteByAppointmentId(appointmentsRequest.getAppointmentId());
+                        appointmentsRepository.deleteByAppointmentId(appointmentsRequest.getAppointmentId());
+               appointmentsRepository.save(appointment);
             } catch (Exception e) {
                 log.warn("failed to load appointment details for " + appointmentsRequest.getAppointmentId());
                 partialSuccessFlag = true;
@@ -387,8 +388,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 authorisationsRepository
                     .save(uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation.builder()
                         .jurisdiction(authorisationsRequest.getJurisdiction())
-                        .startDate(convertToLocalDateTime(authorisationsRequest.getStartDate()))
-                        .endDate(convertToLocalDateTime(authorisationsRequest.getEndDate()))
+                        .startDate(convertToLocalDate(authorisationsRequest.getStartDate()))
+                        .endDate(convertToLocalDate(authorisationsRequest.getEndDate()))
                         .createdDate(LocalDateTime.now())
                         .lastUpdated(LocalDateTime.now())
                         .lowerLevel(authorisationsRequest.getTicket())
@@ -400,7 +401,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .authorisationId(authorisationsRequest.getAuthorisationId())
                         .jurisdictionId(authorisationsRequest.getJurisdictionId())
                         .build());
-                judicialRoleTypeRepository.deleteByPersonalCodeIn(List.of(personalCode));
             } catch (Exception e) {
                 log.warn("failed to load Authorisation details for " + authorisationsRequest.getAuthorisationId());
                 partialSuccessFlag = true;
@@ -494,7 +494,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     // moved the logic to outside
-    public void updateEpimsServiceCodeMapping(LocalDateTime schedulerStartTime) {
+    /*public void updateEpimsServiceCodeMapping(LocalDateTime schedulerStartTime) {
         try {
             List<Triple<String, String, String>> epimsLocationId = new ArrayList<>();
             List<String> locationIds = appointmentsRepository.fetchAppointmentBaseLocation();
@@ -521,7 +521,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
-    }
+    }*/
 
 
 
@@ -535,8 +535,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private LocalDateTime convertToLocalDateTime(String date) {
         if (Optional.ofNullable(date).isPresent()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return LocalDate.parse(date, formatter).atStartOfDay();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            return LocalDateTime.parse(date, formatter);
         }
         return null;
     }
