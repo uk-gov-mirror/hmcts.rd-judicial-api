@@ -277,12 +277,12 @@ class ElinksPeopleServiceImplTest {
                 Boolean.parseBoolean(any()));
         verify(profileRepository, atLeastOnce()).save(any());
 
-        verify(appointmentsRepository, times(4)).deleteByPersonalCodeIn(any());
+        verify(appointmentsRepository, times(4)).deleteByPersonalCode(any());
         verify(appointmentsRepository, times(8)).save(any());
 
-        verify(authorisationsRepository, times(8)).deleteByPersonalCodeIn(any());
+        verify(authorisationsRepository, times(8)).deleteByPersonalCode(any());
         verify(judicialRoleTypeRepository, atLeastOnce()).save(any());
-        verify(judicialRoleTypeRepository, atLeastOnce()).deleteByPersonalCodeIn(any());
+        verify(judicialRoleTypeRepository, atLeastOnce()).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
     }
 
@@ -313,10 +313,10 @@ class ElinksPeopleServiceImplTest {
                 Boolean.parseBoolean(any()));
         verify(profileRepository, times(4)).save(any());
 
-        verify(appointmentsRepository, times(4)).deleteByPersonalCodeIn(any());
+        verify(appointmentsRepository, times(4)).deleteByPersonalCode(any());
         verify(appointmentsRepository, atLeastOnce()).save(any());
 
-        verify(authorisationsRepository, times(8)).deleteByPersonalCodeIn(any());
+        verify(authorisationsRepository, times(8)).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
 
 
@@ -350,7 +350,7 @@ class ElinksPeopleServiceImplTest {
             Boolean.parseBoolean(any()));
         verify(profileRepository, times(4)).save(any());
 
-        verify(appointmentsRepository, times(4)).deleteByPersonalCodeIn(any());
+        verify(appointmentsRepository, times(4)).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
 
 
@@ -391,7 +391,7 @@ class ElinksPeopleServiceImplTest {
             Boolean.parseBoolean(any()));
         verify(profileRepository, times(2)).save(any());
 
-        verify(appointmentsRepository, times(2)).deleteByPersonalCodeIn(any());
+        verify(appointmentsRepository, times(2)).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
 
 
