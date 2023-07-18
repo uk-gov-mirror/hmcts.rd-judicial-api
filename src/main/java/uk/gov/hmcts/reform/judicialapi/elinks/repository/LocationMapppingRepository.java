@@ -9,8 +9,4 @@ public interface LocationMapppingRepository  extends JpaRepository<LocationMappi
     @Query(value = "select lm from uk.gov.hmcts.reform.judicialapi.elinks.domain.LocationMapping lm  where judicialBaseLocationId =:locationId ")
     LocationMapping fetchEpimmsIdfromLocationId(String locationId);
 
-    /*@Query(value = "select service_code from LocationMapping where judicialBaseLocationId =:locationId ")
-    String fetchServiceCodefromLocationId(String locationId);*/
-
-    /*LocationMapping findByJudicialBaseLocationIdIgnoreCase(String judicialBaseLocationId);*/
 }

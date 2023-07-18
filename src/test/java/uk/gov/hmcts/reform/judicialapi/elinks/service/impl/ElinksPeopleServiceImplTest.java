@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RoleRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataExceptionRecords;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.LocationMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.ElinksFeignClient;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
@@ -114,6 +115,9 @@ class ElinksPeopleServiceImplTest {
     @InjectMocks
     private ElinksPeopleServiceImpl elinksPeopleServiceImpl;
 
+    @Mock
+    private ElinksPeopleDeleteServiceimpl elinksPeopleDeleteServiceimpl;
+
     private ResultsRequest result1;
 
     private ResultsRequest result2;
@@ -160,10 +164,11 @@ class ElinksPeopleServiceImplTest {
         AuthorisationsRequest authorisation2 = AuthorisationsRequest.builder().jurisdiction("juristriction")
                 .ticket("lowerlevel").startDate("1991-12-19")
                 .endDate("2022-12-20").ticketCode("ticketId").build();
-        RoleRequest roleRequestOne = RoleRequest.builder().judiciaryRoleId("427").name("name").startDate("1991-12-19")
-            .endDate("2024-12-20").build();
-        RoleRequest roleRequestTwo = RoleRequest.builder().judiciaryRoleId("427").name("name").startDate("1991-12-19")
-            .endDate("2024-12-20").build();
+        RoleRequest roleRequestOne = RoleRequest.builder().judiciaryRoleId("427").name("name")
+            .startDate("1991-12-19T00:00:00.000Z").endDate("2024-12-20T00:00:00.000Z").build();
+        RoleRequest roleRequestTwo = RoleRequest.builder().judiciaryRoleId("427").name("name")
+            .startDate("1991-12-19T00:00:00.000Z")
+            .endDate("2024-12-20T00:00:00.000Z").build();
         List<AuthorisationsRequest> authorisations = Arrays.asList(authorisation1,authorisation2);
 
 
@@ -253,11 +258,15 @@ class ElinksPeopleServiceImplTest {
 
         LocalDateTime dateTime = LocalDateTime.now();
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
-
+        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
+            .buildingLocationName("loc")
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
         when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
         ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
@@ -277,12 +286,8 @@ class ElinksPeopleServiceImplTest {
                 Boolean.parseBoolean(any()));
         verify(profileRepository, atLeastOnce()).save(any());
 
-        verify(appointmentsRepository, times(4)).deleteByPersonalCode(any());
         verify(appointmentsRepository, times(8)).save(any());
-
-        verify(authorisationsRepository, times(8)).deleteByPersonalCode(any());
         verify(judicialRoleTypeRepository, atLeastOnce()).save(any());
-        verify(judicialRoleTypeRepository, atLeastOnce()).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
     }
 
@@ -292,9 +297,14 @@ class ElinksPeopleServiceImplTest {
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
+        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
+            .buildingLocationName("loc")
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
         ObjectMapper mapper = new ObjectMapper();
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
 
@@ -313,10 +323,8 @@ class ElinksPeopleServiceImplTest {
                 Boolean.parseBoolean(any()));
         verify(profileRepository, times(4)).save(any());
 
-        verify(appointmentsRepository, times(4)).deleteByPersonalCode(any());
         verify(appointmentsRepository, atLeastOnce()).save(any());
 
-        verify(authorisationsRepository, times(8)).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
 
 
@@ -329,6 +337,10 @@ class ElinksPeopleServiceImplTest {
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
+        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
+            .buildingLocationName("loc")
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn(null);
         when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
         ObjectMapper mapper = new ObjectMapper();
@@ -350,7 +362,6 @@ class ElinksPeopleServiceImplTest {
             Boolean.parseBoolean(any()));
         verify(profileRepository, times(4)).save(any());
 
-        verify(appointmentsRepository, times(4)).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
 
 
@@ -391,7 +402,6 @@ class ElinksPeopleServiceImplTest {
             Boolean.parseBoolean(any()));
         verify(profileRepository, times(2)).save(any());
 
-        verify(appointmentsRepository, times(2)).deleteByPersonalCode(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
 
 
@@ -523,6 +533,10 @@ class ElinksPeopleServiceImplTest {
     void load_people_should_return_elinksException_when_updating_appointmentsDb()
             throws JsonProcessingException {
 
+        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
+            .buildingLocationName("loc")
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
         ObjectMapper mapper = new ObjectMapper();
         PaginationRequest paginationNew = PaginationRequest.builder()
             .results(1)
@@ -530,7 +544,7 @@ class ElinksPeopleServiceImplTest {
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
-
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
 
         DataAccessException dataAccessException = mock(DataAccessException.class);
@@ -552,8 +566,13 @@ class ElinksPeopleServiceImplTest {
         PaginationRequest paginationNew = PaginationRequest.builder()
             .results(1)
             .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
+        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
+            .buildingLocationName("loc")
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         DataAccessException dataAccessException = mock(DataAccessException.class);
         when(authorisationsRepository.save(any())).thenThrow(dataAccessException);
@@ -575,11 +594,16 @@ class ElinksPeopleServiceImplTest {
         PaginationRequest paginationNew = PaginationRequest.builder()
             .results(1)
             .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
+        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
+            .buildingLocationName("loc")
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
-        DataAccessException dataAccessException = mock(DataAccessException.class);
-        when(judicialRoleTypeRepository.save(any())).thenThrow(dataAccessException);
+       /* DataAccessException dataAccessException = mock(DataAccessException.class);
+        when(judicialRoleTypeRepository.save(any())).thenThrow(dataAccessException);*/
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getPeopleDetials(any(), any(), any(),

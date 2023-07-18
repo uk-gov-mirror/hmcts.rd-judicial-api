@@ -4,7 +4,6 @@ import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -255,8 +254,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         if (saveUserProfile(resultsRequest)) {
             try {
                 elinksPeopleDeleteServiceimpl.deleteAuth(resultsRequest);
-            }catch(Exception exception){
-               exception.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
             saveAppointmentDetails(resultsRequest.getPersonalCode(), resultsRequest
                 .getObjectId(), resultsRequest.getAppointmentsRequests());
@@ -294,22 +293,22 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private boolean saveUserProfile(ResultsRequest resultsRequest) {
 
         try {
-       UserProfile userProfile=UserProfile.builder()
-            .personalCode(resultsRequest.getPersonalCode())
-            .knownAs(resultsRequest.getKnownAs())
-            .surname(resultsRequest.getSurname())
-            .fullName(resultsRequest.getFullName())
-            .postNominals(resultsRequest.getPostNominals())
-            .ejudiciaryEmailId(resultsRequest.getEmail())
-            .lastWorkingDate(convertToLocalDate(resultsRequest.getLastWorkingDate()))
-            .activeFlag(true)
-            .createdDate(now())
-            .lastLoadedDate(now())
-            .objectId(resultsRequest.getObjectId())
-            .initials(resultsRequest.getInitials())
-            .title(resultsRequest.getTitle())
-            .retirementDate(convertToLocalDate(resultsRequest.getRetirementDate()))
-            .build();
+            UserProfile userProfile = UserProfile.builder()
+                .personalCode(resultsRequest.getPersonalCode())
+                .knownAs(resultsRequest.getKnownAs())
+                .surname(resultsRequest.getSurname())
+                .fullName(resultsRequest.getFullName())
+                .postNominals(resultsRequest.getPostNominals())
+                .ejudiciaryEmailId(resultsRequest.getEmail())
+                .lastWorkingDate(convertToLocalDate(resultsRequest.getLastWorkingDate()))
+                .activeFlag(true)
+                .createdDate(now())
+                .lastLoadedDate(now())
+                .objectId(resultsRequest.getObjectId())
+                .initials(resultsRequest.getInitials())
+                .title(resultsRequest.getTitle())
+                .retirementDate(convertToLocalDate(resultsRequest.getRetirementDate()))
+                .build();
             profileRepository.save(userProfile);
             return true;
         } catch (Exception e) {
@@ -337,31 +336,31 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
             String baseLocationId = fetchBaseLocationId(appointmentsRequest);
             try {
-                        appointment=Appointment.builder()
-                        .baseLocationId(baseLocationId)
-                        .regionId(fetchRegionId(appointmentsRequest.getLocation()))
-                        .isPrincipleAppointment(appointmentsRequest.getIsPrincipleAppointment())
-                        .startDate(convertToLocalDate(appointmentsRequest.getStartDate()))
-                        .endDate(convertToLocalDate(appointmentsRequest.getEndDate()))
-                        .personalCode(personalCode)
-                        .epimmsId(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getEpimmsId())
-                        .serviceCode(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getServiceCode())
-                        .objectId(objectId)
-                        .appointment(appointmentsRequest.getRoleName())
-                        .appointmentType(appointmentsRequest.getContractType()
-                            .contains(SPTW) ? "SPTW" : appointmentsRequest
-                            .getContractType())
-                        .createdDate(now())
-                        .lastLoadedDate(now())
-                        .appointmentId(appointmentsRequest.getAppointmentId())
-                        .roleNameId(appointmentsRequest.getRoleNameId())
-                        .type(appointmentsRequest.getType())
-                        .contractTypeId(appointmentsRequest.getContractType().contains(SPTW) ? "5" : appointmentsRequest
-                            .getContractTypeId())
-                        .location(appointmentsRequest.getLocation())
-                        .joBaseLocationId(appointmentsRequest.getBaseLocationId())
-                        .build();
-               appointmentsRepository.save(appointment);
+                appointment = Appointment.builder()
+                    .baseLocationId(baseLocationId)
+                    .regionId(fetchRegionId(appointmentsRequest.getLocation()))
+                    .isPrincipleAppointment(appointmentsRequest.getIsPrincipleAppointment())
+                    .startDate(convertToLocalDate(appointmentsRequest.getStartDate()))
+                    .endDate(convertToLocalDate(appointmentsRequest.getEndDate()))
+                    .personalCode(personalCode)
+                    .epimmsId(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getEpimmsId())
+                    .serviceCode(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getServiceCode())
+                    .objectId(objectId)
+                    .appointment(appointmentsRequest.getRoleName())
+                    .appointmentType(appointmentsRequest.getContractType()
+                        .contains(SPTW) ? "SPTW" : appointmentsRequest
+                        .getContractType())
+                    .createdDate(now())
+                    .lastLoadedDate(now())
+                    .appointmentId(appointmentsRequest.getAppointmentId())
+                    .roleNameId(appointmentsRequest.getRoleNameId())
+                    .type(appointmentsRequest.getType())
+                    .contractTypeId(appointmentsRequest.getContractType().contains(SPTW) ? "5" : appointmentsRequest
+                        .getContractTypeId())
+                    .location(appointmentsRequest.getLocation())
+                    .joBaseLocationId(appointmentsRequest.getBaseLocationId())
+                    .build();
+                appointmentsRepository.save(appointment);
             } catch (Exception e) {
                 log.warn("failed to load appointment details for " + appointmentsRequest.getAppointmentId());
                 partialSuccessFlag = true;
