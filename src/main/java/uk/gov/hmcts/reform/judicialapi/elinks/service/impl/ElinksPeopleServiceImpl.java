@@ -139,8 +139,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Value("${elinks.people.includePreviousAppointments}")
     private String includePreviousAppointments;
 
+    @Autowired
+    ElinkUserServiceImpl imp;
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+   // @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
@@ -259,6 +262,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         ResultsRequest resultsRequest) {
 
         if (saveUserProfile(resultsRequest)) {
+            try {
+                imp.deleteAuth(resultsRequest);
+            }catch(Exception exception){
+               exception.printStackTrace();
+            }
             saveAppointmentDetails(resultsRequest.getPersonalCode(), resultsRequest
                 .getObjectId(), resultsRequest.getAppointmentsRequests());
             saveAuthorizationDetails(resultsRequest.getPersonalCode(), resultsRequest
@@ -292,6 +300,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
 
+
     private boolean saveUserProfile(ResultsRequest resultsRequest) {
 
         try {
@@ -312,12 +321,10 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             .retirementDate(convertToLocalDate(resultsRequest.getRetirementDate()))
             .build();
             profileRepository.save(userProfile);
-            authorisationsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
-            appointmentsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
-            judicialRoleTypeRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
             return true;
         } catch (Exception e) {
             log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
+            e.printStackTrace();
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
@@ -327,6 +334,14 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             return false;
         }
     }
+
+
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public void deleteAuth(ResultsRequest resultsRequest) {
+//        authorisationsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
+//        appointmentsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
+//        judicialRoleTypeRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
+//    }
 
 
     private void saveAppointmentDetails(String personalCode, String objectId,
@@ -365,8 +380,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .location(appointmentsRequest.getLocation())
                         .joBaseLocationId(appointmentsRequest.getBaseLocationId())
                         .build();
-                        authorisationsRepository.deleteByAppointmentId(appointmentsRequest.getAppointmentId());
-                        appointmentsRepository.deleteByAppointmentId(appointmentsRequest.getAppointmentId());
                appointmentsRepository.save(appointment);
             } catch (Exception e) {
                 log.warn("failed to load appointment details for " + appointmentsRequest.getAppointmentId());
