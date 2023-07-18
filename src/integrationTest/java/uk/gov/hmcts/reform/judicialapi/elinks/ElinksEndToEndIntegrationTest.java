@@ -235,7 +235,6 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
         doNothing().when(elinkTopicPublisher).sendMessage(anyList(),anyString());;
         assertThat(idamResponse).containsEntry("http_status", "200 OK");
         HashMap publishSidamIdsResponse = (LinkedHashMap)idamResponse.get("body");*/
-
         /*assertThat(publishSidamIdsResponse.get("publishing_status")).isNotNull();*/
 
         List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
