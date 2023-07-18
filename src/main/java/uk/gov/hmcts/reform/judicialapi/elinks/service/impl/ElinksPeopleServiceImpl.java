@@ -11,10 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AppointmentsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AuthorisationsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.PeopleRequest;
@@ -23,7 +20,6 @@ import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RoleRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.LocationMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.ElinksFeignClient;
@@ -43,12 +39,9 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAu
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +108,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Autowired
     ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
+    @Autowired ElinksPeopleDeleteServiceimpl elinksPeopleDeleteServiceimpl;
+
     @Autowired
     JdbcTemplate jdbcTemplate;
 
@@ -139,11 +134,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Value("${elinks.people.includePreviousAppointments}")
     private String includePreviousAppointments;
 
-    @Autowired
-    ElinkUserServiceImpl imp;
-
     @Override
-   // @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
@@ -263,7 +254,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
         if (saveUserProfile(resultsRequest)) {
             try {
-                imp.deleteAuth(resultsRequest);
+                elinksPeopleDeleteServiceimpl.deleteAuth(resultsRequest);
             }catch(Exception exception){
                exception.printStackTrace();
             }
@@ -300,7 +291,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
 
-
     private boolean saveUserProfile(ResultsRequest resultsRequest) {
 
         try {
@@ -324,7 +314,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             return true;
         } catch (Exception e) {
             log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
-            e.printStackTrace();
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
@@ -334,14 +323,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             return false;
         }
     }
-
-
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    public void deleteAuth(ResultsRequest resultsRequest) {
-//        authorisationsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
-//        appointmentsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
-//        judicialRoleTypeRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
-//    }
 
 
     private void saveAppointmentDetails(String personalCode, String objectId,
