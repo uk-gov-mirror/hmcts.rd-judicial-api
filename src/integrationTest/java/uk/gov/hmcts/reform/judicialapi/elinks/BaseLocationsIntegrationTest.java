@@ -19,7 +19,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASELOCATIONAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
@@ -63,7 +62,7 @@ class BaseLocationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
 
-        assertEquals(5, baseLocationList.size());
+        assertEquals(8, baseLocationList.size());
         assertEquals("Aberconwy",baseLocationList.get(0).getName());
         assertEquals("1",baseLocationList.get(0).getBaseLocationId());
         assertEquals("46",baseLocationList.get(0).getTypeId());
@@ -80,11 +79,11 @@ class BaseLocationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
 
-        assertEquals(5, baseLocationList.size());
+        assertEquals(8, baseLocationList.size());
 
-        /*assertEquals("Prestatyn Civil and Family Justice Centre",baseLocationList.get(4).getCourtName());
-        assertEquals("1192",baseLocationList.get(4).getBaseLocationId());
-        assertEquals("County Court",baseLocationList.get(4).getCourtType());*/
+        assertEquals("Arundel",baseLocationList.get(4).getName());
+        assertEquals("7",baseLocationList.get(4).getBaseLocationId());
+        assertEquals("46",baseLocationList.get(4).getTypeId());
 
         List<ElinkDataSchedularAudit>  elinksAudit = elinkSchedularAuditRepository.findAll();
 

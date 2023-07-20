@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperRespons
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.DataloadSchedulerJobAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
 import java.time.LocalDate;
@@ -28,7 +29,12 @@ import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAMSEARCH;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PUBLISHASB;
 
 @Component
 @Slf4j
@@ -48,6 +54,9 @@ public class ElinksApiJobScheduler {
 
     @Value("${elinks.scheduler.enabled:false}")
     private boolean isSchedulerEnabled;
+
+    @Autowired
+    ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
 
     @Autowired
@@ -108,31 +117,45 @@ public class ElinksApiJobScheduler {
             ResponseEntity<ElinkLocationWrapperResponse> locationResponse
                 = retrieveLocationDetails();
         } catch(Exception ex) {
-            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Location");
+            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Location Response");
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),RefDataElinksConstants.JobStatus.FAILED.getStatus(),LOCATIONAPI);
         }
         try{
         ResponseEntity<ElinkPeopleWrapperResponse> peopleResponse
                 = retrievePeopleDetails();
         } catch(Exception ex) {
-            log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for People Response");
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),RefDataElinksConstants.JobStatus.FAILED.getStatus(),PEOPLEAPI);
         }
         try{
         ResponseEntity<ElinkLeaversWrapperResponse> leaversResponse
                 = retrieveLeaversDetails();
         } catch(Exception ex) {
             log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Leavers Response");
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),RefDataElinksConstants.JobStatus.FAILED.getStatus(),LEAVERSAPI);
         }
         try{
         ResponseEntity<Object> idamSearchResponse
                 = retrieveIdamElasticSearchDetails();
         } catch(Exception ex) {
             log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for idamSearch Response");
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),RefDataElinksConstants.JobStatus.FAILED.getStatus(),IDAMSEARCH);
         }
         try{
         ResponseEntity<SchedulerJobStatusResponse> schedulerResponse
             = retrieveAsbPublishDetails();
         } catch(Exception ex) {
             log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for Publish ASB Response");
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),RefDataElinksConstants.JobStatus.FAILED.getStatus(),PUBLISHASB);
         }
     }
 

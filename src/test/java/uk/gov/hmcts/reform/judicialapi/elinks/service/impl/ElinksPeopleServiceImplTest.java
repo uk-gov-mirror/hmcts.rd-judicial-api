@@ -258,14 +258,14 @@ class ElinksPeopleServiceImplTest {
 
         LocalDateTime dateTime = LocalDateTime.now();
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
-        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
-            .buildingLocationName("loc")
+
+        when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
+        LocationMapping locationMapping = LocationMapping.builder()
             .serviceCode("BHA1")
             .epimmsId("1234").build();
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
-        when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
         when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
         ObjectMapper mapper = new ObjectMapper();
@@ -297,8 +297,7 @@ class ElinksPeopleServiceImplTest {
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
-        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
-            .buildingLocationName("loc")
+        LocationMapping locationMapping = LocationMapping.builder()
             .serviceCode("BHA1")
             .epimmsId("1234").build();
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
@@ -337,8 +336,7 @@ class ElinksPeopleServiceImplTest {
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
-        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
-            .buildingLocationName("loc")
+        LocationMapping locationMapping = LocationMapping.builder()
             .serviceCode("BHA1")
             .epimmsId("1234").build();
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn(null);
@@ -533,8 +531,7 @@ class ElinksPeopleServiceImplTest {
     void load_people_should_return_elinksException_when_updating_appointmentsDb()
             throws JsonProcessingException {
 
-        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
-            .buildingLocationName("loc")
+        LocationMapping locationMapping = LocationMapping.builder()
             .serviceCode("BHA1")
             .epimmsId("1234").build();
         ObjectMapper mapper = new ObjectMapper();
@@ -562,17 +559,16 @@ class ElinksPeopleServiceImplTest {
     void load_people_should_return_elinksException_when_updating_authorisationsDb()
             throws JsonProcessingException {
 
-        ObjectMapper mapper = new ObjectMapper();
         PaginationRequest paginationNew = PaginationRequest.builder()
             .results(1)
             .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
-        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
-            .buildingLocationName("loc")
+        LocationMapping locationMapping = LocationMapping.builder()
             .serviceCode("BHA1")
             .epimmsId("1234").build();
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
+        ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         DataAccessException dataAccessException = mock(DataAccessException.class);
         when(authorisationsRepository.save(any())).thenThrow(dataAccessException);
@@ -594,15 +590,12 @@ class ElinksPeopleServiceImplTest {
         PaginationRequest paginationNew = PaginationRequest.builder()
             .results(1)
             .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
-        LocationMapping locationMapping=LocationMapping.builder().baseLocationName("abc")
-            .buildingLocationName("loc")
+        LocationMapping locationMapping = LocationMapping.builder()
             .serviceCode("BHA1")
             .epimmsId("1234").build();
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
-       /* DataAccessException dataAccessException = mock(DataAccessException.class);
-        when(judicialRoleTypeRepository.save(any())).thenThrow(dataAccessException);*/
         when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
 

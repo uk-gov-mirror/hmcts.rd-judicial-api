@@ -63,6 +63,10 @@ public class RefDataElinksConstants {
 
     public static final String LOCATION = "Location";
 
+    public static final String IDAMSEARCH = "Idam Search";
+
+    public static final String PUBLISHASB = "Publish to ASB";
+
     public static final String JUDICIALROLETYPE = "judicial_role_type";
 
     public static final String USER_PROFILE = "jrd_user_profile";

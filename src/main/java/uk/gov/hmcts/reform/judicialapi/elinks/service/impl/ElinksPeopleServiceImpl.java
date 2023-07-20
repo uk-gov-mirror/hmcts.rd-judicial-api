@@ -66,7 +66,6 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.REGION_DEFAULT_ID;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.SPTW;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE;
 
@@ -175,7 +174,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
         }
 
-        /*updateEpimsServiceCodeMapping(schedulerStartTime);*/
         auditStatus(schedulerStartTime, status);
         ElinkPeopleWrapperResponse response = new ElinkPeopleWrapperResponse();
         response.setMessage(PEOPLE_DATA_LOAD_SUCCESS);
@@ -254,14 +252,20 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         if (saveUserProfile(resultsRequest)) {
             try {
                 elinksPeopleDeleteServiceimpl.deleteAuth(resultsRequest);
+                saveAppointmentDetails(resultsRequest.getPersonalCode(), resultsRequest
+                    .getObjectId(), resultsRequest.getAppointmentsRequests());
+                saveAuthorizationDetails(resultsRequest.getPersonalCode(), resultsRequest
+                    .getObjectId(), resultsRequest.getAuthorisationsRequests());
+                saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles());
             } catch (Exception exception) {
-                exception.printStackTrace();
+                log.warn("Role type  not loaded for " + resultsRequest.getPersonalCode());
+                partialSuccessFlag = true;
+                elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                    now(),
+                    resultsRequest.getPersonalCode(),
+                    USER_PROFILE, exception.getMessage(), USER_PROFILE,resultsRequest.getPersonalCode());
             }
-            saveAppointmentDetails(resultsRequest.getPersonalCode(), resultsRequest
-                .getObjectId(), resultsRequest.getAppointmentsRequests());
-            saveAuthorizationDetails(resultsRequest.getPersonalCode(), resultsRequest
-                .getObjectId(), resultsRequest.getAuthorisationsRequests());
-            saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles());
+
         }
     }
 
@@ -318,7 +322,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                LOCATION, e.getMessage(), USER_PROFILE,personalCode);
+                USER_PROFILE, e.getMessage(), USER_PROFILE,personalCode);
             return false;
         }
     }
@@ -344,18 +348,15 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .endDate(convertToLocalDate(appointmentsRequest.getEndDate()))
                     .personalCode(personalCode)
                     .epimmsId(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getEpimmsId())
-                    .serviceCode(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getServiceCode())
-                    .objectId(objectId)
-                    .appointment(appointmentsRequest.getRoleName())
-                    .appointmentType(appointmentsRequest.getContractType()
-                        .contains(SPTW) ? "SPTW" : appointmentsRequest
+                    .appointmentMapping(appointmentsRequest.getRoleName())
+                    .appointmentType(appointmentsRequest
                         .getContractType())
                     .createdDate(now())
                     .lastLoadedDate(now())
                     .appointmentId(appointmentsRequest.getAppointmentId())
                     .roleNameId(appointmentsRequest.getRoleNameId())
                     .type(appointmentsRequest.getType())
-                    .contractTypeId(appointmentsRequest.getContractType().contains(SPTW) ? "5" : appointmentsRequest
+                    .contractTypeId(appointmentsRequest
                         .getContractTypeId())
                     .location(appointmentsRequest.getLocation())
                     .joBaseLocationId(appointmentsRequest.getBaseLocationId())
@@ -387,7 +388,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .lastUpdated(LocalDateTime.now())
                         .lowerLevel(authorisationsRequest.getTicket())
                         .personalCode(personalCode)
-                        .objectId(objectId)
                         .ticketCode(authorisationsRequest.getTicketCode())
                         .ticketCode(authorisationsRequest.getTicketCode())
                         .appointmentId(authorisationsRequest.getAppointmentId())
@@ -485,36 +485,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 + wordAfterWhichAppend.length(), errorDescription.length());
         return errorDescriptionInGivenFormat;
     }
-
-    // moved the logic to outside
-    /*public void updateEpimsServiceCodeMapping(LocalDateTime schedulerStartTime) {
-        try {
-            List<Triple<String, String, String>> epimsLocationId = new ArrayList<>();
-            List<String> locationIds = appointmentsRepository.fetchAppointmentBaseLocation();
-            List<LocationMapping> locationMappings = locationMappingRepository.findAllById(locationIds);
-
-            String updateEpimmsid = "UPDATE dbjudicialdata.judicial_office_appointment SET epimms_id = ? , "
-                    + " service_code = ? WHERE base_location_id = ?";
-            locationMappings.stream().filter(location -> nonNull(location.getJudicialBaseLocationId())).forEach(s ->
-                    epimsLocationId.add(Triple.of(s.getJudicialBaseLocationId(), s.getEpimmsId(), s.getServiceCode())));
-            log.info("Insert Query batch Response from IDAM" + epimsLocationId.size());
-            jdbcTemplate.batchUpdate(
-                    updateEpimmsid,
-                    epimsLocationId,
-                    10,
-                    new ParameterizedPreparedStatementSetter<Triple<String, String, String>>() {
-                        public void setValues(PreparedStatement ps, Triple<String, String, String> argument)
-                                throws SQLException {
-                            ps.setString(1, argument.getMiddle());
-                            ps.setString(2, argument.getRight());
-                            ps.setString(3, argument.getLeft());
-                        }
-                    });
-        } catch (Exception ex) {
-            auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
-            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
-        }
-    }*/
 
 
 

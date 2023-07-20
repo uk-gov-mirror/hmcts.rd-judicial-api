@@ -60,10 +60,6 @@ public class Authorisation implements Serializable {
     @Size(max = 256)
     private String lowerLevel;
 
-    @Column(name = "object_id")
-    @Size(max = 64)
-    private String objectId;
-
     @Column(name = "ticket_code")
     @Size(max = 16)
     private String ticketCode;

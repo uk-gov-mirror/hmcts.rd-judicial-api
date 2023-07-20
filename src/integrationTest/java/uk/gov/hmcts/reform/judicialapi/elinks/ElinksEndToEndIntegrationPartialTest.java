@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.judicialapi.elinks;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.JOSEException;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +55,8 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 
-public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest {
+
+public class ElinksEndToEndIntegrationPartialTest extends ElinksEnabledIntegrationTest {
 
     @Autowired
     LocationRepository locationRepository;
@@ -103,7 +104,7 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
         String baselocationResponseValidationJson =
             loadJson("src/integrationTest/resources/wiremock_responses/base_location.json");
         String peopleResponseValidationJson =
-            loadJson("src/integrationTest/resources/wiremock_responses/people.json");
+            loadJson("src/integrationTest/resources/wiremock_responses/people_part.json");
         String leaversResponseValidationJson =
             loadJson("src/integrationTest/resources/wiremock_responses/leavers.json");
 
@@ -144,7 +145,7 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
 
     @DisplayName("Elinks end to end success scenario")
     @Test
-    void test_elinks_end_to_end_success_scenario_with_return_status_200()
+    void test_elinks_end_to_end_success_scenario_with_partial_success_return_status_200()
             throws JOSEException, JsonProcessingException {
 
         ReflectionTestUtils.setField(elinksApiJobScheduler, "isSchedulerEnabled", true);
@@ -159,7 +160,7 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
         //assserting scheduler data
         assertThat(jobDetails).isNotNull();
         assertThat(jobDetails.getPublishingStatus()).isNotNull();
-        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(),jobDetails.getPublishingStatus());
+        Assert.assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(),jobDetails.getPublishingStatus());
 
         // asserting location data
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
@@ -167,8 +168,8 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
         ElinkLocationWrapperResponse locations = (ElinkLocationWrapperResponse) locationResponse.get("body");
         ElinkDataSchedularAudit locationAuditEntry = elinksAudit.get(0);
 
-        /*assertThat(locationResponse).containsEntry("http_status", "200 OK");
-        assertEquals(LOCATION_DATA_LOAD_SUCCESS, locations.getMessage());*/
+        assertThat(locationResponse).containsEntry("http_status", "200 OK");
+        assertEquals(BASE_LOCATION_DATA_LOAD_SUCCESS, locations.getMessage());
         assertEquals(LOCATIONAPI,locationAuditEntry.getApiName());
         assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), locationAuditEntry.getStatus());
 
@@ -205,10 +206,10 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
         assertThat(peopleResponse).containsEntry("http_status", "200 OK");
         assertEquals("People data loaded successfully", profiles.getMessage());
         assertEquals(PEOPLEAPI,peopleAuditEntry.getApiName());
-        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), peopleAuditEntry.getStatus());
+        assertEquals(RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus(), peopleAuditEntry.getStatus());
 
         List<UserProfile> userprofile = profileRepository.findAll();
-        assertEquals(1, userprofile.size());
+        assertEquals(2, userprofile.size());
         assertEquals("4913085", userprofile.get(0).getPersonalCode());
         assertEquals("Rachel", userprofile.get(0).getKnownAs());
         assertEquals("Jones", userprofile.get(0).getSurname());
@@ -232,7 +233,7 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
         assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(),leaversAuditEntry.getStatus());
 
         List<UserProfile> leaverUserProfile = profileRepository.findAll();
-        assertEquals(1, leaverUserProfile.size());
+        assertEquals(2, leaverUserProfile.size());
         assertEquals("4913085", leaverUserProfile.get(0).getPersonalCode());
         assertEquals(true, leaverUserProfile.get(0).getActiveFlag());
         assertEquals("5f8b26ba-0c8b-4192-b5c7-311d737f0cae", leaverUserProfile.get(0).getObjectId());
@@ -252,7 +253,7 @@ public class ElinksEndToEndIntegrationTest extends ElinksEnabledIntegrationTest 
         idamSetUp();
 
         List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
-        assertThat(elinksException.size()).isEqualTo(0);
+        assertThat(elinksException.size()).isEqualTo(4);
 
     }
 

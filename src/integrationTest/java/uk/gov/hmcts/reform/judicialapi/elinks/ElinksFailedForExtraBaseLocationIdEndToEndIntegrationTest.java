@@ -26,7 +26,6 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkDataExceptionRepos
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
@@ -55,12 +54,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASELOCATIONAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 
 public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends ElinksEnabledIntegrationTest {
@@ -133,41 +130,27 @@ public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends E
         ElinkDataSchedularAudit locationAuditEntry = elinksAudit.get(0);
 
         assertThat(locationResponse).containsEntry("http_status", "200 OK");
-        assertEquals(LOCATION_DATA_LOAD_SUCCESS, locations.getMessage());
+        assertEquals(BASE_LOCATION_DATA_LOAD_SUCCESS, locations.getMessage());
         assertEquals(LOCATIONAPI,locationAuditEntry.getApiName());
         assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), locationAuditEntry.getStatus());
 
 
         List<Location> locationsList = locationRepository.findAll();
-        assertEquals(35, locationsList.size());
-        assertEquals("2", locationsList.get(1).getRegionId());
-        assertEquals("National England and Wales", locationsList.get(1).getRegionDescEn());
-
-
-        //asserting baselocation data
-        Map<String, Object> baseLocationResponse = elinksReferenceDataClient.getBaseLocations();
-        ElinkBaseLocationWrapperResponse baseLocations =
-                (ElinkBaseLocationWrapperResponse) baseLocationResponse.get("body");
-        ElinkDataSchedularAudit baseLocationAuditEntry = elinksAudit.get(1);
-
-        assertThat(baseLocationResponse).containsEntry("http_status", "200 OK");
-        assertEquals(BASE_LOCATION_DATA_LOAD_SUCCESS, baseLocations.getMessage());
-        assertEquals(BASELOCATIONAPI, baseLocationAuditEntry.getApiName());
-        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), baseLocationAuditEntry.getStatus());
+        assertEquals(11, locationsList.size());
+        assertEquals("1", locationsList.get(1).getRegionId());
+        assertEquals("London", locationsList.get(1).getRegionDescEn());
 
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
-        /*assertEquals(7, baseLocationList.size());
-        assertEquals("Aberconwy",baseLocationList.get(1).get());
-        assertEquals("1",baseLocationList.get(1).getBaseLocationId());
-        assertEquals("Old Gwynedd",baseLocationList.get(1).getCourtType());
-        assertEquals("Gwynedd",baseLocationList.get(1).getCircuit());
-        assertEquals("LJA",baseLocationList.get(1).getAreaOfExpertise());*/
+        assertEquals(8, baseLocationList.size());
+        assertEquals("Alnwick",baseLocationList.get(1).getName());
+        assertEquals("3",baseLocationList.get(1).getBaseLocationId());
+        assertEquals("46",baseLocationList.get(1).getTypeId());
 
         //asserting people data
         Map<String, Object> peopleResponse = elinksReferenceDataClient.getPeoples();
         ElinkPeopleWrapperResponse profiles = (ElinkPeopleWrapperResponse) peopleResponse.get("body");
-        ElinkDataSchedularAudit peopleAuditEntry = elinksAudit.get(2);
+        ElinkDataSchedularAudit peopleAuditEntry = elinksAudit.get(1);
 
         assertThat(peopleResponse).containsEntry("http_status", "200 OK");
         assertEquals("People data loaded successfully", profiles.getMessage());
@@ -176,23 +159,23 @@ public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends E
 
         List<UserProfile> userprofile = profileRepository.findAll();
         assertEquals(2, userprofile.size());
-        assertEquals("410540", userprofile.get(0).getPersonalCode());
-        assertEquals("Yuriko", userprofile.get(0).getKnownAs());
-        assertEquals("Koiko", userprofile.get(0).getSurname());
-        assertEquals("Her Honour Judge Yuriko Koiko", userprofile.get(0).getFullName());
+        assertEquals("410551", userprofile.get(0).getPersonalCode());
+        assertEquals("Leslie", userprofile.get(0).getKnownAs());
+        assertEquals("Jones", userprofile.get(0).getSurname());
+        assertEquals("His Honour Judge Leslie Jones", userprofile.get(0).getFullName());
         assertEquals(null, userprofile.get(0).getPostNominals());
-        assertEquals("HHJ.Yuriko.Koiko@judiciarystaging13232.onmicrosoft.com",
+        assertEquals("HHJ.Leslie.Jones@judiciarystagingtest999.onmicrosoft.com",
                 userprofile.get(0).getEjudiciaryEmailId());
         assertTrue(userprofile.get(0).getActiveFlag());
-        assertEquals("94772643-2c5f-4f84-8731-3dd7c25c9e11", userprofile.get(0).getObjectId());
+        assertEquals("c38f7bdc-e52b-4711-90e6-9d49a2bb38f2", userprofile.get(0).getObjectId());
         assertNull(userprofile.get(0).getSidamId());
-        assertEquals("B.K",userprofile.get(0).getInitials());
-        assertEquals("c38f7bdc-e52b-4711-90e6-9d49a2bb38f2", userprofile.get(1).getObjectId());
+        assertEquals("L.J",userprofile.get(0).getInitials());
+
 
         //asserting userprofile data for leaver api
         Map<String, Object> leaversResponse = elinksReferenceDataClient.getLeavers();
         ElinkLeaversWrapperResponse leaversProfiles = (ElinkLeaversWrapperResponse) leaversResponse.get("body");
-        ElinkDataSchedularAudit leaversAuditEntry = elinksAudit.get(3);
+        ElinkDataSchedularAudit leaversAuditEntry = elinksAudit.get(2);
 
         assertThat(leaversResponse).containsEntry("http_status", "200 OK");
         assertEquals("Leavers Data Loaded Successfully", leaversProfiles.getMessage());
@@ -207,7 +190,7 @@ public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends E
         assertNotNull(leaverUserProfile.get(1).getLastLoadedDate());
 
 
-        ElinkDataSchedularAudit auditEntry = elinksAudit.get(3);
+        ElinkDataSchedularAudit auditEntry = elinksAudit.get(2);
         assertThat(auditEntry.getId()).isPositive();
         assertEquals(LEAVERSAPI, auditEntry.getApiName());
         assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), auditEntry.getStatus());
@@ -245,16 +228,7 @@ public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends E
         assertThat(publishSidamIdsResponse.get("publishing_status")).isNotNull();
 
         List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
-        assertEquals(2,elinksException.size());
-
-        assertThat(elinksException.get(0).getId()).isEqualTo(1);
-        assertEquals("base_location_id", elinksException.get(0).getFieldInError());
-        assertEquals("Appointment Base Location ID : 92  not available in BASE LOCATION table",
-                elinksException.get(0).getErrorDescription());
-        assertEquals("Appointment Base Location ID : 92  not available in BASE LOCATION table",
-                elinksException.get(1).getErrorDescription());
-        assertThat(elinksException.get(1).getId()).isEqualTo(2);
-        assertEquals("base_location_id", elinksException.get(1).getFieldInError());
+        assertEquals(14,elinksException.size());
 
     }
 
