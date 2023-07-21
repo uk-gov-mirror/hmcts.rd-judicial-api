@@ -14,8 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.PeopleRequest;
-import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.ResultsRequest;
+import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversRequest;
+import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversResultsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
@@ -291,11 +291,12 @@ public class ELinksServiceImpl implements ELinksService {
             ResponseEntity<Object> responseEntity;
 
             if (httpStatus.is2xxSuccessful()) {
-                responseEntity = JsonFeignResponseUtil.toResponseEntity(leaverApiResponse, PeopleRequest.class);
-                PeopleRequest elinkLeaverResponseRequest = (PeopleRequest) responseEntity.getBody();
+                responseEntity = JsonFeignResponseUtil.toResponseEntity(leaverApiResponse, LeaversRequest.class);
+                LeaversRequest elinkLeaverResponseRequest = (LeaversRequest) responseEntity.getBody();
+                log.info(":::: elinkPeopleResponseRequest " + elinkLeaverResponseRequest);
                 if (Optional.ofNullable(elinkLeaverResponseRequest).isPresent()
                         && Optional.ofNullable(elinkLeaverResponseRequest.getPagination()).isPresent()
-                        && Optional.ofNullable(elinkLeaverResponseRequest.getResultsRequests()).isPresent()) {
+                        && Optional.ofNullable(elinkLeaverResponseRequest.getLeaversResultsRequests()).isPresent()) {
                     isMorePagesAvailable = elinkLeaverResponseRequest.getPagination().getMorePages();
                     processLeaverResponse(elinkLeaverResponseRequest);
 
@@ -340,23 +341,23 @@ public class ELinksServiceImpl implements ELinksService {
 
 
 
-    private void processLeaverResponse(PeopleRequest elinkLeaverResponseRequest) {
+    private void processLeaverResponse(LeaversRequest elinkLeaverResponseRequest) {
         try {
-            updateLeavers(elinkLeaverResponseRequest.getResultsRequests());
+            updateLeavers(elinkLeaverResponseRequest.getLeaversResultsRequests());
         } catch (Exception ex) {
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
 
     }
 
-    public void updateLeavers(List<ResultsRequest> resultsRequests) {
+    public void updateLeavers(List<LeaversResultsRequest> leaversResultsRequests) {
 
         List<Triple<String, String,String>> leaversId = new ArrayList<>();
 
         String updateLeaversId = "UPDATE dbjudicialdata.judicial_user_profile SET last_working_date = Date(?) , "
                 + "active_flag = ?, last_loaded_date= NOW() AT TIME ZONE 'utc' WHERE personal_code = ?";
 
-        resultsRequests.stream().filter(request -> nonNull(request.getPersonalCode())).forEach(s ->
+        leaversResultsRequests.stream().filter(request -> nonNull(request.getPersonalCode())).forEach(s ->
                 leaversId.add(Triple.of(s.getPersonalCode(), s.getLeaver(),s.getLeftOn())));
         log.info("Insert Query batch Response from Leavers" + leaversId.size());
         jdbcTemplate.batchUpdate(

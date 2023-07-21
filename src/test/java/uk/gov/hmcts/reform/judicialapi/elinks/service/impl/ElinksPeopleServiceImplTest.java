@@ -65,7 +65,6 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_BAD_REQUEST;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_FORBIDDEN;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
@@ -138,6 +137,8 @@ class ElinksPeopleServiceImplTest {
 
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "threadPauseTime",
                 "2000");
+        ReflectionTestUtils.setField(elinksPeopleServiceImpl, "threadRetriggerPauseTime",
+            "1000");
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "lastUpdated",
                 "Thu Jan 01 00:00:00 GMT 2015");
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "page",
@@ -236,6 +237,64 @@ class ElinksPeopleServiceImplTest {
                         .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
                 .thenReturn(Response.builder().request(mock(Request.class))
                         .body(body2, defaultCharset()).status(200).build());
+
+        ResponseEntity<ElinkPeopleWrapperResponse> response = elinksPeopleServiceImpl.updatePeople();
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+        assertThat(response.getBody().getMessage()).isEqualTo(PEOPLE_DATA_LOAD_SUCCESS);
+
+        ElinkDataExceptionRecords result = elinkDataExceptionRepository.save(record);
+        ElinkDataSchedularAudit resultAudit = elinkSchedularAuditRepository.save(schedularAudit);
+
+        assertThat(resultAudit.getStatus()).isEqualTo(schedularAudit.getStatus());
+        assertThat(result.getId()).isEqualTo(record.getId());
+        assertThat(result.getErrorDescription()).isEqualTo(record.getErrorDescription());
+
+
+
+        verify(elinkDataExceptionRepository, times(1)).save(any());
+    }
+
+    @Test
+    void loadPeopleWhenAuditEntryPresentPartialSuccessFor429() throws JsonProcessingException {
+
+        ElinkDataSchedularAudit schedularAudit = new ElinkDataSchedularAudit();
+        schedularAudit.setStatus(RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus());
+        schedularAudit.setId(1);
+        schedularAudit.setApiName(PEOPLEAPI);
+        schedularAudit.setSchedulerName("testschedulername");
+        schedularAudit.setSchedulerEndTime(LocalDateTime.now());
+        schedularAudit.setSchedulerStartTime(LocalDateTime.now());
+
+        ElinkDataExceptionRecords record = new ElinkDataExceptionRecords();
+        record.setId(1L);
+        record.setErrorDescription("Test Error Description");
+        record.setKey("testKey");
+        record.setTableName("test table name");
+        record.setFieldInError("testfieldInError");
+        record.setSchedulerName("testbaselocationscheduler");
+        record.setRowId(0);
+        record.setSchedulerStartTime(LocalDateTime.now());
+        record.setUpdatedTimeStamp(LocalDateTime.now());
+
+        when(elinkSchedularAuditRepository.save(any())).thenReturn(schedularAudit);
+        when(elinkDataExceptionRepository.save(any())).thenReturn(record);
+        when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
+        when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
+
+        BaseLocation location = new BaseLocation();
+        location.setBaseLocationId("Baselocid");
+        location.setName("ABC");
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
+        String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
+
+        when(elinksFeignClient.getPeopleDetials(any(), any(), any(),
+            Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(429).build())
+            .thenReturn(Response.builder().request(mock(Request.class))
+                .body(body2, defaultCharset()).status(200).build());
 
         ResponseEntity<ElinkPeopleWrapperResponse> response = elinksPeopleServiceImpl.updatePeople();
         assertTrue(response.getStatusCode().is2xxSuccessful());
@@ -679,24 +738,6 @@ class ElinksPeopleServiceImplTest {
         assertThat(thrown.getStatus().value()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(thrown.getErrorMessage()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
         assertThat(thrown.getErrorDescription()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
-
-    }
-
-    @Test
-    void load_people_should_return_elinksException_when_http_too_many_requests() {
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
-
-        when(elinksFeignClient.getPeopleDetials(any(), any(), any(),
-                Boolean.parseBoolean(any()))).thenReturn(Response.builder()
-                .request(mock(Request.class)).body("", defaultCharset())
-                .status(HttpStatus.TOO_MANY_REQUESTS.value()).build());
-
-        ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
-            ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
-        });
-        assertThat(thrown.getStatus().value()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS.value());
-        assertThat(thrown.getErrorMessage()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
-        assertThat(thrown.getErrorDescription()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
 
     }
 }

@@ -16,6 +16,7 @@ java:
     LAUNCH_DARKLY_ENV: "preview"
     ENVIRONMENT_NAME: "preview"
     JRD_SEARCH_SERVICE_CODE: bfa1,bba3
+    ELINKS_URL: https://judiciary-middleware-futureehr.herokuapp.com/api/v5
   postgresql:
     enabled: true
     auth:

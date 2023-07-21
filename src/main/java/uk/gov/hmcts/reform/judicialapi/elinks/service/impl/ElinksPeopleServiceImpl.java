@@ -126,6 +126,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Value("${elinks.people.threadPauseTime}")
     private String threadPauseTime;
 
+    @Value("${elinks.people.threadRetriggerPauseTime}")
+    private String threadRetriggerPauseTime;
+
     @Value("${elinks.people.page}")
     private String page;
 
@@ -153,6 +156,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             if (httpStatus.is2xxSuccessful()) {
                 responseEntity = JsonFeignResponseUtil.toResponseEntity(peopleApiResponse, PeopleRequest.class);
                 PeopleRequest elinkPeopleResponseRequest = (PeopleRequest) responseEntity.getBody();
+                log.info(":::: elinkPeopleResponseRequest " + elinkPeopleResponseRequest);
                 if (Optional.ofNullable(elinkPeopleResponseRequest).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getPagination()).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getResultsRequests()).isPresent()) {
@@ -162,6 +166,10 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                     throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                 }
+            } else if (HttpStatus.TOO_MANY_REQUESTS.value() == httpStatus.value()) {
+                pauseThread(Long.valueOf(threadRetriggerPauseTime),schedulerStartTime);
+                --pageValue;
+                continue;
             } else {
                 auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                 handleELinksErrorResponse(httpStatus);
