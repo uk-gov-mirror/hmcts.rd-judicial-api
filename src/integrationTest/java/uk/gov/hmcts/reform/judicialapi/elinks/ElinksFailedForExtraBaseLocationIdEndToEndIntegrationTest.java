@@ -26,6 +26,8 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkDataExceptionRepos
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
@@ -55,6 +57,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_DATA_LOAD_SUCCESS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.DELETEDAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
@@ -123,7 +126,6 @@ public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends E
         assertThat(jobDetails.getPublishingStatus()).isNotNull();
         assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(),jobDetails.getPublishingStatus());
 
-        // asserting location data
         List<ElinkDataSchedularAudit> elinksAudit = elinkSchedularAuditRepository.findAll();
         Map<String, Object> locationResponse = elinksReferenceDataClient.getLocations();
         ElinkLocationWrapperResponse locations = (ElinkLocationWrapperResponse) locationResponse.get("body");
@@ -139,6 +141,114 @@ public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends E
         assertEquals(11, locationsList.size());
         assertEquals("1", locationsList.get(1).getRegionId());
         assertEquals("London", locationsList.get(1).getRegionDescEn());
+        // asserting location data
+        validateLocationApi(elinksAudit);
+
+        //asserting baselocation data
+        validateBaseLocationApi(elinksAudit);
+
+        //asserting people data
+        validatePeopleApi(elinksAudit);
+
+        //asserting userprofile data for leaver api
+        validateLeaverApi(elinksAudit);
+
+        //asserting userprofile data for deleted api
+        validateDeletedApi(elinksAudit);
+
+        //assert elastic search api
+        idamSetUp();
+
+        validateElasticSearchApi(audits);
+
+        // asserting SIDAM publishing
+        validateSidamPublish();
+
+    }
+
+    private void validateDeletedApi(List<ElinkDataSchedularAudit> elinksAudit) {
+        Map<String, Object> deletedResponse = elinksReferenceDataClient.getDeleted();
+        ElinkDeletedWrapperResponse deletedProfiles = (ElinkDeletedWrapperResponse) deletedResponse.get("body");
+        ElinkDataSchedularAudit deletedAuditEntry = elinksAudit.get(4);
+
+        assertThat(deletedResponse).containsEntry("http_status", "200 OK");
+        assertEquals("Deleted users Data Loaded Successfully", deletedProfiles.getMessage());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(),deletedAuditEntry.getStatus());
+
+        List<UserProfile> deletedUserProfile = profileRepository.findAll();
+        assertEquals(2, deletedUserProfile.size());
+        assertEquals("410551", deletedUserProfile.get(0).getPersonalCode());
+        assertEquals(true, deletedUserProfile.get(0).getDeletedFlag());
+        assertEquals("2023-07-13",deletedUserProfile.get(0).getDeletedOn().toLocalDate().toString());
+
+        ElinkDataSchedularAudit auditEntry = elinksAudit.get(4);
+        assertThat(auditEntry.getId()).isPositive();
+        assertEquals(DELETEDAPI, auditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), auditEntry.getStatus());
+        assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
+        assertNotNull(auditEntry.getSchedulerStartTime());
+        assertNotNull(auditEntry.getSchedulerEndTime());
+    }
+
+    private void validateLeaverApi(List<ElinkDataSchedularAudit> elinksAudit) {
+        Map<String, Object> leaversResponse = elinksReferenceDataClient.getLeavers();
+        ElinkLeaversWrapperResponse leaversProfiles = (ElinkLeaversWrapperResponse) leaversResponse.get("body");
+        ElinkDataSchedularAudit leaversAuditEntry = elinksAudit.get(3);
+
+        assertThat(leaversResponse).containsEntry("http_status", "200 OK");
+        assertEquals("Leavers Data Loaded Successfully", leaversProfiles.getMessage());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(),leaversAuditEntry.getStatus());
+
+        List<UserProfile> leaverUserProfile = profileRepository.findAll();
+        assertEquals(2, leaverUserProfile.size());
+        assertEquals("410551", leaverUserProfile.get(1).getPersonalCode());
+        assertEquals(false, leaverUserProfile.get(1).getActiveFlag());
+        assertEquals("c38f7bdc-e52b-4711-90e6-9d49a2bb38f2", leaverUserProfile.get(1).getObjectId());
+        assertEquals("2023-03-01",leaverUserProfile.get(1).getLastWorkingDate().toString());
+        assertNotNull(leaverUserProfile.get(1).getLastLoadedDate());
+
+
+        ElinkDataSchedularAudit auditEntry = elinksAudit.get(3);
+        assertThat(auditEntry.getId()).isPositive();
+        assertEquals(LEAVERSAPI, auditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), auditEntry.getStatus());
+        assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
+        assertNotNull(auditEntry.getSchedulerStartTime());
+        assertNotNull(auditEntry.getSchedulerEndTime());
+    }
+
+    private void validateSidamPublish() {
+        Map<String, Object> idamResponse = elinksReferenceDataClient.publishSidamIds();
+        doNothing().when(elinkTopicPublisher).sendMessage(anyList(),anyString());
+        ;
+        assertThat(idamResponse).containsEntry("http_status", "200 OK");
+        HashMap publishSidamIdsResponse = (LinkedHashMap)idamResponse.get("body");
+
+        assertThat(publishSidamIdsResponse.get("publishing_status")).isNotNull();
+
+        List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
+        assertEquals(2,elinksException.size());
+
+        assertThat(elinksException.get(0).getId()).isEqualTo(1);
+        assertEquals("base_location_id", elinksException.get(0).getFieldInError());
+        assertEquals("Appointment Base Location ID : 92  not available in BASE LOCATION table",
+                elinksException.get(0).getErrorDescription());
+        assertEquals("Appointment Base Location ID : 92  not available in BASE LOCATION table",
+                elinksException.get(1).getErrorDescription());
+        assertThat(elinksException.get(1).getId()).isEqualTo(2);
+        assertEquals("base_location_id", elinksException.get(1).getFieldInError());
+    }
+
+    private void validateBaseLocationApi(List<ElinkDataSchedularAudit> elinksAudit) {
+        Map<String, Object> baseLocationResponse = elinksReferenceDataClient.getBaseLocations();
+        ElinkBaseLocationWrapperResponse baseLocations =
+                (ElinkBaseLocationWrapperResponse) baseLocationResponse.get("body");
+        ElinkDataSchedularAudit baseLocationAuditEntry = elinksAudit.get(1);
+
+        assertThat(baseLocationResponse).containsEntry("http_status", "200 OK");
+        assertEquals(BASE_LOCATION_DATA_LOAD_SUCCESS, baseLocations.getMessage());
+        assertEquals(BASELOCATIONAPI, baseLocationAuditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), baseLocationAuditEntry.getStatus());
 
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
@@ -146,8 +256,32 @@ public class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends E
         assertEquals("Alnwick",baseLocationList.get(1).getName());
         assertEquals("3",baseLocationList.get(1).getBaseLocationId());
         assertEquals("46",baseLocationList.get(1).getTypeId());
+        assertEquals(7, baseLocationList.size());
+        assertEquals("Aberconwy",baseLocationList.get(1).getCourtName());
+        assertEquals("1",baseLocationList.get(1).getBaseLocationId());
+        assertEquals("Old Gwynedd",baseLocationList.get(1).getCourtType());
+        assertEquals("Gwynedd",baseLocationList.get(1).getCircuit());
+        assertEquals("LJA",baseLocationList.get(1).getAreaOfExpertise());
+    }
 
-        //asserting people data
+    private void validateLocationApi(List<ElinkDataSchedularAudit> elinksAudit) {
+        Map<String, Object> locationResponse = elinksReferenceDataClient.getLocations();
+        ElinkLocationWrapperResponse locations = (ElinkLocationWrapperResponse) locationResponse.get("body");
+        ElinkDataSchedularAudit locationAuditEntry = elinksAudit.get(0);
+
+        assertThat(locationResponse).containsEntry("http_status", "200 OK");
+        assertEquals(LOCATION_DATA_LOAD_SUCCESS, locations.getMessage());
+        assertEquals(LOCATIONAPI,locationAuditEntry.getApiName());
+        assertEquals(RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), locationAuditEntry.getStatus());
+
+
+        List<Location> locationsList = locationRepository.findAll();
+        assertEquals(35, locationsList.size());
+        assertEquals("2", locationsList.get(1).getRegionId());
+        assertEquals("National England and Wales", locationsList.get(1).getRegionDescEn());
+    }
+
+    private void validatePeopleApi(List<ElinkDataSchedularAudit> elinksAudit) {
         Map<String, Object> peopleResponse = elinksReferenceDataClient.getPeoples();
         ElinkPeopleWrapperResponse profiles = (ElinkPeopleWrapperResponse) peopleResponse.get("body");
         ElinkDataSchedularAudit peopleAuditEntry = elinksAudit.get(1);

@@ -9,7 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.ELinksServiceImpl;
@@ -21,6 +23,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSSUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
@@ -127,6 +130,31 @@ class ElinksControllerTest {
         assertThat(actual).isNotNull();
         assertThat(actual.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
         assertThat(actual.getBody().getMessage()).isEqualTo(LEAVERSSUCCESS);
+
+    }
+
+    @Test
+    void test_load_deleted_success() {
+
+        ResponseEntity<ElinkDeletedWrapperResponse> responseEntity;
+
+        ElinkDeletedWrapperResponse elinkDeletedWrapperResponse = new ElinkDeletedWrapperResponse();
+        elinkDeletedWrapperResponse.setMessage(DELETEDSUCCESS);
+
+
+
+        responseEntity = new ResponseEntity<>(
+            elinkDeletedWrapperResponse,
+            null,
+            HttpStatus.OK
+        );
+
+        when(eLinksService.retrieveDeleted()).thenReturn(responseEntity);
+
+        ResponseEntity<ElinkDeletedWrapperResponse> actual = eLinksController.loadDeleted();
+        assertThat(actual).isNotNull();
+        assertThat(actual.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+        assertThat(actual.getBody().getMessage()).isEqualTo(DELETEDSUCCESS);
 
     }
 

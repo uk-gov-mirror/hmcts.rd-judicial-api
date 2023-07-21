@@ -83,4 +83,11 @@ public class UserProfile implements Serializable {
     private LocalDate retirementDate;
 
 
+
+    @Column(name = "deleted_flag")
+    private Boolean deletedFlag;
+
+    @Column(name = "date_of_deletion")
+    private LocalDateTime deletedOn;
+
 }
