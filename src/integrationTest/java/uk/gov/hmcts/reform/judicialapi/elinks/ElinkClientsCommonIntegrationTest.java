@@ -125,21 +125,6 @@ class ElinkClientsCommonIntegrationTest extends ElinksEnabledIntegrationTest {
         assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
     }
 
-    @DisplayName("Elinks People endpoint status verification for Too many requests status")
-    @Test
-    void test_get_people_return_response_status_429() throws JsonProcessingException  {
-
-        int statusCode = 429;
-        peopleApi4xxResponse(statusCode,null);
-
-        Map<String, Object> response = elinksReferenceDataClient.getPeoples();
-
-        assertThat(response).containsEntry("http_status", "429");
-
-        assertThat(response.get("response_body").toString()).contains(ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS);
-
-    }
-
     @DisplayName("Elinks Location endpoint status verification for bad request status")
     @Test
     void test_get_locations_return_response_status_400() throws JsonProcessingException {

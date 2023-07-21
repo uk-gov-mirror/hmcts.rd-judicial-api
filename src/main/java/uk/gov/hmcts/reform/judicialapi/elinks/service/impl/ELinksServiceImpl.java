@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversResultsRequest;
-import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.PeopleRequest;
-import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.ResultsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.DeletedResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.ElinksDeleteApiResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
