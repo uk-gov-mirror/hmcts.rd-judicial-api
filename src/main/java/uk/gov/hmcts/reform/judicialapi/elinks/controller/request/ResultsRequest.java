@@ -49,4 +49,5 @@ public class ResultsRequest {
     private String leaver;
     @JsonProperty("left_on")
     private String leftOn;
+
 }
