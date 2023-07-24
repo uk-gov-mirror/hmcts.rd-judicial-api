@@ -355,7 +355,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .startDate(convertToLocalDate(appointmentsRequest.getStartDate()))
                     .endDate(convertToLocalDate(appointmentsRequest.getEndDate()))
                     .personalCode(personalCode)
-                    .epimmsId(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId).getEpimmsId())
+                    .epimmsId(locationMappingRepository.fetchEpimmsIdfromLocationId(baseLocationId))
                     .appointmentMapping(appointmentsRequest.getRoleName())
                     .appointmentType(appointmentsRequest
                         .getContractType())
