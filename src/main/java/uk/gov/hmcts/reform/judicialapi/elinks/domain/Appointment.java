@@ -44,7 +44,7 @@ public class Appointment implements Serializable {
     @Size(max = 64)
     private String baseLocationId;
 
-    @Column(name = "cft_region_Id")
+    @Column(name = "hmcts_region_id")
     @Size(max = 64)
     private String regionId;
 
