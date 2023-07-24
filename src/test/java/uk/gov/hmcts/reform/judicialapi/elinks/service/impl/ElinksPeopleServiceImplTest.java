@@ -325,7 +325,7 @@ class ElinksPeopleServiceImplTest {
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
-        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("2344");
         when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
         ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
@@ -362,7 +362,7 @@ class ElinksPeopleServiceImplTest {
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
         ObjectMapper mapper = new ObjectMapper();
-        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
 
@@ -600,7 +600,7 @@ class ElinksPeopleServiceImplTest {
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
-        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
 
         DataAccessException dataAccessException = mock(DataAccessException.class);
@@ -626,7 +626,7 @@ class ElinksPeopleServiceImplTest {
             .epimmsId("1234").build();
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
-        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
         ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         DataAccessException dataAccessException = mock(DataAccessException.class);
@@ -655,7 +655,7 @@ class ElinksPeopleServiceImplTest {
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(locationRepository.fetchRegionIdfromCftRegionDescEn(any())).thenReturn("1");
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
-        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn(locationMapping);
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getPeopleDetials(any(), any(), any(),
