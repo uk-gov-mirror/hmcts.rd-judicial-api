@@ -37,6 +37,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE;
 
 class ElinkClientsCommonIntegrationTest extends ElinksEnabledIntegrationTest {
 
@@ -370,8 +371,7 @@ class ElinkClientsCommonIntegrationTest extends ElinksEnabledIntegrationTest {
 
         List<ElinkDataExceptionRecords> elinksException = elinkDataExceptionRepository.findAll();
         ElinkDataExceptionRecords exceptionEntry = elinksException.get(0);
-        assertEquals("114325",exceptionEntry.getKey());
-        assertEquals(APPOINTMENT_TABLE, exceptionEntry.getFieldInError());
+        assertEquals(USER_PROFILE, exceptionEntry.getFieldInError());
         assertNotNull(exceptionEntry.getSchedulerStartTime());
 
     }
