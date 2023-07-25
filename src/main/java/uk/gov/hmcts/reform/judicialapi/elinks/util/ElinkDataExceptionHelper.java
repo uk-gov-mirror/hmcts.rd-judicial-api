@@ -11,8 +11,6 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkDataExceptionRepos
 
 import java.time.LocalDateTime;
 
-import static java.util.Objects.isNull;
-
 @Component
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -39,9 +37,7 @@ public class ElinkDataExceptionHelper {
             audit.setErrorDescription(errorDescription);
             audit.setTableName(tableName);
             audit.setUpdatedTimeStamp(LocalDateTime.now());
-            if (!isNull(personalCode)) {
-                audit.setRowId(Integer.parseInt(personalCode));
-            }
+            audit.setRowId(personalCode);
             elinkDataExceptionRepository.save(audit);
         } catch (Exception e) {
             log.error("{}:: Failure error Message {} in auditSchedulerStatus {}  ",

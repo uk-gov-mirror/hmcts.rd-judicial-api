@@ -214,7 +214,7 @@ class ElinksPeopleServiceImplTest {
         record.setTableName("test table name");
         record.setFieldInError("testfieldInError");
         record.setSchedulerName("testbaselocationscheduler");
-        record.setRowId(0);
+        record.setRowId("0");
         record.setSchedulerStartTime(LocalDateTime.now());
         record.setUpdatedTimeStamp(LocalDateTime.now());
 
@@ -272,7 +272,7 @@ class ElinksPeopleServiceImplTest {
         record.setTableName("test table name");
         record.setFieldInError("testfieldInError");
         record.setSchedulerName("testbaselocationscheduler");
-        record.setRowId(0);
+        record.setRowId("0");
         record.setSchedulerStartTime(LocalDateTime.now());
         record.setUpdatedTimeStamp(LocalDateTime.now());
 

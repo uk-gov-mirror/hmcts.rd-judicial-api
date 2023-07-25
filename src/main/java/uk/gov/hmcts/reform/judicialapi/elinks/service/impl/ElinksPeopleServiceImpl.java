@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -240,11 +242,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private void processPeopleResponse(PeopleRequest elinkPeopleResponseRequest, LocalDateTime schedulerStartTime) {
         try {
             // filter the profiles that do have email address for leavers
+            log.info("method entred processPeopleResponse : " + new ObjectMapper().writer().withDefaultPrettyPrinter()
+                .writeValueAsString(elinkPeopleResponseRequest
+                .getResultsRequests()));
             List<ResultsRequest> resultsRequests = elinkPeopleResponseRequest.getResultsRequests()
                     .stream()
                     .filter(resultsRequest -> nonNull(resultsRequest.getEmail()))
                     .toList();
-
             resultsRequests.forEach(this::savePeopleDetails);
 
         } catch (Exception ex) {
@@ -266,7 +270,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .getObjectId(), resultsRequest.getAuthorisationsRequests());
                 saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles());
             } catch (Exception exception) {
-                log.warn("Role type  not loaded for " + resultsRequest.getPersonalCode());
+                log.warn("saveUserProfile is failed  " + resultsRequest.getPersonalCode());
                 partialSuccessFlag = true;
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
@@ -337,15 +341,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
 
     private void saveAppointmentDetails(String personalCode, String objectId,
-                                        List<AppointmentsRequest> appointmentsRequests) {
+                                        List<AppointmentsRequest> appointmentsRequests) throws JsonProcessingException {
 
+        log.info("entering into saveAppointmentDetails ");
         final List<AppointmentsRequest> validappointmentsRequests =
             validateAppointmentRequest(appointmentsRequests,personalCode);
         Appointment appointment;
         for (AppointmentsRequest appointmentsRequest: validappointmentsRequests) {
-            log.info("Retrieving appointment.getBaseLocationId() from DB " + appointmentsRequest.getBaseLocationId());
-            // Check for base location in static table
-
             String baseLocationId = fetchBaseLocationId(appointmentsRequest);
             try {
                 appointment = Appointment.builder()
@@ -384,8 +386,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private void saveAuthorizationDetails(String personalCode, String objectId,
                                           List<AuthorisationsRequest> authorisationsRequests) {
 
+        log.info("entering into saveAuthorizationDetails ");
         for (AuthorisationsRequest authorisationsRequest : authorisationsRequests) {
-
             try {
                 authorisationsRepository
                     .save(uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation.builder()
