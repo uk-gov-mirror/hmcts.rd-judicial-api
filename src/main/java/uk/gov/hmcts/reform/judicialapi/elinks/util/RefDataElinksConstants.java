@@ -68,6 +68,8 @@ public class RefDataElinksConstants {
 
     public static final String LOCATION = "Location";
 
+    public static final String ROLENAME = "role_name";
+
     public static final String IDAMSEARCH = "Idam Search";
 
     public static final String PUBLISHASB = "Publish to ASB";
@@ -82,8 +84,8 @@ public class RefDataElinksConstants {
 
     public static final String APPOINTMENTTYPE = "appointment type";
 
-    public static final String LOCATIONIDFAILURE = "Appointment Base Location ID : "
-            + "not available in BASE LOCATION table";
+    public static final String LOCATIONIDFAILURE = "Appointment's Base Location ID : "
+            + "is not available in location_type table";
 
     public static final String APPOINTMENTIDFAILURE = "Appointment  ID : "
         + "is failed to load";
@@ -92,10 +94,10 @@ public class RefDataElinksConstants {
         + "is failed to load";
 
     public static final String CFTREGIONIDFAILURE = "Location  : "
-        + "not available for CFT Region ID in LOCATION table";
+        + " is not available in jrd_lrd_region_mapping table";
 
     public static final String INVALIDROLENAMES = "Role Name  : "
-        + " invalid";
+        + " is invalid";
 
     public static final String USERPROFILEFAILURE = "UserProfile  : "
         + "failed to load";
@@ -107,6 +109,8 @@ public class RefDataElinksConstants {
             + "not available in BASE LOCATION table";
 
     public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
+
+    public static final String PERSONALCODE = "Personal_code";
 
 
     public static final String AUTHORISATION_TABLE = "judicial_office_authorisation";

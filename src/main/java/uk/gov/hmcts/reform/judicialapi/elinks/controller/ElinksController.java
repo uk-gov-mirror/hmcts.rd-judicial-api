@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.judicialapi.elinks.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 )
 @Slf4j
 @AllArgsConstructor
+@Hidden
 @SuppressWarnings("all")
 public class ElinksController {
 

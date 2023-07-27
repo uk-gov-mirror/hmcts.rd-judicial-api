@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedularAuditRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.JrdRegionMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationMapppingRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
@@ -67,7 +68,9 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PERSONALCODE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.REGION_DEFAULT_ID;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ROLENAME;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE;
 
@@ -101,6 +104,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
+    private JrdRegionMappingRepository regionMappingRepository;
 
     @Autowired
     private DataloadSchedularAuditRepository dataloadSchedularAuditRepository;
@@ -150,6 +156,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
 
         int pageValue = Integer.parseInt(page);
+        int countOfProfile = 0;
         do {
             Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
             httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
@@ -162,6 +169,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 if (Optional.ofNullable(elinkPeopleResponseRequest).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getPagination()).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getResultsRequests()).isPresent()) {
+                    countOfProfile = countOfProfile + elinkPeopleResponseRequest.getResultsRequests().size();
                     isMorePagesAvailable = elinkPeopleResponseRequest.getPagination().getMorePages();
                     processPeopleResponse(elinkPeopleResponseRequest, schedulerStartTime);
                 } else {
@@ -169,6 +177,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                 }
             } else if (HttpStatus.TOO_MANY_REQUESTS.value() == httpStatus.value()) {
+                log.info(":::: Too Many Requests ");
                 pauseThread(Long.valueOf(threadRetriggerPauseTime),schedulerStartTime);
                 --pageValue;
                 continue;
@@ -178,7 +187,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             }
             pauseThread(Long.valueOf(threadPauseTime),schedulerStartTime);
         } while (isMorePagesAvailable);
-
+        log.info(":::: countOfProfile " + countOfProfile);
 
         if (partialSuccessFlag) {
             status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
@@ -275,7 +284,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     resultsRequest.getPersonalCode(),
-                    USER_PROFILE, exception.getMessage(), USER_PROFILE,resultsRequest.getPersonalCode());
+                    PERSONALCODE, exception.getMessage(), USER_PROFILE,resultsRequest.getPersonalCode());
             }
 
         }
@@ -436,7 +445,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode);
             return false;
         } else if (StringUtils.isEmpty(fetchRegionId(appointmentsRequest.getLocation()))) {
-            log.warn("Mapped  location not found in region table " + appointmentsRequest.getBaseLocationId());
+            log.warn("Mapped  location not found in jrd lrd mapping table " + appointmentsRequest.getLocation());
             partialSuccessFlag = true;
             String location = appointmentsRequest.getLocation();
             String errorDescription = appendBaseLocationIdInErroDescription(CFTREGIONIDFAILURE, location);
@@ -453,7 +462,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 appointmentsRequest.getAppointmentId(),
-                LOCATION, errorDescription, APPOINTMENT_TABLE,personalCode);
+                ROLENAME, errorDescription, APPOINTMENT_TABLE,personalCode);
             return false;
         }
         return true;
@@ -477,7 +486,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         if ("Unassigned".equals(location) || StringUtils.isEmpty(location)) {
             regionId = "0";
         } else {
-            regionId = locationRepository.fetchRegionIdfromCftRegionDescEn(location);
+            regionId = regionMappingRepository.fetchRegionIdfromRegion(location);
         }
         return regionId;
 

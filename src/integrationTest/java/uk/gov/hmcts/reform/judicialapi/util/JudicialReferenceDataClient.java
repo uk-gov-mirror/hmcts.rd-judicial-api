@@ -122,7 +122,6 @@ public class JudicialReferenceDataClient {
 
             JWT_TOKEN = generateS2SToken(serviceName);
         }
-        headers.setContentType(APPLICATION_JSON);
         getAndReturnBearerToken(userId, role);
 
         headers.add("ServiceAuthorization", JWT_TOKEN);
@@ -136,11 +135,17 @@ public class JudicialReferenceDataClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(value);
 
-        headers.add("ServiceAuthorization", "Invalid token");
+        if (StringUtils.isBlank(JWT_TOKEN)) {
+
+            JWT_TOKEN = generateS2SToken("Invalid token");
+        }
+
+        headers.add("ServiceAuthorization", JWT_TOKEN);
 
         if (StringUtils.isBlank(bearerToken)) {
             bearerToken = "Bearer ".concat("invalid token");
         }
+        getAndReturnBearerToken(userId, role);
         headers.add("Authorization", bearerToken);
 
         return headers;

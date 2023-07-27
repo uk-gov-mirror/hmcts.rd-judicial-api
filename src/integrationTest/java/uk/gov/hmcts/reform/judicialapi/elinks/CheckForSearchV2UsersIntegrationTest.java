@@ -199,6 +199,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
     @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn401ForInvalidTokens(String role) {
+        judicialReferenceDataClient.clearTokens();
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
                 .searchString("test")
                 .location("location")
@@ -213,6 +214,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
     @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn400WhenSearchStringIsEmpty(String role) {
+        mockJwtToken(role);
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
                 .searchString("")
                 .location("location")
@@ -229,6 +231,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
     @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn400WhenSearchStringDoesNotContainRequiredLength(String role) {
+        mockJwtToken(role);
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
                 .searchString("te")
                 .location("location")
@@ -245,6 +248,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
     @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn400WhenSearchStringContainsOtherThanLetters(String role) {
+        mockJwtToken(role);
         UserSearchRequest userSearchRequest = UserSearchRequest.builder()
                 .searchString("test123")
                 .location("location")

@@ -195,7 +195,6 @@ public class JrdUsersController {
             )
 
     @PostMapping(
-            path = "",
             produces = V1.MediaType.SERVICE
     )
     @Secured({"jrd-system-user", "jrd-admin"})
@@ -213,6 +212,5 @@ public class JrdUsersController {
         return judicialUserService.refreshUserProfile(refreshRoleRequest, pageSize, pageNumber,
                 sortDirection, sortColumn);
     }
-
 
 }
