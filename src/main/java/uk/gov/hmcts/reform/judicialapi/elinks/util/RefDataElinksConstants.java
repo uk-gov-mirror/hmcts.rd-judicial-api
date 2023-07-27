@@ -80,12 +80,18 @@ public class RefDataElinksConstants {
 
     public static final String APPOINTMENT = "appointments";
 
+    public static final String APPOINTMENTID = "appointmentId";
+
     public static final String AUTHORISATION = "authorisations_with_dates";
 
     public static final String APPOINTMENTTYPE = "appointment type";
 
+
     public static final String LOCATIONIDFAILURE = "Appointment's Base Location ID : "
             + "is not available in location_type table";
+
+    public static final String APPOINTMENTIDNOTAVAILABLE = "Appointment  ID : "
+        + "is not available in Appointment Table";
 
     public static final String APPOINTMENTIDFAILURE = "Appointment  ID : "
         + "is failed to load";
