@@ -44,11 +44,13 @@ import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTIDFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTIDNOTAVAILABLE;
@@ -63,6 +65,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.EMAILID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALIDROLENAMES;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALID_ROLES;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIALROLETYPE;
@@ -75,6 +78,9 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.REGION_DEFAULT_ID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ROLENAME;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEEMAILID;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEFAILURE;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEISPRESENT;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE;
 
 @Slf4j
@@ -127,6 +133,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private boolean partialSuccessFlag = false;
 
+    private Map<String,UserProfile> userProfileCache = new HashMap<String,UserProfile>();
+
     @Value("${elinks.people.lastUpdated}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String lastUpdated;
@@ -148,6 +156,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     @Override
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
+
+        partialSuccessFlag = false;
+        userProfileCache.clear();
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
         LocalDateTime schedulerStartTime = now();
@@ -196,6 +207,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
         }
 
+        userProfileCache.clear();
         auditStatus(schedulerStartTime, status);
         ElinkPeopleWrapperResponse response = new ElinkPeopleWrapperResponse();
         response.setMessage(PEOPLE_DATA_LOAD_SUCCESS);
@@ -259,7 +271,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 .getResultsRequests()));
             List<ResultsRequest> resultsRequests = elinkPeopleResponseRequest.getResultsRequests()
                     .stream()
-                    .filter(resultsRequest -> nonNull(resultsRequest.getEmail()))
+                    .filter(this::validataUserProfile)
                     .toList();
             resultsRequests.forEach(this::savePeopleDetails);
 
@@ -268,6 +280,22 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
 
+    }
+
+    private boolean validataUserProfile(ResultsRequest resultsRequest) {
+
+        if (StringUtils.isEmpty(resultsRequest.getEmail())) {
+            log.warn("Mapped Base location not found in base table " + resultsRequest.getPersonalCode());
+            partialSuccessFlag = true;
+            String errorField = resultsRequest.getPersonalCode();
+            String errorDescription = appendBaseLocationIdInErroDescription(USERPROFILEEMAILID, errorField);
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                resultsRequest.getPersonalCode(),
+                EMAILID, errorDescription, USER_PROFILE,resultsRequest.getPersonalCode());
+            return false;
+        }
+        return true;
     }
 
     private void savePeopleDetails(
@@ -321,32 +349,48 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private boolean saveUserProfile(ResultsRequest resultsRequest) {
 
         try {
-            UserProfile userProfile = UserProfile.builder()
-                .personalCode(resultsRequest.getPersonalCode())
-                .knownAs(resultsRequest.getKnownAs())
-                .surname(resultsRequest.getSurname())
-                .fullName(resultsRequest.getFullName())
-                .postNominals(resultsRequest.getPostNominals())
-                .ejudiciaryEmailId(resultsRequest.getEmail())
-                .lastWorkingDate(convertToLocalDate(resultsRequest.getLastWorkingDate()))
-                .activeFlag(true)
-                .createdDate(now())
-                .lastLoadedDate(now())
-                .objectId(resultsRequest.getObjectId())
-                .initials(resultsRequest.getInitials())
-                .title(resultsRequest.getTitle())
-                .retirementDate(convertToLocalDate(resultsRequest.getRetirementDate()))
-                .build();
-            profileRepository.save(userProfile);
-            return true;
+            if (!isNull(userProfileCache.get(resultsRequest.getPersonalCode()))) {
+                log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
+                partialSuccessFlag = true;
+                String errorDescription = appendBaseLocationIdInErroDescription(
+                    USERPROFILEISPRESENT, resultsRequest.getPersonalCode());
+                String personalCode = resultsRequest.getPersonalCode();
+                elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                    now(),
+                    resultsRequest.getPersonalCode(),
+                    USER_PROFILE,errorDescription, USER_PROFILE,personalCode);
+                return false;
+            } else {
+                UserProfile userProfile = UserProfile.builder()
+                    .personalCode(resultsRequest.getPersonalCode())
+                    .knownAs(resultsRequest.getKnownAs())
+                    .surname(resultsRequest.getSurname())
+                    .fullName(resultsRequest.getFullName())
+                    .postNominals(resultsRequest.getPostNominals())
+                    .ejudiciaryEmailId(resultsRequest.getEmail())
+                    .lastWorkingDate(convertToLocalDate(resultsRequest.getLastWorkingDate()))
+                    .activeFlag(true)
+                    .createdDate(now())
+                    .lastLoadedDate(now())
+                    .objectId(resultsRequest.getObjectId())
+                    .initials(resultsRequest.getInitials())
+                    .title(resultsRequest.getTitle())
+                    .retirementDate(convertToLocalDate(resultsRequest.getRetirementDate()))
+                    .build();
+                userProfileCache.put(resultsRequest.getPersonalCode(),userProfile);
+                profileRepository.save(userProfile);
+                return true;
+            }
         } catch (Exception e) {
             log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
+            String errorDescription = appendBaseLocationIdInErroDescription(
+                USERPROFILEFAILURE, resultsRequest.getPersonalCode());
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                USER_PROFILE, e.getMessage(), USER_PROFILE,personalCode);
+                USER_PROFILE, errorDescription, USER_PROFILE,personalCode);
             return false;
         }
     }

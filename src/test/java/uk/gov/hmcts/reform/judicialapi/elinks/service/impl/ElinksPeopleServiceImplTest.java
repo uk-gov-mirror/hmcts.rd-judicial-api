@@ -125,11 +125,15 @@ class ElinksPeopleServiceImplTest {
 
     private ResultsRequest result2;
 
+    private ResultsRequest result3;
+
     private PaginationRequest pagination;
 
     private PeopleRequest elinksApiResponseFirstHit;
 
     private PeopleRequest elinksApiResponseSecondHit;
+
+    private PeopleRequest elinksApiResponseThirdHit;
 
     JdbcTemplate jdbcTemplate =  mock(JdbcTemplate.class);
 
@@ -187,7 +191,11 @@ class ElinksPeopleServiceImplTest {
                 .objectId("objectId").initials("initials").appointmentsRequests(appointmentsRequests)
                 .authorisationsRequests(authorisations).judiciaryRoles(List.of(roleRequestOne,roleRequestTwo)).build();
 
+        result3 = ResultsRequest.builder().perId("80851").personalCode("3456").build();
+
         List<ResultsRequest> results = Arrays.asList(result1,result2);
+
+        List<ResultsRequest> results2 = Arrays.asList(result1,result3);
 
         elinksApiResponseFirstHit = PeopleRequest.builder().resultsRequests(results).pagination(pagination).build();
 
@@ -197,6 +205,8 @@ class ElinksPeopleServiceImplTest {
                 .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
         elinksApiResponseSecondHit = PeopleRequest.builder().resultsRequests(results).pagination(paginationFalse)
                 .build();
+        elinksApiResponseThirdHit = PeopleRequest.builder()
+            .resultsRequests(results2).pagination(paginationFalse).build();
     }
 
     @Test
@@ -346,9 +356,44 @@ class ElinksPeopleServiceImplTest {
 
         verify(elinksFeignClient, times(2)).getPeopleDetials(any(), any(), any(),
                 Boolean.parseBoolean(any()));
-        verify(profileRepository, atLeastOnce()).save(any());
+        verify(profileRepository, times(2)).save(any());
 
-        verify(appointmentsRepository, times(8)).save(any());
+        verify(appointmentsRepository, times(4)).save(any());
+        verify(judicialRoleTypeRepository, atLeastOnce()).save(any());
+        verify(authorisationsRepository, atLeastOnce()).save(any());
+    }
+
+    @Test
+    void loadPeopleWithEmailIdBlank() throws JsonProcessingException {
+
+        LocalDateTime dateTime = LocalDateTime.now();
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
+
+        when(regionMappingRepository.fetchRegionIdfromRegion(any())).thenReturn("1");
+        LocationMapping locationMapping = LocationMapping.builder()
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
+        BaseLocation location = new BaseLocation();
+        location.setBaseLocationId("12345");
+        location.setName("ABC");
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("2344");
+        when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseThirdHit);
+
+        when(elinksFeignClient.getPeopleDetials(any(), any(), any(),
+            Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ResponseEntity<ElinkPeopleWrapperResponse> response = elinksPeopleServiceImpl.updatePeople();
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+        assertThat(response.getBody().getMessage()).isEqualTo(PEOPLE_DATA_LOAD_SUCCESS);
+
+        verify(elinksFeignClient, times(1)).getPeopleDetials(any(), any(), any(),
+            Boolean.parseBoolean(any()));
+        verify(profileRepository, times(1)).save(any());
+
+        verify(appointmentsRepository, times(2)).save(any());
         verify(judicialRoleTypeRepository, atLeastOnce()).save(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
     }
@@ -382,7 +427,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(elinksFeignClient, times(2)).getPeopleDetials(any(), any(), any(),
                 Boolean.parseBoolean(any()));
-        verify(profileRepository, times(4)).save(any());
+        verify(profileRepository, times(2)).save(any());
 
         verify(appointmentsRepository, atLeastOnce()).save(any());
 
@@ -420,7 +465,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(elinksFeignClient, times(2)).getPeopleDetials(any(), any(), any(),
             Boolean.parseBoolean(any()));
-        verify(profileRepository, times(4)).save(any());
+        verify(profileRepository, times(2)).save(any());
 
         verify(authorisationsRepository, atLeastOnce()).save(any());
 

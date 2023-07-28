@@ -82,6 +82,8 @@ public class RefDataElinksConstants {
 
     public static final String APPOINTMENTID = "appointmentId";
 
+    public static final String EMAILID = "email_id";
+
     public static final String AUTHORISATION = "authorisations_with_dates";
 
     public static final String APPOINTMENTTYPE = "appointment type";
@@ -93,11 +95,17 @@ public class RefDataElinksConstants {
     public static final String APPOINTMENTIDNOTAVAILABLE = "Appointment  ID : "
         + "is not available in Appointment Table";
 
+    public static final String USERPROFILEEMAILID = "Personal Code : "
+        + " is not having any email id";
+
     public static final String APPOINTMENTIDFAILURE = "Appointment  ID : "
         + "is failed to load";
 
     public static final String AUTHORISATIONIDFAILURE = "Appointment  ID : "
         + "is failed to load";
+
+    public static final String USERPROFILEISPRESENT = "Personal  Code : "
+        + "is already loaded";
 
     public static final String CFTREGIONIDFAILURE = "Location  : "
         + " is not available in jrd_lrd_region_mapping table";
@@ -106,7 +114,7 @@ public class RefDataElinksConstants {
         + " is invalid";
 
     public static final String USERPROFILEFAILURE = "UserProfile  : "
-        + "failed to load";
+        + "is failed to load";
 
     public static final String APPOINTMENTTYPENOTMATCHING = "Appointment type  : "
         + "not matching";
