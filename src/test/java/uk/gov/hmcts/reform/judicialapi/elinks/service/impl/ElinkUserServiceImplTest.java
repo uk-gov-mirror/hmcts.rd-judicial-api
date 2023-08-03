@@ -9,10 +9,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import uk.gov.hmcts.reform.judicialapi.controller.request.UserSearchRequest;
-import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.ServiceCodeMapping;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialServiceCodeMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.UserSearchResponseWrapper;
-import uk.gov.hmcts.reform.judicialapi.repository.ServiceCodeMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.validator.RefreshUserValidator;
 
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ class ElinkUserServiceImplTest {
     ProfileRepository profileRepository;
 
     @Mock
-    ServiceCodeMappingRepository serviceCodeMappingRepository;
+    JudicialServiceCodeMappingRepository serviceCodeMappingRepository;
 
     private RefreshUserValidator refreshUserValidatorMock;
     ObjectMapper mapper = new ObjectMapper();

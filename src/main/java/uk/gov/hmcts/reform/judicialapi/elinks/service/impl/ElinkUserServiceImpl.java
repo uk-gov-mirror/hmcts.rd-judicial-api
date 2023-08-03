@@ -11,9 +11,9 @@ import uk.gov.hmcts.reform.judicialapi.controller.request.UserSearchRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialServiceCodeMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinkUserService;
-import uk.gov.hmcts.reform.judicialapi.repository.ServiceCodeMappingRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class ElinkUserServiceImpl implements ElinkUserService {
     private AppointmentsRepository appointmentsRepository;
 
     @Autowired
-    private ServiceCodeMappingRepository serviceCodeMappingRepository;
+    private JudicialServiceCodeMappingRepository serviceCodeMappingRepository;
 
     @Value("${search.serviceCode}")
     private List<String> searchServiceCode;

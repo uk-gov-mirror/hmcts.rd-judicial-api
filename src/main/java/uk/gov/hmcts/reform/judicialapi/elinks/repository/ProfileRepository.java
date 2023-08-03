@@ -26,6 +26,7 @@ public interface ProfileRepository extends JpaRepository<UserProfile, String> {
         + "LEFT JOIN FETCH judicialLocationMapping loc "
         + "on loc.judicialBaseLocationId = appt.baseLocationId "
         + "where (per.objectId != '' and per.objectId is not null) "
+        + "and (per.activeFlag = true) "
         + "and ((appt.endDate >= CURRENT_DATE or appt.endDate is null) "
         + "and (auth.endDate >= CURRENT_DATE or auth.endDate is null)) "
         + "and ( (:serviceCode is not null and (lower(loc.serviceCode) = :serviceCode or "
