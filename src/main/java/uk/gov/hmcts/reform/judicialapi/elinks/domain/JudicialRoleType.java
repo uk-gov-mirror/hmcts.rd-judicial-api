@@ -7,16 +7,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-@Entity(name = "JudicialRoleType")
+@Entity(name = "judicial_additional_roles")
 @Table(name = "judicial_additional_roles", schema = "dbjudicialdata")
 @Builder
 @NoArgsConstructor
@@ -24,7 +28,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @SequenceGenerator(name = "judicial_role_type_id_sequence",
-    sequenceName = "judicial_role_type_id_sequence",  schema = "dbjudicialdata", allocationSize = 1)
+        sequenceName = "judicial_role_type_id_sequence",  schema = "dbjudicialdata", allocationSize = 1)
 public class JudicialRoleType {
 
     @Id
@@ -49,4 +53,10 @@ public class JudicialRoleType {
     @Column(name = "jurisdiction_role_id")
     @Size(max = 64)
     private String jurisdictionRoleId;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "personal_code", referencedColumnName = "personal_code",
+            insertable = false, updatable = false, nullable = false)
+    private UserProfile userProfile;
+
 }

@@ -5,16 +5,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import static javax.persistence.CascadeType.ALL;
 
 
 @Entity(name = "judicialUserProfile")
@@ -44,7 +50,7 @@ public class UserProfile implements Serializable {
     private String fullName;
 
     @Column(name = "post_nominals")
-    @Size(max = 32)
+    @Size(max = 256)
     private String postNominals;
 
     @Column(name = "ejudiciary_email")
@@ -89,5 +95,19 @@ public class UserProfile implements Serializable {
 
     @Column(name = "date_of_deletion")
     private LocalDateTime deletedOn;
+
+
+    @OneToMany(targetEntity = Appointment.class, mappedBy = "userProfile", cascade = ALL, fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<Appointment> appointments;
+
+    @OneToMany(targetEntity = Authorisation.class, mappedBy = "userProfile", cascade = ALL, fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<Authorisation> authorisations;
+
+    @OneToMany(targetEntity = JudicialRoleType.class, mappedBy = "userProfile", cascade = ALL, fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<JudicialRoleType> judicialRoleTypes;
+
 
 }

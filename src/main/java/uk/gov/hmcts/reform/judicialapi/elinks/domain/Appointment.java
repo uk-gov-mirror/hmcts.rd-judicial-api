@@ -9,11 +9,17 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -67,6 +73,10 @@ public class Appointment implements Serializable {
     @Size(max = 16)
     private String epimmsId;
 
+    @Column(name = "appointment")
+    @Size(max = 64)
+    private String appointmentMapping;
+
     @Column(name = "appointment_type")
     @Size(max = 32)
     private String appointmentType;
@@ -74,10 +84,6 @@ public class Appointment implements Serializable {
     @Column(name = "type")
     @Size(max = 32)
     private String type;
-
-    @Column(name = "appointment")
-    @Size(max = 64)
-    private String appointmentMapping;
 
     @Column(name = "appointment_id")
     @Size(max = 256)
@@ -98,5 +104,25 @@ public class Appointment implements Serializable {
     @Column(name = "jo_base_location_id")
     @Size(max = 64)
     private String joBaseLocationId;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "personal_code", referencedColumnName = "personal_code",
+            insertable = false, updatable = false, nullable = false)
+    private UserProfile userProfile;
+
+    @ManyToOne
+    @JoinColumn(name = "base_location_Id", referencedColumnName = "base_location_Id",
+            insertable = false, updatable = false, nullable = false)
+    private BaseLocation baseLocationType;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "hmcts_region_id", referencedColumnName = "hmcts_region_id",
+            insertable = false, updatable = false, nullable = false)
+    private RegionType regionType;
+
+    @OneToMany
+    @JoinColumn(name = "judicial_base_location_Id", referencedColumnName = "base_location_Id",
+            insertable = false, updatable = false, nullable = false)
+    private List<LocationMapping> locationMappings;
 
 }

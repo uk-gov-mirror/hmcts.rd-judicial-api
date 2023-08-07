@@ -9,11 +9,15 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -75,5 +79,11 @@ public class Authorisation implements Serializable {
     @Column(name = "jurisdiction_id")
     @Size(max = 64)
     private String jurisdictionId;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "personal_code", referencedColumnName = "personal_code",
+            insertable = false, updatable = false, nullable = false)
+    private UserProfile userProfile;
+
 
 }

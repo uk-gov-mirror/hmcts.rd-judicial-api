@@ -11,16 +11,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity(name = "judicialservicecodemapping")
-@Table(name = "judicial_service_code_mapping", schema = "dbjudicialdata")
 @Getter
 @Setter
+@Entity(name = "serviceCodeMapping")
+@Table(name = "judicial_service_code_mapping", schema = "dbjudicialdata")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServiceCodeMapping {
-
-
     @Id
     @Column(name = "service_id")
     private Long serviceId;
@@ -33,5 +31,4 @@ public class ServiceCodeMapping {
 
     @Column(name = "service_description")
     private String serviceDescription;
-
 }
