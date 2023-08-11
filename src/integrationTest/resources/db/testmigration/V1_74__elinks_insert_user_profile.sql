@@ -38,7 +38,7 @@ INSERT INTO dbjudicialdata.judicial_office_appointment (personal_code,base_locat
  (judicial_office_auth_id, jurisdiction, start_date, end_date, created_date,
  last_updated, lower_level, personal_code, ticket_code,authorisation_id,jurisdiction_id,appointment_id)
  VALUES(1023, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
- '2021-08-11 09:14:30.054', '2021-08-11 09:14:30.054', 'Family Court', '32', '368',7,1,'195'),
+ '2021-08-11 09:14:30.054', '2021-08-11 09:14:30.054', 'Family Court', '32', '384',7,1,'195'),
  (1024, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', NULL,
  '2021-08-11 09:14:30.054', '2021-08-11 09:14:30.054', 'Family Court', '32', '373',8,2,'196'),
  (1025, 'Authorisation Magistrate', '2002-09-09 00:00:00.000', '2021-09-09 00:00:00.000',

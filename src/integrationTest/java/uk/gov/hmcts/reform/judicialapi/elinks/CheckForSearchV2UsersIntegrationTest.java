@@ -65,8 +65,8 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
     }
 
     @ParameterizedTest
-    @CsvSource({"jrd-system-user,BBA3",
-        "jrd-admin,BBA3",
+    @CsvSource({"jrd-system-user,BBA1",
+        "jrd-admin,BBA1",
         "jrd-system-user,BFA1",
         "jrd-admin,BFA1",})
     void shouldReturn200WhenUserProfileRequestedForGivenSearchStringForsscsAndIac(String role,String serviceCode) {
