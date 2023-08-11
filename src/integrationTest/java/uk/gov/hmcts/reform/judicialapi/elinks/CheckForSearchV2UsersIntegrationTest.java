@@ -206,6 +206,24 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
     }
 
     @ParameterizedTest
+    @CsvSource({"jrd-system-user,BFA1",
+        "jrd-admin,BFA1"})
+    void shouldReturn200WhenUserProfileRequestedIacAppointmentActiveAuthExpires(String role,
+                                                                                   String serviceCode) {
+
+        mockJwtToken(role);
+        UserSearchRequest userSearchRequest = UserSearchRequest.builder()
+            .searchString("Eight")
+            .serviceCode(serviceCode)
+            .build();
+        var response = judicialReferenceDataClient.searchUsers(
+            userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE));
+        var profiles = (List<Map<String, String>>)response.get("body");
+        assertEquals(1, profiles.size());
+
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = { "jrd-system-user","jrd-admin"})
     void shouldReturn401ForInvalidTokens(String role) {
 
