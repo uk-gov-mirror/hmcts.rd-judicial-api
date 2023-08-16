@@ -6,5 +6,6 @@ public interface ELinksPeopleDeleteService {
 
     void deleteAuth(ResultsRequest resultsRequest);
 
+    void deletePeople(String personalCode);
 
 }

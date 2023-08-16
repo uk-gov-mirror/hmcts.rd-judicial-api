@@ -50,6 +50,7 @@ import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,6 +86,8 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION_ID;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTIDISDUPLICATED;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTIDISPRESENT;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PERSONALCODE;
@@ -151,6 +154,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private boolean partialSuccessFlag = false;
 
     private Map<String,UserProfile> userProfileCache = new HashMap<String,UserProfile>();
+    private List<UserProfile> userProfilesSnapshot = new ArrayList<>();
 
     @Autowired
     ElinkDataExceptionRepository elinkDataExceptionRepository;
@@ -200,7 +204,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 schedulerStartTime,
                 null,
                 RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
-
+        userProfilesSnapshot = profileRepository.findAll();
         int pageValue = Integer.parseInt(page);
         int countOfProfile = 0;
         do {
@@ -246,6 +250,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         }
 
         userProfileCache.clear();
+        userProfilesSnapshot = null;
         auditStatus(schedulerStartTime, status);
         ElinkPeopleWrapperResponse response = new ElinkPeopleWrapperResponse();
         response.setMessage(PEOPLE_DATA_LOAD_SUCCESS);
@@ -307,32 +312,14 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             log.info("method entred processPeopleResponse : " + new ObjectMapper().writer().withDefaultPrettyPrinter()
                 .writeValueAsString(elinkPeopleResponseRequest
                 .getResultsRequests()));
-            List<ResultsRequest> resultsRequests = elinkPeopleResponseRequest.getResultsRequests()
-                    .stream()
-                    .filter(this::validataUserProfile)
-                    .toList();
-            resultsRequests.forEach(r -> savePeopleDetails(r,schedulerStartTime));
+            elinkPeopleResponseRequest.getResultsRequests()
+                .forEach(resultsRequest -> savePeopleDetails(resultsRequest,schedulerStartTime));
+
         } catch (Exception ex) {
             auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
 
-    }
-
-    private boolean validataUserProfile(ResultsRequest resultsRequest) {
-
-        if (StringUtils.isEmpty(resultsRequest.getEmail())) {
-            log.warn("Mapped Base location not found in base table " + resultsRequest.getPersonalCode());
-            partialSuccessFlag = true;
-            String errorField = resultsRequest.getPersonalCode();
-            String errorDescription = appendBaseLocationIdInErroDescription(USERPROFILEEMAILID, errorField);
-            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                now(),
-                resultsRequest.getPersonalCode(),
-                EMAILID, errorDescription, USER_PROFILE,resultsRequest.getPersonalCode());
-            return false;
-        }
-        return true;
     }
 
     private void savePeopleDetails(
@@ -385,19 +372,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private boolean saveUserProfile(ResultsRequest resultsRequest) {
 
-        try {
-            if (!isNull(userProfileCache.get(resultsRequest.getPersonalCode()))) {
-                log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
-                partialSuccessFlag = true;
-                String errorDescription = appendBaseLocationIdInErroDescription(
-                    USERPROFILEISPRESENT, resultsRequest.getPersonalCode());
-                String personalCode = resultsRequest.getPersonalCode();
-                elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                    now(),
-                    resultsRequest.getPersonalCode(),
-                    USER_PROFILE,errorDescription, USER_PROFILE,personalCode);
-                return false;
-            } else {
+        if (validateUserProfile(resultsRequest)) {
+            try {
                 UserProfile userProfile = UserProfile.builder()
                     .personalCode(resultsRequest.getPersonalCode())
                     .knownAs(resultsRequest.getKnownAs())
@@ -417,19 +393,79 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 userProfileCache.put(resultsRequest.getPersonalCode(),userProfile);
                 profileRepository.save(userProfile);
                 return true;
+            }   catch (Exception e) {
+                log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
+                partialSuccessFlag = true;
+                String personalCode = resultsRequest.getPersonalCode();
+                String errorDescription = appendFieldWithErrorDescription(
+                    USERPROFILEFAILURE, resultsRequest.getPersonalCode());
+                elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                    now(),
+                    resultsRequest.getPersonalCode(),
+                    USER_PROFILE, errorDescription, USER_PROFILE,personalCode);
+                return false;
             }
-        } catch (Exception e) {
-            log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
+        }
+        return false;
+    }
+
+    private boolean validateUserProfile(ResultsRequest resultsRequest) {
+
+        if (StringUtils.isEmpty(resultsRequest.getEmail())) {
+            log.warn("Mapped Base location not found in base table " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
-            String personalCode = resultsRequest.getPersonalCode();
-            String errorDescription = appendBaseLocationIdInErroDescription(
-                USERPROFILEFAILURE, resultsRequest.getPersonalCode());
+            String errorField = resultsRequest.getPersonalCode();
+            String errorDescription = appendFieldWithErrorDescription(USERPROFILEEMAILID, errorField);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                USER_PROFILE, errorDescription, USER_PROFILE,personalCode);
+                EMAILID, errorDescription, USER_PROFILE,resultsRequest.getPersonalCode());
+            return false;
+        } else if (!isNull(userProfileCache.get(resultsRequest.getPersonalCode()))) {
+            log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
+            partialSuccessFlag = true;
+            String errorDescription = appendFieldWithErrorDescription(
+                USERPROFILEISPRESENT, resultsRequest.getPersonalCode());
+            String personalCode = resultsRequest.getPersonalCode();
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                resultsRequest.getPersonalCode(),
+                USER_PROFILE,errorDescription, USER_PROFILE,personalCode);
+            return false;
+        } else if (!isNull(resultsRequest.getObjectId())
+            && !resultsRequest.getObjectId().isEmpty() && !objectIdisPresent(resultsRequest).isEmpty()) {
+            elinksPeopleDeleteServiceimpl.deletePeople(objectIdisPresent(resultsRequest).get(0));
+            log.warn("Duplicate Object id " + resultsRequest.getPersonalCode());
+            partialSuccessFlag = true;
+            String personalCode = resultsRequest.getPersonalCode();
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                resultsRequest.getObjectId(),
+                USER_PROFILE,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode);
+            return false;
+        } else if (!isNull(resultsRequest.getObjectId())
+            && !resultsRequest.getObjectId().isEmpty() && objectIdisPresentInDb(resultsRequest)) {
+            log.warn("Duplicate Object id " + resultsRequest.getPersonalCode());
+            partialSuccessFlag = true;
+            String personalCode = resultsRequest.getPersonalCode();
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                resultsRequest.getPersonalCode(),
+                USER_PROFILE,OBJECTIDISPRESENT, USER_PROFILE,personalCode);
             return false;
         }
+        return true;
+    }
+
+    private boolean objectIdisPresentInDb(ResultsRequest resultsRequest) {
+        return userProfilesSnapshot.stream()
+            .anyMatch(userProfile -> resultsRequest.getObjectId().equals(userProfile.getObjectId()));
+    }
+
+    private List<String> objectIdisPresent(ResultsRequest resultsRequest) {
+        return userProfileCache.entrySet().stream().filter(userProfileEntry -> resultsRequest
+            .getObjectId().equals(userProfileEntry.getValue().getObjectId()))
+            .map(Map.Entry::getKey).toList();
     }
 
 
@@ -439,7 +475,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
         log.info("entering into saveAppointmentDetails ");
         final List<AppointmentsRequest> validappointmentsRequests =
-            validateAppointmentRequest(appointmentsRequests,personalCode,schedulerStartTime);
+            validateAppointmentRequests(appointmentsRequests,personalCode,schedulerStartTime);
         Appointment appointment;
         for (AppointmentsRequest appointmentsRequest: validappointmentsRequests) {
             String baseLocationId = fetchBaseLocationId(appointmentsRequest);
@@ -469,12 +505,12 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             } catch (Exception e) {
                 log.warn("failed to load appointment details for " + appointmentsRequest.getAppointmentId());
                 partialSuccessFlag = true;
-                String errorDescription = appendBaseLocationIdInErroDescription(
+                String errorDescription = appendFieldWithErrorDescription(
                     APPOINTMENTIDFAILURE, appointmentsRequest.getAppointmentId());
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     appointmentsRequest.getAppointmentId(),
-                    APPOINTMENT_TABLE, e.getMessage(), APPOINTMENT_TABLE,personalCode);
+                    APPOINTMENT_TABLE, errorDescription, APPOINTMENT_TABLE,personalCode);
             }
         }
     }
@@ -504,10 +540,10 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 log.warn("failed to load Authorisation details for " + authorisationsRequest.getAuthorisationId());
                 partialSuccessFlag = true;
                 String errorDescription;
-                if (null == authorisationsRequest.getAppointmentId()) {
+                if (isNull(authorisationsRequest.getAppointmentId())) {
                     errorDescription = APPOINTMENTID_IS_NULL;
                 } else {
-                    errorDescription = appendBaseLocationIdInErroDescription(
+                    errorDescription = appendFieldWithErrorDescription(
                             APPOINTMENTIDNOTAVAILABLE, authorisationsRequest.getAppointmentId());
                 }
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
@@ -518,8 +554,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         }
     }
 
-    private List<AppointmentsRequest> validateAppointmentRequest(List<AppointmentsRequest> appointmentsRequests,
-                                                                 String personalCode,LocalDateTime schedulerStartTime) {
+    private List<AppointmentsRequest> validateAppointmentRequests(List<AppointmentsRequest> appointmentsRequests,
+                                                                  String personalCode,
+                                                                  LocalDateTime schedulerStartTime) {
 
         return appointmentsRequests.stream().filter(appointmentsRequest ->
             validAppointments(appointmentsRequest,personalCode,schedulerStartTime)).toList();
@@ -533,7 +570,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             log.warn("Mapped Base location not found in base table " + appointmentsRequest.getBaseLocationId());
             partialSuccessFlag = true;
             String baseLocationId = appointmentsRequest.getBaseLocationId();
-            String errorDescription = appendBaseLocationIdInErroDescription(LOCATIONIDFAILURE, baseLocationId);
+            String errorDescription = appendFieldWithErrorDescription(LOCATIONIDFAILURE, baseLocationId);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 appointmentsRequest.getAppointmentId(),
@@ -543,7 +580,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             log.warn("Mapped  location not found in jrd lrd mapping table " + appointmentsRequest.getLocation());
             partialSuccessFlag = true;
             String location = appointmentsRequest.getLocation();
-            String errorDescription = appendBaseLocationIdInErroDescription(CFTREGIONIDFAILURE, location);
+            String errorDescription = appendFieldWithErrorDescription(CFTREGIONIDFAILURE, location);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     schedulerStartTime,
                 appointmentsRequest.getAppointmentId(),
@@ -552,7 +589,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         } else if (INVALID_ROLES.contains(appointmentsRequest.getRoleName())) {
             log.warn("Role Name is Invalid " + appointmentsRequest.getRoleName());
             partialSuccessFlag = true;
-            String errorDescription = appendBaseLocationIdInErroDescription(INVALIDROLENAMES,
+            String errorDescription = appendFieldWithErrorDescription(INVALIDROLENAMES,
                 appointmentsRequest.getRoleName());
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
@@ -578,7 +615,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private String fetchRegionId(String location) {
 
         String regionId = null;
-        if ("Unassigned".equals(location) || StringUtils.isEmpty(location)) {
+        if ("Unassigned".equals(location) || StringUtils.isEmpty(location) || "Unknown".equals(location)) {
             regionId = "0";
         } else {
             regionId = regionMappingRepository.fetchRegionIdfromRegion(location);
@@ -588,7 +625,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     // Append the string to add error description for the given format
-    private String appendBaseLocationIdInErroDescription(String errorDescription, String wordToAppend) {
+    private String appendFieldWithErrorDescription(String errorDescription, String wordToAppend) {
 
         String wordAfterWhichAppend = ":";
         String errorDescriptionInGivenFormat = errorDescription.substring(0,

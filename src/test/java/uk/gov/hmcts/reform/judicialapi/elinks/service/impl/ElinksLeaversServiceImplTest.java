@@ -128,7 +128,7 @@ class ElinksLeaversServiceImplTest {
 
         LocalDateTime dateTime = LocalDateTime.now();
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(dateTime);
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                         .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
@@ -140,6 +140,8 @@ class ElinksLeaversServiceImplTest {
         assertThat(response.getBody().getMessage()).isEqualTo(LEAVERSSUCCESS);
 
         verify(elinksFeignClient, times(2)).getLeaversDetails(any(), any(), any());
+        verify(elinkDataIngestionSchedularAudit,times(2))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
     @Test
@@ -147,7 +149,7 @@ class ElinksLeaversServiceImplTest {
         ObjectMapper mapper = new ObjectMapper();
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
         String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(null);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(null);
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                         .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
@@ -168,7 +170,7 @@ class ElinksLeaversServiceImplTest {
     void load_leavers_should_return_elinksException_when_DataAccessException_while_connecting_to_Audit_table() {
 
         DataAccessException dataAccessException = mock(DataAccessException.class);
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenThrow(dataAccessException);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenThrow(dataAccessException);
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkLeaversWrapperResponse> responseEntity = elinksServiceImpl.retrieveLeavers();
         });
@@ -180,7 +182,7 @@ class ElinksLeaversServiceImplTest {
     @Test
     void load_leavers_should_return_elinksException_when_ElinksApi_Failure() {
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(null);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(null);
         FeignException feignExceptionMock = Mockito.mock(FeignException.class);
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenThrow(feignExceptionMock);
 
@@ -197,7 +199,7 @@ class ElinksLeaversServiceImplTest {
             throws JsonProcessingException {
 
         String body = "{\"test\":\"test\"}";
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(null);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(null);
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
@@ -208,7 +210,8 @@ class ElinksLeaversServiceImplTest {
         assertThat(thrown.getStatus().value()).isEqualTo(HttpStatus.FORBIDDEN.value());
         assertThat(thrown.getErrorMessage()).contains(ELINKS_ACCESS_ERROR);
         assertThat(thrown.getErrorDescription()).contains(ELINKS_ACCESS_ERROR);
-
+        verify(elinkDataIngestionSchedularAudit,times(2))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
     @Test
@@ -218,7 +221,7 @@ class ElinksLeaversServiceImplTest {
         elinksApiResponseFirstHit.setLeaversResultsRequests(null);
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
@@ -239,7 +242,7 @@ class ElinksLeaversServiceImplTest {
         elinksApiResponseFirstHit.setPagination(null);
         String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
@@ -255,7 +258,7 @@ class ElinksLeaversServiceImplTest {
     @Test
     void load_leavers_should_return_elinksException_when_http_bad_request() {
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.BAD_REQUEST.value())
@@ -267,13 +270,14 @@ class ElinksLeaversServiceImplTest {
         assertThat(thrown.getStatus().value()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(thrown.getErrorMessage()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
         assertThat(thrown.getErrorDescription()).contains(ELINKS_ERROR_RESPONSE_BAD_REQUEST);
-
+        verify(elinkDataIngestionSchedularAudit,times(2))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
     @Test
     void load_leavers_should_return_elinksException_when_http_unauthorised() {
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.UNAUTHORIZED.value())
@@ -291,7 +295,7 @@ class ElinksLeaversServiceImplTest {
     @Test
     void load_leavers_should_return_elinksException_when_http_forbidden() {
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.FORBIDDEN.value()).build());
@@ -308,7 +312,7 @@ class ElinksLeaversServiceImplTest {
     @Test
     void load_leavers_should_return_elinksException_when_http_not_found() {
 
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.NOT_FOUND.value())
@@ -325,7 +329,7 @@ class ElinksLeaversServiceImplTest {
 
     @Test
     void load_leavers_should_return_elinksException_when_http_too_many_requests() {
-        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset())

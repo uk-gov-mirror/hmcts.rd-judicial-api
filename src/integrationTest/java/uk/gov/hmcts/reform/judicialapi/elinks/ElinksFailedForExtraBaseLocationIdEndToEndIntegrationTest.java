@@ -36,6 +36,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksEnabledIntegrationTest;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
+import uk.gov.hmcts.reform.judicialapi.versions.V2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,7 +50,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -233,10 +233,10 @@ class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends ElinksEn
 
 
         List<BaseLocation> baseLocationList = baseLocationRepository.findAll();
-        assertEquals(12, baseLocationList.size());
-        assertEquals("Alnwick",baseLocationList.get(5).getName());
-        assertEquals("3",baseLocationList.get(5).getBaseLocationId());
-        assertEquals("46",baseLocationList.get(5).getTypeId());
+        assertEquals(1980, baseLocationList.size());
+        assertEquals("Aberconwy",baseLocationList.get(0).getName());
+        assertEquals("1",baseLocationList.get(0).getBaseLocationId());
+        assertEquals("1722",baseLocationList.get(0).getParentId());
 
     }
 
@@ -269,17 +269,16 @@ class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends ElinksEn
 
         List<UserProfile> userprofile = profileRepository.findAll();
         assertEquals(2, userprofile.size());
-        assertEquals("410551", userprofile.get(0).getPersonalCode());
-        assertEquals("Leslie", userprofile.get(0).getKnownAs());
-        assertEquals("Jones", userprofile.get(0).getSurname());
-        assertEquals("His Honour Judge Leslie Jones", userprofile.get(0).getFullName());
-        assertEquals(null, userprofile.get(0).getPostNominals());
+        assertEquals("410551", userprofile.get(1).getPersonalCode());
+        assertEquals("Leslie", userprofile.get(1).getKnownAs());
+        assertEquals("Jones", userprofile.get(1).getSurname());
+        assertEquals("His Honour Judge Leslie Jones", userprofile.get(1).getFullName());
+        assertEquals(null, userprofile.get(1).getPostNominals());
         assertEquals("HHJ.Leslie.Jones@judiciarystagingtest999.onmicrosoft.com",
-            userprofile.get(0).getEjudiciaryEmailId());
-        assertTrue(userprofile.get(0).getActiveFlag());
-        assertEquals("c38f7bdc-e52b-4711-90e6-9d49a2bb38f2", userprofile.get(0).getObjectId());
-        assertNull(userprofile.get(0).getSidamId());
-        assertEquals("L.J",userprofile.get(0).getInitials());
+            userprofile.get(1).getEjudiciaryEmailId());
+        assertEquals("c38f7bdc-e52b-4711-90e6-9d49a2bb38f2", userprofile.get(1).getObjectId());
+        assertNull(userprofile.get(1).getSidamId());
+        assertEquals("L.J",userprofile.get(1).getInitials());
 
 
     }
@@ -309,7 +308,14 @@ class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends ElinksEn
         String peopleResponseValidationJson =
                 loadJson("src/integrationTest/resources"
                         + "/wiremock_responses/extrabaselocation-id-for-failure-people.json");
-
+        String locationResponseValidationJson =
+            loadJson("src/integrationTest/resources/wiremock_responses/test_loc.json");
+        elinks.stubFor(get(urlPathMatching("/reference_data/location"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", V2.MediaType.SERVICE)
+                .withHeader("Connection", "close")
+                .withBody(locationResponseValidationJson)));
         elinks.stubFor(get(urlPathMatching("/people"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -339,6 +345,7 @@ class ElinksFailedForExtraBaseLocationIdEndToEndIntegrationTest extends ElinksEn
         dataloadSchedulerJobRepository.deleteAll();
         authorisationsRepository.deleteAll();
         appointmentsRepository.deleteAll();
+        baseLocationRepository.deleteAll();
         profileRepository.deleteAll();
         elinkDataExceptionRepository.deleteAll();
     }

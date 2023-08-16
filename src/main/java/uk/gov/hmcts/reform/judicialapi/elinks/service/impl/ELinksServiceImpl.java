@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversResultsR
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.DeletedResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.ElinksDeleteApiResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.ElinksFeignClient;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
@@ -30,7 +29,6 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationResponse
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
-import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
@@ -62,7 +60,6 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSSUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
 
 @Service
@@ -226,28 +223,6 @@ public class ELinksServiceImpl implements ELinksService {
         return result;
     }
 
-    private ResponseEntity<ElinkLocationWrapperResponse> loadLocationData(List<Location> locations) {
-        ResponseEntity<ElinkLocationWrapperResponse> result;
-        try {
-
-            locationRepository.saveAll(locations);
-
-            ElinkLocationWrapperResponse elinkLocationWrapperResponse = new ElinkLocationWrapperResponse();
-            elinkLocationWrapperResponse.setMessage(LOCATION_DATA_LOAD_SUCCESS);
-
-
-            result = ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(elinkLocationWrapperResponse);
-        } catch (DataAccessException dae) {
-
-            throw new ElinksException(HttpStatus.INTERNAL_SERVER_ERROR, ELINKS_DATA_STORE_ERROR,
-                    ELINKS_DATA_STORE_ERROR);
-        }
-
-        return result;
-    }
-
 
     private Response getLeaversResponseFromElinks(int currentPage) {
         String leftSince = getUpdateSince();
@@ -262,7 +237,7 @@ public class ELinksServiceImpl implements ELinksService {
         String updatedSince;
         LocalDateTime maxSchedulerEndTime;
         try {
-            maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
+            maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers();
         } catch (Exception ex) {
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, AUDIT_DATA_ERROR, AUDIT_DATA_ERROR);
         }
