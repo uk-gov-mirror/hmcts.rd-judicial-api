@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -206,7 +205,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
         userProfilesSnapshot = profileRepository.findAll();
         int pageValue = Integer.parseInt(page);
-        int countOfProfile = 0;
         do {
             Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
             httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
@@ -215,11 +213,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             if (httpStatus.is2xxSuccessful()) {
                 responseEntity = JsonFeignResponseUtil.toResponseEntity(peopleApiResponse, PeopleRequest.class);
                 PeopleRequest elinkPeopleResponseRequest = (PeopleRequest) responseEntity.getBody();
-                log.info(":::: elinkPeopleResponseRequest " + elinkPeopleResponseRequest);
                 if (Optional.ofNullable(elinkPeopleResponseRequest).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getPagination()).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getResultsRequests()).isPresent()) {
-                    countOfProfile = countOfProfile + elinkPeopleResponseRequest.getResultsRequests().size();
                     isMorePagesAvailable = elinkPeopleResponseRequest.getPagination().getMorePages();
                     processPeopleResponse(elinkPeopleResponseRequest, schedulerStartTime,pageValue);
                 } else {
@@ -237,7 +233,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             }
             pauseThread(Long.valueOf(threadPauseTime),schedulerStartTime);
         } while (isMorePagesAvailable);
-        log.info(":::: countOfProfile " + countOfProfile);
 
         List<ElinkDataExceptionRecords> list = elinkDataExceptionRepository
                 .findBySchedulerStartTime(schedulerStartTime);
@@ -269,7 +264,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private Response getPeopleResponseFromElinks(int currentPage, LocalDateTime schedulerStartTime) {
         String updatedSince = getUpdateSince();
         try {
-            return elinksFeignClient.getPeopleDetials(updatedSince, perPage, String.valueOf(currentPage),
+            return elinksFeignClient.getPeopleDetails(updatedSince, perPage, String.valueOf(currentPage),
                     Boolean.parseBoolean(includePreviousAppointments));
         } catch (FeignException ex) {
             auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
@@ -310,9 +305,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                                        int pageValue) {
         try {
             // filter the profiles that do have email address for leavers
-            log.info("method entred processPeopleResponse : " + new ObjectMapper().writer().withDefaultPrettyPrinter()
-                .writeValueAsString(elinkPeopleResponseRequest
-                .getResultsRequests()));
             elinkPeopleResponseRequest.getResultsRequests()
                 .forEach(resultsRequest -> savePeopleDetails(resultsRequest,schedulerStartTime,pageValue));
 
@@ -435,7 +427,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             return false;
         } else if (!isNull(resultsRequest.getObjectId())
             && !resultsRequest.getObjectId().isEmpty() && !objectIdisPresent(resultsRequest).isEmpty()) {
-            elinksPeopleDeleteServiceimpl.deletePeople(objectIdisPresent(resultsRequest).get(0));
             log.warn("Duplicate Object id " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
@@ -460,7 +451,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private boolean objectIdisPresentInDb(ResultsRequest resultsRequest) {
         return userProfilesSnapshot.stream()
-            .anyMatch(userProfile -> resultsRequest.getObjectId().equals(userProfile.getObjectId()));
+            .anyMatch(userProfile -> resultsRequest.getObjectId().equals(userProfile.getObjectId())
+                && !resultsRequest.getPersonalCode().equals(userProfile.getPersonalCode()));
     }
 
     private List<String> objectIdisPresent(ResultsRequest resultsRequest) {
@@ -475,7 +467,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                                         LocalDateTime schedulerStartTime, int pageValue)
             throws JsonProcessingException {
 
-        log.info("entering into saveAppointmentDetails ");
         final List<AppointmentsRequest> validappointmentsRequests =
             validateAppointmentRequests(appointmentsRequests,personalCode,schedulerStartTime,pageValue);
         Appointment appointment;
@@ -520,7 +511,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private void saveAuthorizationDetails(String personalCode, String objectId,
                                           List<AuthorisationsRequest> authorisationsRequests, int pageValue) {
 
-        log.info("entering into saveAuthorizationDetails ");
         for (AuthorisationsRequest authorisationsRequest : authorisationsRequests) {
             try {
                 authorisationsRepository
@@ -691,7 +681,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     public int sendEmail(Set<ElinkDataExceptionRecords> data, String type, Object... params) {
-        log.info("{} : send Email",logComponentName);
         ElinkEmailConfiguration.MailTypeConfig config = emailConfiguration.getMailTypes()
                 .get(type);
         if (config != null && config.isEnabled()) {
