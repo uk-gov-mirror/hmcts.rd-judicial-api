@@ -270,10 +270,27 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         if (map.containsKey(BASE_LOCATION_ID)) {
             sendEmail(new HashSet<>(map.get(BASE_LOCATION_ID)), "baselocation",
                     LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
-        } else if(map.containsKey(LOCATION)) {
+        } else if (map.containsKey(LOCATION)) {
             sendEmail(new HashSet<>(map.get(LOCATION)), "location",
                     LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
         }
+    }
+
+    public int sendEmail(Set<ElinkDataExceptionRecords> data, String type, Object... params) {
+        log.info("{} : send Email",logComponentName);
+        ElinkEmailConfiguration.MailTypeConfig config = emailConfiguration.getMailTypes()
+                .get(type);
+        if (config != null && config.isEnabled()) {
+            Email email = Email.builder()
+                    .contentType(CONTENT_TYPE_HTML)
+                    .from(config.getFrom())
+                    .to(config.getTo())
+                    .subject(String.format(config.getSubject(), params))
+                    .messageBody(emailTemplate.getEmailBody(config.getTemplate(), Map.of("resultsRequest", data)))
+                    .build();
+            return emailService.sendEmail(email);
+        }
+        return -1;
     }
 
     private void auditStatus(LocalDateTime schedulerStartTime, String status) {
@@ -704,20 +721,4 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         }
     }
 
-    public int sendEmail(Set<ElinkDataExceptionRecords> data, String type, Object... params) {
-        log.info("{} : send Email",logComponentName);
-        ElinkEmailConfiguration.MailTypeConfig config = emailConfiguration.getMailTypes()
-                .get(type);
-        if (config != null && config.isEnabled()) {
-            Email email = Email.builder()
-                    .contentType(CONTENT_TYPE_HTML)
-                    .from(config.getFrom())
-                    .to(config.getTo())
-                    .subject(String.format(config.getSubject(), params))
-                    .messageBody(emailTemplate.getEmailBody(config.getTemplate(), Map.of("resultsRequest", data)))
-                    .build();
-            return emailService.sendEmail(email);
-        }
-        return -1;
-    }
 }
