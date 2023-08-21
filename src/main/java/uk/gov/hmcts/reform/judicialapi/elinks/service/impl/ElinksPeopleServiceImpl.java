@@ -267,11 +267,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         Collectors.groupingBy(ElinkDataExceptionRecords::getFieldInError)
                 );
 
-        if (!map.isEmpty()&&map.containsKey("base_location_id")) {
-            sendEmail(new HashSet<>(list), "baselocation",
+        if (map.containsKey(BASE_LOCATION_ID)) {
+            sendEmail(new HashSet<>(map.get(BASE_LOCATION_ID)), "baselocation",
                     LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
-        } else if(!map.isEmpty()&&map.containsKey("Location")) {
-            sendEmail(new HashSet<>(list), "location",
+        } else if(map.containsKey(LOCATION)) {
+            sendEmail(new HashSet<>(map.get(LOCATION)), "location",
                     LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
         }
     }
