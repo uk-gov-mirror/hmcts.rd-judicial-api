@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
-
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
@@ -63,6 +62,8 @@ class EmailServiceTest {
     void testSendEmail() {
         when(sendGrid.api(any(Request.class))).thenReturn(response);
         emailServiceImpl.sendEmail(emailDto);
+
+        assertEquals(200,emailServiceImpl.sendEmail(emailDto));
         assertEquals("Test", emailDto.getMessageBody());
         assertEquals("Test mail", emailDto.getSubject());
     }
