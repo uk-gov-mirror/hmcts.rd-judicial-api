@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Objects.isNull;
@@ -239,12 +240,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         } while (isMorePagesAvailable);
         log.info(":::: countOfProfile " + countOfProfile);
 
-        List<ElinkDataExceptionRecords> list = elinkDataExceptionRepository
-                .findBySchedulerStartTime(schedulerStartTime);
-        if (!list.isEmpty()) {
-            sendEmail(new HashSet<>(list), "baselocation",
-                    LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
-        }
+        sendEmail(schedulerStartTime);
+
         if (partialSuccessFlag) {
             status = RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus();
         }
@@ -258,6 +255,25 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         return ResponseEntity
                 .status(httpStatus)
                 .body(response);
+    }
+
+    private void sendEmail(LocalDateTime schedulerStartTime) {
+        List<ElinkDataExceptionRecords> list = elinkDataExceptionRepository
+                .findBySchedulerStartTime(schedulerStartTime);
+
+        Map<String, List<ElinkDataExceptionRecords>> map = list
+                .stream()
+                .collect(
+                        Collectors.groupingBy(ElinkDataExceptionRecords::getFieldInError)
+                );
+
+        if (!map.isEmpty()&&map.containsKey("base_location_id")) {
+            sendEmail(new HashSet<>(list), "baselocation",
+                    LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        } else if(!map.isEmpty()&&map.containsKey("Location")) {
+            sendEmail(new HashSet<>(list), "location",
+                    LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        }
     }
 
     private void auditStatus(LocalDateTime schedulerStartTime, String status) {
@@ -572,7 +588,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             String baseLocationId = appointmentsRequest.getBaseLocationId();
             String errorDescription = appendFieldWithErrorDescription(LOCATIONIDFAILURE, baseLocationId);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                now(),
+                    schedulerStartTime,
                 appointmentsRequest.getAppointmentId(),
                 BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode);
             return false;
