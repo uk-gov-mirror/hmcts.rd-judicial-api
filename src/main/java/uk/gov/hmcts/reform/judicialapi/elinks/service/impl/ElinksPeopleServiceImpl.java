@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
