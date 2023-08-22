@@ -27,11 +27,13 @@
                     <table style="border-collapse: expression('separate', cellSpacing='15px'); border-spacing: 15px">
                         <tr bgcolor="#eaeaea">
                             <td style="text-align: center">Per Code</td>
+                            <td style="text-align: center">Appointment ID</td>
                             <td style="text-align: center">Field In Error</td>
                             <td style="text-align: center">Error Description</td>
                         </tr>
                         <#list resultsRequest as result>
                             <tr style="border: 1px solid black;">
+                                <td style="text-align: left">${result.rowId}</td>
                                 <td style="text-align: left">${result.key}</td>
                                 <td style="text-align: left">${result.fieldInError}</td>
                                 <td style="text-align: left">${result.errorDescription}</td>
