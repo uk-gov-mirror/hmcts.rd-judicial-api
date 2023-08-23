@@ -225,7 +225,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                     throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                 }
-            } else if ( retriggerStatusCode.contains(httpStatus.value())) {
+            } else if (retriggerStatusCode.contains(httpStatus.value())) {
                 log.info(":::: Too Many Requests ");
                 pauseThread(Long.valueOf(threadRetriggerPauseTime),schedulerStartTime);
                 --pageValue;
