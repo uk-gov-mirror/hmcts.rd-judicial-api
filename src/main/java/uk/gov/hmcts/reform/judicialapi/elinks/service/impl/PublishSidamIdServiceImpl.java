@@ -16,11 +16,14 @@ import uk.gov.hmcts.reform.judicialapi.elinks.service.IEmailService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.dto.Email;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataConstants;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.LocalDateTime.now;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -30,6 +33,8 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataConstants.CONTENT_TYPE_PLAIN;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.DATABASE_FETCH_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JOB_DETAILS_UPDATE_ERROR;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PUBLISHSIDAM;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.SqlContants.GET_DISTINCT_SIDAM_ID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.SqlContants.SELECT_JOB_STATUS_SQL;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.SqlContants.UPDATE_JOB_SQL;
@@ -56,6 +61,9 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
     @Autowired
     ElinkEmailConfiguration emailConfiguration;
 
+    @Autowired
+    ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
+
     @Value("${launchdarkly.sdk.environment}")
     String environment;
 
@@ -68,6 +76,10 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
         try {
             jobDetails = getJobDetails(SELECT_JOB_STATUS_SQL);
         } catch (Exception ex) {
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),
+                RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), PUBLISHSIDAM);
             throw new ElinksException(HttpStatus.BAD_REQUEST, DATABASE_FETCH_ERROR, ex.getMessage());
         }
 
@@ -91,6 +103,10 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
         SchedulerJobStatusResponse response = SchedulerJobStatusResponse.builder().id(jobDetails.getLeft())
             .jobStatus(jobDetails.getRight()).sidamIdsCount(sidamIdcount).statusCode(HttpStatus.OK.value()).build();
 
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+            now(),
+            now(),
+            RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), PUBLISHSIDAM);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
@@ -139,6 +155,10 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
                     .build();
                 emailService.sendEmail(email);
             }
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),
+                RefDataElinksConstants.JobStatus.FAILED.getStatus(), PUBLISHSIDAM);
             throw ex;
         }
     }
@@ -148,6 +168,10 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
         try {
             jdbcTemplate.update(UPDATE_JOB_SQL, jobStatus, Integer.valueOf(jobId));
         } catch (Exception ex) {
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                now(),
+                now(),
+                RefDataElinksConstants.JobStatus.FAILED.getStatus(), PUBLISHSIDAM);
             throw new ElinksException(HttpStatus.FORBIDDEN, JOB_DETAILS_UPDATE_ERROR, JOB_DETAILS_UPDATE_ERROR);
         }
 

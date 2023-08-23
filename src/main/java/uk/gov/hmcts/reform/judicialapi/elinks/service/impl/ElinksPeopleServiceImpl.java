@@ -174,6 +174,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Value("${elinks.people.threadRetriggerPauseTime}")
     private String threadRetriggerPauseTime;
 
+    @Value("${elinks.people.retriggerStatus}")
+    private List<Integer> retriggerStatusCode;
+
     @Value("${elinks.people.page}")
     private String page;
 
@@ -222,7 +225,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                     throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                 }
-            } else if (HttpStatus.TOO_MANY_REQUESTS.value() == httpStatus.value()) {
+            } else if ( retriggerStatusCode.contains(httpStatus.value())) {
                 log.info(":::: Too Many Requests ");
                 pauseThread(Long.valueOf(threadRetriggerPauseTime),schedulerStartTime);
                 --pageValue;
@@ -325,20 +328,20 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .getObjectId(), resultsRequest.getAppointmentsRequests(),schedulerStartTime,pageValue);
                 saveAuthorizationDetails(resultsRequest.getPersonalCode(), resultsRequest
                     .getObjectId(), resultsRequest.getAuthorisationsRequests(),pageValue);
-                saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles());
+                saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles(),pageValue);
             } catch (Exception exception) {
                 log.warn("saveUserProfile is failed  " + resultsRequest.getPersonalCode());
                 partialSuccessFlag = true;
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     resultsRequest.getPersonalCode(),
-                    PERSONALCODE, exception.getMessage(), USER_PROFILE,resultsRequest.getPersonalCode());
+                    PERSONALCODE, exception.getMessage(), USER_PROFILE,resultsRequest.getPersonalCode(),pageValue);
             }
 
         }
     }
 
-    private void saveRoleDetails(String personalCode, List<RoleRequest> judiciaryRoles) {
+    private void saveRoleDetails(String personalCode, List<RoleRequest> judiciaryRoles, int pageValue) {
 
         for (RoleRequest roleRequest: judiciaryRoles) {
 
@@ -356,7 +359,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     personalCode,
-                    JUDICIALROLETYPE, e.getMessage(), JUDICIALROLETYPE,personalCode);
+                    JUDICIALROLETYPE, e.getMessage(), JUDICIALROLETYPE,personalCode,pageValue);
             }
         }
 
@@ -391,11 +394,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 partialSuccessFlag = true;
                 String personalCode = resultsRequest.getPersonalCode();
                 String errorDescription = appendFieldWithErrorDescription(
-                    USERPROFILEFAILURE, resultsRequest.getPersonalCode(),pageValue);
+                    USERPROFILEFAILURE, resultsRequest.getPersonalCode());
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     resultsRequest.getPersonalCode(),
-                    USER_PROFILE, errorDescription, USER_PROFILE,personalCode);
+                    USER_PROFILE, errorDescription, USER_PROFILE,personalCode,pageValue);
                 return false;
             }
         }
@@ -408,22 +411,22 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             log.warn("Mapped Base location not found in base table " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String errorField = resultsRequest.getPersonalCode();
-            String errorDescription = appendFieldWithErrorDescription(USERPROFILEEMAILID, errorField, pageValue);
+            String errorDescription = appendFieldWithErrorDescription(USERPROFILEEMAILID, errorField);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                EMAILID, errorDescription, USER_PROFILE,resultsRequest.getPersonalCode());
+                EMAILID, errorDescription, USER_PROFILE,resultsRequest.getPersonalCode(),pageValue);
             return false;
         } else if (!isNull(userProfileCache.get(resultsRequest.getPersonalCode()))) {
             log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String errorDescription = appendFieldWithErrorDescription(
-                USERPROFILEISPRESENT, resultsRequest.getPersonalCode(), pageValue);
+                USERPROFILEISPRESENT, resultsRequest.getPersonalCode());
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                USER_PROFILE,errorDescription, USER_PROFILE,personalCode);
+                USER_PROFILE,errorDescription, USER_PROFILE,personalCode,pageValue);
             return false;
         } else if (!isNull(resultsRequest.getObjectId())
             && !resultsRequest.getObjectId().isEmpty() && !objectIdisPresent(resultsRequest).isEmpty()) {
@@ -433,7 +436,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getObjectId(),
-                USER_PROFILE,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode);
+                USER_PROFILE,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode,pageValue);
             return false;
         } else if (!isNull(resultsRequest.getObjectId())
             && !resultsRequest.getObjectId().isEmpty() && objectIdisPresentInDb(resultsRequest)) {
@@ -443,7 +446,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                USER_PROFILE,OBJECTIDISPRESENT, USER_PROFILE,personalCode);
+                USER_PROFILE,OBJECTIDISPRESENT, USER_PROFILE,personalCode,pageValue);
             return false;
         }
         return true;
@@ -499,11 +502,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 log.warn("failed to load appointment details for " + appointmentsRequest.getAppointmentId());
                 partialSuccessFlag = true;
                 String errorDescription = appendFieldWithErrorDescription(
-                    APPOINTMENTIDFAILURE, appointmentsRequest.getAppointmentId(), pageValue);
+                    APPOINTMENTIDFAILURE, appointmentsRequest.getAppointmentId());
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     appointmentsRequest.getAppointmentId(),
-                    APPOINTMENT_TABLE, errorDescription, APPOINTMENT_TABLE,personalCode);
+                    APPOINTMENT_TABLE, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
             }
         }
     }
@@ -536,12 +539,12 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     errorDescription = APPOINTMENTID_IS_NULL;
                 } else {
                     errorDescription = appendFieldWithErrorDescription(
-                            APPOINTMENTIDNOTAVAILABLE, authorisationsRequest.getAppointmentId(), pageValue);
+                            APPOINTMENTIDNOTAVAILABLE, authorisationsRequest.getAppointmentId());
                 }
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     authorisationsRequest.getAuthorisationId(),
-                    APPOINTMENTID, errorDescription, AUTHORISATION_TABLE,personalCode);
+                    APPOINTMENTID, errorDescription, AUTHORISATION_TABLE,personalCode,pageValue);
             }
         }
     }
@@ -562,31 +565,31 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             log.warn("Mapped Base location not found in base table " + appointmentsRequest.getBaseLocationId());
             partialSuccessFlag = true;
             String baseLocationId = appointmentsRequest.getBaseLocationId();
-            String errorDescription = appendFieldWithErrorDescription(LOCATIONIDFAILURE, baseLocationId, pageValue);
+            String errorDescription = appendFieldWithErrorDescription(LOCATIONIDFAILURE, baseLocationId);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 appointmentsRequest.getAppointmentId(),
-                BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode);
+                BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
             return false;
         } else if (StringUtils.isEmpty(fetchRegionId(appointmentsRequest.getLocation()))) {
             log.warn("Mapped  location not found in jrd lrd mapping table " + appointmentsRequest.getLocation());
             partialSuccessFlag = true;
             String location = appointmentsRequest.getLocation();
-            String errorDescription = appendFieldWithErrorDescription(CFTREGIONIDFAILURE, location, pageValue);
+            String errorDescription = appendFieldWithErrorDescription(CFTREGIONIDFAILURE, location);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     schedulerStartTime,
                 appointmentsRequest.getAppointmentId(),
-                LOCATION, errorDescription, APPOINTMENT_TABLE,personalCode);
+                LOCATION, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
             return false;
         } else if (INVALID_ROLES.contains(appointmentsRequest.getRoleName())) {
             log.warn("Role Name is Invalid " + appointmentsRequest.getRoleName());
             partialSuccessFlag = true;
             String errorDescription = appendFieldWithErrorDescription(INVALIDROLENAMES,
-                appointmentsRequest.getRoleName(), pageValue);
+                appointmentsRequest.getRoleName());
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 appointmentsRequest.getAppointmentId(),
-                ROLENAME, errorDescription, APPOINTMENT_TABLE,personalCode);
+                ROLENAME, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
             return false;
         }
         return true;
@@ -617,16 +620,15 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     // Append the string to add error description for the given format
-    private String appendFieldWithErrorDescription(String errorDescription, String wordToAppend, int pageValue) {
+    private String appendFieldWithErrorDescription(String errorDescription, String wordToAppend) {
 
         String wordAfterWhichAppend = ":";
-        String wordPageNumber = "PageNumber:";
-        return wordPageNumber.concat(String.valueOf(pageValue)).concat("-").concat(errorDescription.substring(0,
+        return errorDescription.substring(0,
                 errorDescription.indexOf(wordAfterWhichAppend)
                 + wordAfterWhichAppend.length())
                 + " " + wordToAppend + " "
                 + errorDescription.substring(errorDescription.indexOf(wordAfterWhichAppend)
-                + wordAfterWhichAppend.length(), errorDescription.length()));
+                + wordAfterWhichAppend.length(), errorDescription.length());
     }
 
 

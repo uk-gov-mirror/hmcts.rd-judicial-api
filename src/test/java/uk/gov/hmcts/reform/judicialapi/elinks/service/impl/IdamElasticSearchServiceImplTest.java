@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +20,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.IdamFeignClient;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamOpenIdTokenResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
@@ -55,6 +57,9 @@ class IdamElasticSearchServiceImplTest {
     @InjectMocks
     private IdamElasticSearchServiceImpl idamElasticSearchServiceImpl;
     JdbcTemplate jdbcTemplate =  mock(JdbcTemplate.class);
+
+    @Mock
+    ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
     public static final String CLIENT_AUTHORIZATION =
             "eyjfddsfsdfsdfdj03903.dffkljfke932rjf032j02f3--fskfljdskls-fdkldskll";

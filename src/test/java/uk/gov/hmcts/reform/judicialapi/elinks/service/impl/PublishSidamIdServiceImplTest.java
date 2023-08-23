@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.configuration.ElinkEmailConfigurat
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.dto.Email;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,9 @@ class PublishSidamIdServiceImplTest {
 
     @Mock
     ElinkTopicPublisher elinkTopicPublisher;
+
+    @Mock
+    ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
     @Mock
     EmailServiceImpl emailService;

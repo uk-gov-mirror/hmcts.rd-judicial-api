@@ -57,6 +57,10 @@ public class RefDataElinksConstants {
 
     public static final String LEAVERSAPI = "Leavers";
 
+    public static final String ELASTICSEARCH = "ElasticSearch";
+
+    public static final String PUBLISHSIDAM = "PublishSidamIds";
+
     public static final String DELETEDAPI = "Deleted";
 
     public static final String LOCATIONAPI = "Location";

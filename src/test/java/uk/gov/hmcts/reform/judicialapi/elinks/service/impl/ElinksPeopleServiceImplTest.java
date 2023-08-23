@@ -60,6 +60,7 @@ import static java.nio.charset.Charset.defaultCharset;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -166,6 +167,8 @@ class ElinksPeopleServiceImplTest {
                 "2000");
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "threadRetriggerPauseTime",
             "1000");
+        ReflectionTestUtils.setField(elinksPeopleServiceImpl, "retriggerStatusCode",
+            List.of(503,429));
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "lastUpdated",
                 "Thu Jan 01 00:00:00 GMT 2015");
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "page",
@@ -400,7 +403,7 @@ class ElinksPeopleServiceImplTest {
         verify(judicialRoleTypeRepository, atLeastOnce()).save(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
         verify(elinkDataExceptionHelper,times(2))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
 
     @Test
@@ -489,7 +492,7 @@ class ElinksPeopleServiceImplTest {
         verify(judicialRoleTypeRepository, atLeastOnce()).save(any());
         verify(authorisationsRepository, atLeastOnce()).save(any());
         verify(elinkDataExceptionHelper,times(1))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
 
     @Test
@@ -565,7 +568,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(authorisationsRepository, atLeastOnce()).save(any());
         verify(elinkDataExceptionHelper,times(1))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
 
     }
 
@@ -605,7 +608,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(authorisationsRepository, atLeastOnce()).save(any());
         verify(elinkDataExceptionHelper,times(1))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
 
     }
 
@@ -643,7 +646,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(authorisationsRepository, atLeastOnce()).save(any());
         verify(elinkDataExceptionHelper,times(6))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
 
     }
 
@@ -684,7 +687,7 @@ class ElinksPeopleServiceImplTest {
 
         verify(authorisationsRepository, atLeastOnce()).save(any());
         verify(elinkDataExceptionHelper,times(1))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
 
     }
 
@@ -805,7 +808,8 @@ class ElinksPeopleServiceImplTest {
 
 
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
-        verify(elinkDataExceptionHelper,atLeastOnce()).auditException(any(),any(),any(),any(),any(),any(),any());
+        verify(elinkDataExceptionHelper,atLeastOnce()).auditException(any(),any(),
+            any(),any(),any(),any(),any(),anyInt());
     }
 
 
@@ -835,7 +839,7 @@ class ElinksPeopleServiceImplTest {
 
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         verify(elinkDataExceptionHelper,times(4))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
 
     @Test
@@ -864,7 +868,7 @@ class ElinksPeopleServiceImplTest {
 
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         verify(elinkDataExceptionHelper,times(6))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
 
     @Test
@@ -892,7 +896,7 @@ class ElinksPeopleServiceImplTest {
 
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         verify(elinkDataExceptionHelper,times(6))
-            .auditException(any(),any(),any(),any(),any(),any(),any());
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
 
     @Test
@@ -917,7 +921,8 @@ class ElinksPeopleServiceImplTest {
             .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
-        verify(elinkDataExceptionHelper,atLeastOnce()).auditException(any(),any(),any(),any(),any(),any(),any());
+        verify(elinkDataExceptionHelper,atLeastOnce()).auditException(any(),
+            any(),any(),any(),any(),any(),any(),anyInt());
     }
 
     @Test

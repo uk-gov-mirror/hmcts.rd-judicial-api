@@ -93,7 +93,7 @@ public class ElinksApiJobScheduler {
                             jobStartTime,
                             "ElinksApiJobScheduler" + jobStartTime,
                             "Schedular_Run_date", "JRD load failed since job has already ran for the day",
-                        "ElinksApiJobScheduler",null);
+                        "ElinksApiJobScheduler",null,1);
                     return;
                 }
             }
