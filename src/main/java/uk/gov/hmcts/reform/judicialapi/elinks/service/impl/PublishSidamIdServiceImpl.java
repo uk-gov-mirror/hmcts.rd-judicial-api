@@ -76,10 +76,6 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
         try {
             jobDetails = getJobDetails(SELECT_JOB_STATUS_SQL);
         } catch (Exception ex) {
-            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                now(),
-                now(),
-                RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), PUBLISHSIDAM);
             throw new ElinksException(HttpStatus.BAD_REQUEST, DATABASE_FETCH_ERROR, ex.getMessage());
         }
 

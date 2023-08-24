@@ -84,6 +84,8 @@ class PublishSidamIdServiceImplTest {
         assertEquals("IN_PROGRESS", res.getJobStatus());
         assertEquals(HttpStatus.OK.value(),res.getStatusCode());
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
+        verify(elinkDataIngestionSchedularAudit,times(1))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
 
     }
 
@@ -157,10 +159,12 @@ class PublishSidamIdServiceImplTest {
         publishSidamIdService.emailConfiguration = emailConfiguration;
 
         assertThrows(Exception.class,
-                () -> publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1"));
+            () -> publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1"));
         verify(emailService, times(1)).sendEmail(any(Email.class));
         verify(elinkTopicPublisher, times(1)).sendMessage(any(), anyString());
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
+        verify(elinkDataIngestionSchedularAudit,times(1))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
     @SneakyThrows
@@ -180,7 +184,7 @@ class PublishSidamIdServiceImplTest {
         publishSidamIdService.emailConfiguration = emailConfiguration;
 
         assertThrows(Exception.class,
-                () -> publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1"));
+            () -> publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1"));
         verify(emailService, times(0)).sendEmail(any(Email.class));
         verify(elinkTopicPublisher, times(1)).sendMessage(any(), anyString());
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
