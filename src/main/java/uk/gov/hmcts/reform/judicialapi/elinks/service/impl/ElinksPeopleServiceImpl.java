@@ -501,8 +501,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             } catch (Exception e) {
                 log.warn("failed to load appointment details for " + appointmentsRequest.getAppointmentId());
                 partialSuccessFlag = true;
-                String errorDescription = appendFieldWithErrorDescription(
-                    APPOINTMENTIDFAILURE, appointmentsRequest.getAppointmentId());
+                String errorDescription = appendFieldWithErrorDescription(LOCATIONIDFAILURE, baseLocationId);
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     appointmentsRequest.getAppointmentId(),
