@@ -8,13 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.ElinkEmailConfiguration;
+import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.dto.Email;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
@@ -31,6 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,6 +63,9 @@ class PublishSidamIdServiceImplTest {
 
     @Mock
     EmailServiceImpl emailService;
+
+    @Spy
+    ElinkEmailConfiguration emailConfiguration;
 
     List<String> sidamIds = new ArrayList<>();
 
@@ -198,6 +205,30 @@ class PublishSidamIdServiceImplTest {
 
         verify(elinkTopicPublisher).sendMessage(sidamIds,"2");
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
+    }
+
+    @SneakyThrows
+    @Test
+    @DisplayName("Positive scenario when status is in progress and sidam id is not null")
+    void whould_send_messages_when_sidam_id_not_null_throwsException() {
+
+        DataAccessException exception = mock(DataAccessException.class);
+        when(jdbcTemplate.update(anyString(), any(), anyInt())).thenThrow(exception);
+        ElinkEmailConfiguration.MailTypeConfig mailTypeConfig = new ElinkEmailConfiguration.MailTypeConfig();
+        mailTypeConfig.setEnabled(false);
+        mailTypeConfig.setSubject("%s :: Publishing of JRD messages to ASB failed");
+        mailTypeConfig.setBody("Publishing of JRD messages to ASB failed for Job Id %s");
+        mailTypeConfig.setFrom("test@test.com");
+        mailTypeConfig.setTo(List.of("test@test.com"));
+        ElinkEmailConfiguration emailConfiguration = new ElinkEmailConfiguration();
+        emailConfiguration.setMailTypes(Map.of("asb", mailTypeConfig));
+        publishSidamIdService.emailConfiguration = emailConfiguration;
+        assertThrows(ElinksException.class,() -> publishSidamIdService
+            .publishMessage(IN_PROGRESS.getStatus(),sidamIds,"2"));
+
+        verify(elinkTopicPublisher).sendMessage(sidamIds,"2");
+        verify(elinkDataIngestionSchedularAudit,times(2))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
 }
