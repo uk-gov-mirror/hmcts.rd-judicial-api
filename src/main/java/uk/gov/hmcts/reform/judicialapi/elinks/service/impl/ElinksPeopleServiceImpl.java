@@ -179,6 +179,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Value("${elinks.people.page}")
     private String page;
 
+    @Value("${elinks.people.retriggerThreshold}")
+    private int retriggerThreshold;
+
     @Value("${elinks.people.includePreviousAppointments}")
     private String includePreviousAppointments;
 
@@ -207,6 +210,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
         userProfilesSnapshot = profileRepository.findAll();
         int pageValue = Integer.parseInt(page);
+        int retryCount = 0;
         do {
             Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
             httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
@@ -224,10 +228,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                     throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                 }
-            } else if (retriggerStatusCode.contains(httpStatus.value())) {
+            } else if (retriggerStatusCode.contains(httpStatus.value()) && retryCount < retriggerThreshold) {
                 log.info(":::: Too Many Requests ");
                 pauseThread(Long.valueOf(threadRetriggerPauseTime),schedulerStartTime);
                 --pageValue;
+                retryCount++;
                 continue;
             } else {
                 auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());

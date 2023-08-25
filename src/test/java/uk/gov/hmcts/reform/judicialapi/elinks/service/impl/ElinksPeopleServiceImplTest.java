@@ -167,6 +167,8 @@ class ElinksPeopleServiceImplTest {
                 "2000");
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "threadRetriggerPauseTime",
             "1000");
+        ReflectionTestUtils.setField(elinksPeopleServiceImpl, "retriggerThreshold",
+            3);
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "retriggerStatusCode",
             List.of(503,429));
         ReflectionTestUtils.setField(elinksPeopleServiceImpl, "lastUpdated",
@@ -364,6 +366,28 @@ class ElinksPeopleServiceImplTest {
 
 
         verify(elinkDataExceptionRepository, times(1)).save(any());
+    }
+
+    @Test
+    void should_notRetriggerMorethanThreshold() throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
+        String body2 = mapper.writeValueAsString(elinksApiResponseSecondHit);
+        String body3 = mapper.writeValueAsString(elinksApiResponseThirdHit);
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+            Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(429).build())
+            .thenReturn(Response.builder().request(mock(Request.class))
+                .body(body2, defaultCharset()).status(429).build()).
+            thenReturn(Response.builder().request(mock(Request.class))
+                .body(body3, defaultCharset()).status(429).build());
+
+        ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
+            ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
+        });
+        verify(elinkDataIngestionSchedularAudit,times(2))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
     @Test
