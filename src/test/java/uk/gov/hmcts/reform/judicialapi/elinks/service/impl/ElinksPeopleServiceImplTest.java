@@ -379,8 +379,8 @@ class ElinksPeopleServiceImplTest {
             Boolean.parseBoolean(any()))).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(429).build())
             .thenReturn(Response.builder().request(mock(Request.class))
-                .body(body2, defaultCharset()).status(429).build()).
-            thenReturn(Response.builder().request(mock(Request.class))
+                .body(body2, defaultCharset()).status(429).build())
+            .thenReturn(Response.builder().request(mock(Request.class))
                 .body(body3, defaultCharset()).status(429).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
