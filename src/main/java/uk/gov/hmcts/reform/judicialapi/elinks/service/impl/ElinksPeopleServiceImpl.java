@@ -84,6 +84,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION_ID;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTIDISDUPLICATED;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTIDISPRESENT;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
@@ -402,7 +403,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     resultsRequest.getPersonalCode(),
-                    USER_PROFILE, errorDescription, USER_PROFILE,personalCode,pageValue);
+                    PERSONALCODE, errorDescription, USER_PROFILE,personalCode,pageValue);
                 return false;
             }
         }
@@ -430,7 +431,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                USER_PROFILE,errorDescription, USER_PROFILE,personalCode,pageValue);
+                PERSONALCODE,errorDescription, USER_PROFILE,personalCode,pageValue);
             return false;
         } else if (!isNull(resultsRequest.getObjectId())
             && !resultsRequest.getObjectId().isEmpty() && !objectIdisPresent(resultsRequest).isEmpty()) {
@@ -440,7 +441,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getObjectId(),
-                USER_PROFILE,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode,pageValue);
+                OBJECTID,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode,pageValue);
             return false;
         } else if (!isNull(resultsRequest.getObjectId())
             && !resultsRequest.getObjectId().isEmpty() && objectIdisPresentInDb(resultsRequest)) {
@@ -450,7 +451,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 now(),
                 resultsRequest.getPersonalCode(),
-                USER_PROFILE,OBJECTIDISPRESENT, USER_PROFILE,personalCode,pageValue);
+                OBJECTID,OBJECTIDISPRESENT, USER_PROFILE,personalCode,pageValue);
             return false;
         }
         return true;
@@ -509,7 +510,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     appointmentsRequest.getAppointmentId(),
-                    APPOINTMENT_TABLE, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
+                    BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
             }
         }
     }
