@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.ElinkEmailConfiguration;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IEmailService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAu
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataConstants;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +66,9 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
     @Autowired
     ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
+    @Autowired
+    private DataloadSchedularAuditRepository dataloadSchedularAuditRepository;
+
     @Value("${launchdarkly.sdk.environment}")
     String environment;
 
@@ -73,6 +78,11 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
 
         //Get the job details from dataload_schedular_job table
         Pair<String, String> jobDetails;
+        LocalDateTime schedulerStartTime = now();
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+            schedulerStartTime,
+            null,
+            RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PUBLISHSIDAM);
         try {
             jobDetails = getJobDetails(SELECT_JOB_STATUS_SQL);
         } catch (Exception ex) {
@@ -100,7 +110,7 @@ public class PublishSidamIdServiceImpl implements PublishSidamIdService {
             .jobStatus(jobDetails.getRight()).sidamIdsCount(sidamIdcount).statusCode(HttpStatus.OK.value()).build();
 
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-            now(),
+            schedulerStartTime,
             now(),
             RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), PUBLISHSIDAM);
         return ResponseEntity.status(HttpStatus.OK).body(response);

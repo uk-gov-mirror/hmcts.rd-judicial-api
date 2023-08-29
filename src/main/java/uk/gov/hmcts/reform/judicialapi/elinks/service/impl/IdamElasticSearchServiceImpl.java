@@ -121,6 +121,12 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
         ResponseEntity<Object> responseEntity = null;
         Response response = null;
 
+        LocalDateTime schedulerStartTime = now();
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+            schedulerStartTime,
+            null,
+            RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), ELASTICSEARCH);
+
         do {
             params.put("page", String.valueOf(count));
             String bearerToken = "Bearer ".concat(getIdamBearerToken());
@@ -146,7 +152,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 } else {
                     log.error("{}:: Idam Search Service Failed :: ", loggingComponentName);
                     elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                        now(),
+                        schedulerStartTime,
                         now(),
                         RefDataElinksConstants.JobStatus.FAILED.getStatus(), ELASTICSEARCH);
                     throw new ElinksException(responseEntity.getStatusCode(), IDAM_ERROR_MESSAGE,
@@ -156,7 +162,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 //There is No header.
                 log.error("{}:: X-Total-Count header not return Idam Search Service::{}", loggingComponentName, ex);
                 elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                    now(),
+                    schedulerStartTime,
                     now(),
                     RefDataElinksConstants.JobStatus.FAILED.getStatus(), ELASTICSEARCH);
                 throw new ElinksException(HttpStatus.valueOf(response.status()), ex.getMessage(),
@@ -166,6 +172,10 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             log.debug("{}:: batch count :: ", count);
         } while (totalCount > 0 && recordsPerPage * count < totalCount);
         updateSidamIds(judicialUsers);
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+            schedulerStartTime,
+            now(),
+            RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), ELASTICSEARCH);
 
         return ResponseEntity
                 .status(response.status())

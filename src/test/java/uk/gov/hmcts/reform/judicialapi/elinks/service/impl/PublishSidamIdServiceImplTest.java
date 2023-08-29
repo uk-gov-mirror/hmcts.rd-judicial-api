@@ -91,7 +91,7 @@ class PublishSidamIdServiceImplTest {
         assertEquals("IN_PROGRESS", res.getJobStatus());
         assertEquals(HttpStatus.OK.value(),res.getStatusCode());
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
-        verify(elinkDataIngestionSchedularAudit,times(1))
+        verify(elinkDataIngestionSchedularAudit,times(2))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
 
     }

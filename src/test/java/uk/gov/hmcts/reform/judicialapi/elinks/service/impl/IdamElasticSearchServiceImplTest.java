@@ -144,7 +144,7 @@ class IdamElasticSearchServiceImplTest {
                 .status(500).build();
         when(idamClientMock.getUserFeed(anyString(), any())).thenReturn(response);
         assertThrows(ElinksException.class,() -> idamElasticSearchServiceImpl.getIdamElasticSearchSyncFeed());
-        verify(elinkDataIngestionSchedularAudit,times(2))
+        verify(elinkDataIngestionSchedularAudit,times(3))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
