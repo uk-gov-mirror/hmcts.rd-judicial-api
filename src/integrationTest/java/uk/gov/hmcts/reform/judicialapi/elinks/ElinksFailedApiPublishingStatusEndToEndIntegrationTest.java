@@ -150,7 +150,7 @@ public class ElinksFailedApiPublishingStatusEndToEndIntegrationTest extends Elin
         //asserting userprofile data for people api
         Map<String, Object> peopleResponse = elinksReferenceDataClient.getPeoples();
         ElinkPeopleWrapperResponse profiles = (ElinkPeopleWrapperResponse) peopleResponse.get("body");
-        ElinkDataSchedularAudit peopleAuditEntry = elinksAudit.get(1);
+        ElinkDataSchedularAudit peopleAuditEntry = elinksAudit.get(2);
 
         assertThat(peopleResponse).containsEntry("http_status", "400");
         assertEquals(PEOPLEAPI,peopleAuditEntry.getApiName());
@@ -162,7 +162,7 @@ public class ElinksFailedApiPublishingStatusEndToEndIntegrationTest extends Elin
         //asserting userprofile data for leaver api
         Map<String, Object> leaversResponse = elinksReferenceDataClient.getLeavers();
         ElinkLeaversWrapperResponse leaversProfiles = (ElinkLeaversWrapperResponse) leaversResponse.get("body");
-        ElinkDataSchedularAudit leaversAuditEntry = elinksAudit.get(2);
+        ElinkDataSchedularAudit leaversAuditEntry = elinksAudit.get(4);
 
         assertThat(leaversResponse).containsEntry("http_status", "400");
         assertEquals(LEAVERSAPI,leaversAuditEntry.getApiName());
