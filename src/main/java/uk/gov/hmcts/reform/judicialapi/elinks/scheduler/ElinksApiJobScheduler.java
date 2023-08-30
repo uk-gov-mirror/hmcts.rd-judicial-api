@@ -32,7 +32,7 @@ import java.util.Optional;
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.FAILED;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAMSEARCH;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELASTICSEARCH;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
@@ -159,7 +159,7 @@ public class ElinksApiJobScheduler {
             log.info("ElinksApiJobScheduler.loadElinksData Job execution completed failure for idamSearch Response");
             elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
                 now(),
-                null,RefDataElinksConstants.JobStatus.FAILED.getStatus(),IDAMSEARCH);
+                null,RefDataElinksConstants.JobStatus.FAILED.getStatus(),ELASTICSEARCH);
         }
         try{
         ResponseEntity<SchedulerJobStatusResponse> schedulerResponse
