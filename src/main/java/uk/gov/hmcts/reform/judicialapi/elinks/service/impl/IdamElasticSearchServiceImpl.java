@@ -90,10 +90,6 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             idamOpenIdTokenResponse = idamFeignClient.getOpenIdToken(formParams);
 
             if (idamOpenIdTokenResponse == null) {
-                elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                    now(),
-                    now(),
-                    RefDataElinksConstants.JobStatus.FAILED.getStatus(),ELASTICSEARCH);
                 throw new ElinksException(HttpStatus.FORBIDDEN, IDAM_TOKEN_ERROR_MESSAGE,
                         IDAM_TOKEN_ERROR_MESSAGE);
             }
@@ -151,10 +147,6 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
 
                 } else {
                     log.error("{}:: Idam Search Service Failed :: ", loggingComponentName);
-                    elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                        schedulerStartTime,
-                        now(),
-                        RefDataElinksConstants.JobStatus.FAILED.getStatus(), ELASTICSEARCH);
                     throw new ElinksException(responseEntity.getStatusCode(), IDAM_ERROR_MESSAGE,
                         IDAM_ERROR_MESSAGE);
                 }
@@ -221,10 +213,6 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                         ps.setString(2, argument.getRight());
                     }
                 });
-        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-            now(),
-            now(),
-            RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), ELASTICSEARCH);
 
     }
 }

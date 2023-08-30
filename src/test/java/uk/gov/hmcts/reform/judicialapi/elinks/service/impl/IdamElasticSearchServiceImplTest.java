@@ -97,7 +97,7 @@ class IdamElasticSearchServiceImplTest {
     void getBearerTokenWithException() {
         when(openIdTokenResponseMock.getAccessToken()).thenReturn(CLIENT_AUTHORIZATION);
         assertThrows(ElinksException.class, () -> idamElasticSearchServiceImpl.getIdamBearerToken());
-        verify(elinkDataIngestionSchedularAudit,times(2))
+        verify(elinkDataIngestionSchedularAudit,times(1))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
@@ -144,7 +144,7 @@ class IdamElasticSearchServiceImplTest {
                 .status(500).build();
         when(idamClientMock.getUserFeed(anyString(), any())).thenReturn(response);
         assertThrows(ElinksException.class,() -> idamElasticSearchServiceImpl.getIdamElasticSearchSyncFeed());
-        verify(elinkDataIngestionSchedularAudit,times(3))
+        verify(elinkDataIngestionSchedularAudit,times(2))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
