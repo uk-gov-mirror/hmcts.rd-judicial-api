@@ -70,7 +70,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
     @Override
-    public String getIdamBearerToken() {
+    public String getIdamBearerToken(LocalDateTime schedulerStartTime) {
         IdamOpenIdTokenResponse idamOpenIdTokenResponse = null;
         try {
 
@@ -95,7 +95,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             }
         } catch (Exception e) {
             elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                now(),
+                schedulerStartTime,
                 now(),
                 RefDataElinksConstants.JobStatus.FAILED.getStatus(),ELASTICSEARCH);
             throw new ElinksException(HttpStatus.FORBIDDEN, IDAM_TOKEN_ERROR_MESSAGE,
@@ -125,10 +125,10 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
 
         do {
             params.put("page", String.valueOf(count));
-            String bearerToken = "Bearer ".concat(getIdamBearerToken());
-            response = idamFeignClient.getUserFeed(bearerToken, params);
-            logIdamResponses(response);
             try {
+                String bearerToken = "Bearer ".concat(getIdamBearerToken(schedulerStartTime));
+                response = idamFeignClient.getUserFeed(bearerToken, params);
+                logIdamResponses(response);
                 responseEntity = JsonFeignResponseUtil.toResponseEntity(response,
                     new TypeReference<Set<IdamResponse>>() {
                     });

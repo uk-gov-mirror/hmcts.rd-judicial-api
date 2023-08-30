@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.service.dto.Email;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -166,7 +167,8 @@ class PublishSidamIdServiceImplTest {
         publishSidamIdService.emailConfiguration = emailConfiguration;
 
         assertThrows(Exception.class,
-            () -> publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1"));
+            () -> publishSidamIdService
+                .publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1", LocalDateTime.now()));
         verify(emailService, times(1)).sendEmail(any(Email.class));
         verify(elinkTopicPublisher, times(1)).sendMessage(any(), anyString());
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
@@ -191,7 +193,8 @@ class PublishSidamIdServiceImplTest {
         publishSidamIdService.emailConfiguration = emailConfiguration;
 
         assertThrows(Exception.class,
-            () -> publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1"));
+            () -> publishSidamIdService
+                .publishMessage(IN_PROGRESS.getStatus(), sidamIds, "1",LocalDateTime.now()));
         verify(emailService, times(0)).sendEmail(any(Email.class));
         verify(elinkTopicPublisher, times(1)).sendMessage(any(), anyString());
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
@@ -201,7 +204,7 @@ class PublishSidamIdServiceImplTest {
     @Test
     @DisplayName("Positive scenario when status is in progress and sidam id is not null")
     void whould_send_messages_when_sidam_id_not_null() {
-        publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(),sidamIds,"2");
+        publishSidamIdService.publishMessage(IN_PROGRESS.getStatus(),sidamIds,"2",LocalDateTime.now());
 
         verify(elinkTopicPublisher).sendMessage(sidamIds,"2");
         verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
@@ -224,7 +227,7 @@ class PublishSidamIdServiceImplTest {
         emailConfiguration.setMailTypes(Map.of("asb", mailTypeConfig));
         publishSidamIdService.emailConfiguration = emailConfiguration;
         assertThrows(ElinksException.class,() -> publishSidamIdService
-            .publishMessage(IN_PROGRESS.getStatus(),sidamIds,"2"));
+            .publishMessage(IN_PROGRESS.getStatus(),sidamIds,"2",LocalDateTime.now()));
 
         verify(elinkTopicPublisher).sendMessage(sidamIds,"2");
         verify(elinkDataIngestionSchedularAudit,times(2))

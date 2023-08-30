@@ -174,7 +174,7 @@ public class ElinksFailedApiPublishingStatusEndToEndIntegrationTest extends Elin
         //assert elastic search api
 
         Map<String, Object> idamResponses = elinksReferenceDataClient.getIdamElasticSearch();
-        assertEquals("403",idamResponses.get("http_status"));
+        assertEquals("500",idamResponses.get("http_status"));
 
         // asserting SIDAM publishing
         Map<String, Object> idamResponse = elinksReferenceDataClient.publishSidamIds();
