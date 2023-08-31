@@ -20,7 +20,7 @@ import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.JrdElinkController;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.UserSearchResponseWrapper;
-import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinkUserService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.ElinkUserServiceImpl;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
 import uk.gov.hmcts.reform.judicialapi.repository.RegionMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.repository.ServiceCodeMappingRepository;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
         host = "${PACT_BROKER_URL:localhost}",
         port = "${PACT_BROKER_PORT:80}", consumerVersionSelectors = {
         @VersionSelector(tag = "master")})
-@ContextConfiguration(classes = {JrdElinkController.class, ElinkUserService.class})
+@ContextConfiguration(classes = {JrdElinkController.class, ElinkUserServiceImpl.class})
 @TestPropertySource(properties = {"defaultPageSize=10", "refresh.pageSize=10", "refresh.sortColumn=objectId"})
 @IgnoreNoPactsToVerify
 public class JrdApiProviderV2Test {
