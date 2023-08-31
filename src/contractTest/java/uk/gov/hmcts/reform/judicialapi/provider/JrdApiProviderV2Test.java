@@ -12,18 +12,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import uk.gov.hmcts.reform.judicialapi.domain.ServiceCodeMapping;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.JrdElinkController;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.ServiceCodeMapping;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ServiceCodeMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.UserSearchResponseWrapper;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.ElinkUserServiceImpl;
+import uk.gov.hmcts.reform.judicialapi.elinks.validator.ElinksRefreshUserValidator;
 import uk.gov.hmcts.reform.judicialapi.feign.LocationReferenceDataFeignClient;
 import uk.gov.hmcts.reform.judicialapi.repository.RegionMappingRepository;
-import uk.gov.hmcts.reform.judicialapi.repository.ServiceCodeMappingRepository;
 import uk.gov.hmcts.reform.judicialapi.validator.RefreshUserValidator;
 
 import java.util.List;
@@ -34,7 +39,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@Provider("referenceData_judicial")
+@Provider("referenceData_judicialv2")
 @PactBroker(scheme = "${PACT_BROKER_SCHEME:http}",
         host = "${PACT_BROKER_URL:localhost}",
         port = "${PACT_BROKER_PORT:80}", consumerVersionSelectors = {
@@ -51,6 +56,19 @@ public class JrdApiProviderV2Test {
     ProfileRepository userProfileRepository;
 
     @MockBean
+    JudicialRoleTypeRepository judicialRoleTypeRepository;
+
+    @MockBean
+    AuthorisationsRepository authorisationsRepository;
+
+    @MockBean
+    AppointmentsRepository appointmentsRepository;
+
+    @MockBean
+    ElinksRefreshUserValidator elinksRefreshUserValidator;
+
+    @MockBean
+    @Qualifier("elinksServiceCodeMappingRepository")
     ServiceCodeMappingRepository serviceCodeMappingRepository;
 
     @MockBean
@@ -73,6 +91,7 @@ public class JrdApiProviderV2Test {
     @BeforeEach
     void before(PactVerificationContext context) {
         MockMvcTestTarget testTarget = new MockMvcTestTarget();
+        System.getProperties().setProperty("pact.verifier.publishResults", "true");
         testTarget.setControllers(jrdElinkController);
         if (nonNull(context)) {
             context.setTarget(testTarget);
@@ -81,7 +100,7 @@ public class JrdApiProviderV2Test {
     }
 
 
-    @State({"User profile details exist for the search request provided"})
+    @State({"return judicial user profiles"})
     public void toReturnUserProfilesDetailsForTheGivenSearchRequestTypeAhead() {
         var userSearchResponseWrapper = new UserSearchResponseWrapper();
         userSearchResponseWrapper.setIdamId("44362987-4b00-f2e7-4ff8-761b87f16bf9");
@@ -92,7 +111,7 @@ public class JrdApiProviderV2Test {
         userSearchResponseWrapper.setTitle("Family Judge");
         userSearchResponseWrapper.setPersonalCode("1234");
         userSearchResponseWrapper.setPostNominals("Mr");
-        userSearchResponseWrapper.setInitials("I.N");
+        userSearchResponseWrapper.setInitials("I N");
 
         var serviceCodeMapping = ServiceCodeMapping
                 .builder()
