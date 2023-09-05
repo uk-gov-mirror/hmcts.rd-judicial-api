@@ -136,13 +136,19 @@ public class ELinksServiceImpl implements ELinksService {
                     (ElinkBaseLocationResponse) responseEntity.getBody();
 
                 if (nonNull(responseEntity.getBody())) {
-                    if (nonNull(elinkBaseLocationResponse)) {
+                    if (nonNull(elinkBaseLocationResponse) && elinkBaseLocationResponse.getResults().size() > 0) {
                         List<BaseLocationResponse> baseLocationResponses = elinkBaseLocationResponse.getResults();
 
                         List<BaseLocation> baselocations = baseLocationResponses.stream()
                             .map(BaseLocationResponse::toBaseLocationEntity)
                             .toList();
                         result = loadBaseLocationData(baselocations);
+                    } else {
+                        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                            schedulerStartTime,
+                            now(),
+                            RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
+                        throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                     }
                 } else {
                     elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
