@@ -386,7 +386,7 @@ class ElinksPeopleServiceImplTest {
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         });
-        verify(elinkDataIngestionSchedularAudit,times(2))
+        verify(elinkDataIngestionSchedularAudit,times(3))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 

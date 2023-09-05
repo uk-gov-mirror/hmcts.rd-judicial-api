@@ -212,36 +212,41 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         userProfilesSnapshot = profileRepository.findAll();
         int pageValue = Integer.parseInt(page);
         int retryCount = 0;
-        do {
-            Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
-            httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
-            ResponseEntity<Object> responseEntity;
+        try {
+            do {
+                Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
+                httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
+                ResponseEntity<Object> responseEntity;
 
-            if (httpStatus.is2xxSuccessful()) {
-                responseEntity = JsonFeignResponseUtil.toResponseEntity(peopleApiResponse, PeopleRequest.class);
-                PeopleRequest elinkPeopleResponseRequest = (PeopleRequest) responseEntity.getBody();
-                if (Optional.ofNullable(elinkPeopleResponseRequest).isPresent()
+                if (httpStatus.is2xxSuccessful()) {
+                    responseEntity = JsonFeignResponseUtil.toResponseEntity(peopleApiResponse, PeopleRequest.class);
+                    PeopleRequest elinkPeopleResponseRequest = (PeopleRequest) responseEntity.getBody();
+                    if (Optional.ofNullable(elinkPeopleResponseRequest).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getPagination()).isPresent()
                         && Optional.ofNullable(elinkPeopleResponseRequest.getResultsRequests()).isPresent()) {
-                    isMorePagesAvailable = elinkPeopleResponseRequest.getPagination().getMorePages();
-                    processPeopleResponse(elinkPeopleResponseRequest, schedulerStartTime,pageValue);
+                        isMorePagesAvailable = elinkPeopleResponseRequest.getPagination().getMorePages();
+                        processPeopleResponse(elinkPeopleResponseRequest, schedulerStartTime, pageValue);
+                    } else {
+                        auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
+                        throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR,
+                            ELINKS_ACCESS_ERROR);
+                    }
+                } else if (retriggerStatusCode.contains(httpStatus.value()) && retryCount < retriggerThreshold) {
+                    log.info(":::: Too Many Requests ");
+                    pauseThread(Long.valueOf(threadRetriggerPauseTime), schedulerStartTime);
+                    --pageValue;
+                    retryCount++;
+                    continue;
                 } else {
                     auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
-                    throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
+                    handleELinksErrorResponse(httpStatus);
                 }
-            } else if (retriggerStatusCode.contains(httpStatus.value()) && retryCount < retriggerThreshold) {
-                log.info(":::: Too Many Requests ");
-                pauseThread(Long.valueOf(threadRetriggerPauseTime),schedulerStartTime);
-                --pageValue;
-                retryCount++;
-                continue;
-            } else {
-                auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
-                handleELinksErrorResponse(httpStatus);
-            }
-            pauseThread(Long.valueOf(threadPauseTime),schedulerStartTime);
-        } while (isMorePagesAvailable);
-
+                pauseThread(Long.valueOf(threadPauseTime), schedulerStartTime);
+            } while (isMorePagesAvailable);
+        } catch (Exception ex) {
+            auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
+            throw ex;
+        }
         List<ElinkDataExceptionRecords> list = elinkDataExceptionRepository
                 .findBySchedulerStartTime(schedulerStartTime);
         if (!list.isEmpty()) {
