@@ -49,6 +49,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.service.IEmailService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.EmailTemplate;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
 import java.time.LocalDateTime;
@@ -63,6 +64,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -103,7 +105,7 @@ class ElinksPeopleServiceImplTest {
 
     final ElinkEmailConfiguration.MailTypeConfig config = mock(ElinkEmailConfiguration.MailTypeConfig.class);
 
-    final IEmailService emailService = mock(IEmailService.class);
+    final IEmailService emailService = spy(IEmailService.class);
 
 
     @Spy
@@ -159,6 +161,11 @@ class ElinksPeopleServiceImplTest {
 
     @Spy
     CommonUtil commonUtil;
+
+    final EmailTemplate emailTemplate = mock(EmailTemplate.class);
+    ElinkEmailConfiguration.MailTypeConfig mailConfig = mock(ElinkEmailConfiguration.MailTypeConfig.class);
+
+
 
     @BeforeEach
     void setUP() {
@@ -829,8 +836,6 @@ class ElinksPeopleServiceImplTest {
         DataAccessException dataAccessException = mock(DataAccessException.class);
         when(profileRepository.save(any())).thenThrow(dataAccessException);
 
-
-
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         verify(elinkDataExceptionHelper,atLeastOnce()).auditException(any(),any(),
             any(),any(),any(),any(),any(),anyInt());
@@ -899,12 +904,11 @@ class ElinksPeopleServiceImplTest {
     void load_people_should_return_elinksException_when_updating_authorisationsDb()
             throws JsonProcessingException {
 
+        //ElinksPeopleServiceImpl elinksPeopleServiceImplSpy = spy(elinksPeopleServiceImpl);
         PaginationRequest paginationNew = PaginationRequest.builder()
             .results(1)
             .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
-        LocationMapping locationMapping = LocationMapping.builder()
-            .serviceCode("BHA1")
-            .epimmsId("1234").build();
+
         elinksApiResponseFirstHit.setPagination(paginationNew);
         when(regionMappingRepository.fetchRegionIdfromRegion(any())).thenReturn("1");
         when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
@@ -914,14 +918,240 @@ class ElinksPeopleServiceImplTest {
         when(authorisationsRepository.save(any())).thenThrow(dataAccessException);
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
 
+        when(emailTemplate.getMailTypeConfig(any(), any())).thenReturn(mailConfig);
+        when(emailConfiguration.getMailTypes()).thenReturn(Map.of("appointment", config,
+                RefDataElinksConstants.BASE_LOCATION, config,"TEST1",config));
+        when(config.isEnabled()).thenReturn(true);
+        when(config.getBody()).thenReturn("email sample body");
+        when(config.getSubject()).thenReturn("email sample subject");
+        when(config.getTemplate()).thenReturn("email sample template");
+        when(mailConfig.isEnabled()).thenReturn(true);
+        when(mailConfig.getBody()).thenReturn("email body");
+        when(mailConfig.getSubject()).thenReturn("email subject");
         when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
                 Boolean.parseBoolean(any()))).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ElinkDataExceptionRecords exceptionRecords1 = new ElinkDataExceptionRecords();
+        exceptionRecords1.setId(1L);
+        exceptionRecords1.setKey("key");
+        exceptionRecords1.setRowId("rowId");
+        exceptionRecords1.setSchedulerName("schedularName");
+        exceptionRecords1.setErrorDescription("errorDescr");
+        exceptionRecords1.setTableName("tableName");
+        exceptionRecords1.setFieldInError(RefDataElinksConstants.APPOINTMENTID);
+        exceptionRecords1.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords1.setUpdatedTimeStamp(LocalDateTime.now());
+        exceptionRecords1.setPageId(1);
+        ElinkDataExceptionRecords exceptionRecords2 = new ElinkDataExceptionRecords();
+        exceptionRecords2.setId(2L);
+        exceptionRecords2.setKey("key1");
+        exceptionRecords2.setRowId("rowId1");
+        exceptionRecords2.setSchedulerName("schedularName1");
+        exceptionRecords2.setErrorDescription("errorDescr1");
+        exceptionRecords2.setTableName("tableName1");
+        exceptionRecords2.setFieldInError(RefDataElinksConstants.APPOINTMENTID);
+        exceptionRecords2.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords2.setUpdatedTimeStamp(LocalDateTime.now());
+        exceptionRecords2.setPageId(2);
+        List<ElinkDataExceptionRecords> exceptionRecords = Arrays.asList(exceptionRecords1,exceptionRecords2);
+
+        when(elinkDataExceptionRepository.findBySchedulerStartTime(any())).thenReturn(exceptionRecords);
+
+        ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
+        verify(elinkDataExceptionHelper,times(6))
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
+        verify(emailService, atLeastOnce()).sendEmail(any());
+    }
+
+    @Test
+    void verify_send_email_negative_scenario_when_updating_authorisationsDb()
+            throws JsonProcessingException {
+
+        //ElinksPeopleServiceImpl elinksPeopleServiceImplSpy = spy(elinksPeopleServiceImpl);
+        PaginationRequest paginationNew = PaginationRequest.builder()
+                .results(1)
+                .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
+
+        elinksApiResponseFirstHit.setPagination(paginationNew);
+        when(regionMappingRepository.fetchRegionIdfromRegion(any())).thenReturn("1");
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
+        DataAccessException dataAccessException = mock(DataAccessException.class);
+        when(authorisationsRepository.save(any())).thenThrow(dataAccessException);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+
+        when(emailTemplate.getMailTypeConfig(any(), any())).thenReturn(mailConfig);
+        when(emailConfiguration.getMailTypes()).thenReturn(Map.of("appointment", config,
+                RefDataElinksConstants.BASE_LOCATION, config,"TEST1",config));
+        when(config.isEnabled()).thenReturn(false);
+        when(config.getBody()).thenReturn("email sample body");
+        when(config.getSubject()).thenReturn("email sample subject");
+        when(config.getTemplate()).thenReturn("email sample template");
+        when(mailConfig.isEnabled()).thenReturn(true);
+        when(mailConfig.getBody()).thenReturn("email body");
+        when(mailConfig.getSubject()).thenReturn("email subject");
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+                Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ElinkDataExceptionRecords exceptionRecords1 = new ElinkDataExceptionRecords();
+        exceptionRecords1.setId(1L);
+        exceptionRecords1.setKey("key");
+        exceptionRecords1.setRowId("rowId");
+        exceptionRecords1.setSchedulerName("schedularName");
+        exceptionRecords1.setErrorDescription("errorDescr");
+        exceptionRecords1.setTableName("tableName");
+        exceptionRecords1.setFieldInError(RefDataElinksConstants.APPOINTMENTID);
+        exceptionRecords1.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords1.setUpdatedTimeStamp(LocalDateTime.now());
+        exceptionRecords1.setPageId(1);
+        ElinkDataExceptionRecords exceptionRecords2 = new ElinkDataExceptionRecords();
+        exceptionRecords2.setId(2L);
+        exceptionRecords2.setKey("key1");
+        exceptionRecords2.setRowId("rowId1");
+        exceptionRecords2.setSchedulerName("schedularName1");
+        exceptionRecords2.setErrorDescription("errorDescr1");
+        exceptionRecords2.setTableName("tableName1");
+        exceptionRecords2.setFieldInError(RefDataElinksConstants.APPOINTMENTID);
+        exceptionRecords2.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords2.setUpdatedTimeStamp(LocalDateTime.now());
+        exceptionRecords2.setPageId(2);
+        List<ElinkDataExceptionRecords> exceptionRecords = Arrays.asList(exceptionRecords1,exceptionRecords2);
+
+        when(elinkDataExceptionRepository.findBySchedulerStartTime(any())).thenReturn(exceptionRecords);
+
+        ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
+        verify(elinkDataExceptionHelper,times(6))
+                .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
+        verify(emailService, times(0)).sendEmail(any());
+    }
+
+    @Test
+    void load_people_should_return_elinksException_when_updating_locationsDb()
+            throws JsonProcessingException {
+
+        PaginationRequest paginationNew = PaginationRequest.builder()
+                .results(1)
+                .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
+
+        elinksApiResponseFirstHit.setPagination(paginationNew);
+        when(regionMappingRepository.fetchRegionIdfromRegion(any())).thenReturn("1");
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
+        DataAccessException dataAccessException = mock(DataAccessException.class);
+        when(authorisationsRepository.save(any())).thenThrow(dataAccessException);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+
+        when(emailTemplate.getMailTypeConfig(any(), any())).thenReturn(mailConfig);
+        when(emailConfiguration.getMailTypes()).thenReturn(Map.of(RefDataElinksConstants.LOCATION, config,
+                RefDataElinksConstants.BASE_LOCATION, config,"TEST1",config));
+        when(config.isEnabled()).thenReturn(true);
+        when(config.getBody()).thenReturn("email sample body");
+        when(config.getSubject()).thenReturn("email sample subject");
+        when(config.getTemplate()).thenReturn("email sample template");
+        when(mailConfig.isEnabled()).thenReturn(true);
+        when(mailConfig.getBody()).thenReturn("email body");
+        when(mailConfig.getSubject()).thenReturn("email subject");
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+                Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ElinkDataExceptionRecords exceptionRecords1 = new ElinkDataExceptionRecords();
+        exceptionRecords1.setId(1L);
+        exceptionRecords1.setKey("key");
+        exceptionRecords1.setRowId("rowId");
+        exceptionRecords1.setSchedulerName("schedularName");
+        exceptionRecords1.setErrorDescription("errorDescr");
+        exceptionRecords1.setTableName("tableName");
+        exceptionRecords1.setFieldInError(RefDataElinksConstants.BASE_LOCATION_ID);
+        exceptionRecords1.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords1.setUpdatedTimeStamp(LocalDateTime.now());
+        exceptionRecords1.setPageId(1);
+        ElinkDataExceptionRecords exceptionRecords2 = new ElinkDataExceptionRecords();
+        exceptionRecords2.setId(2L);
+        exceptionRecords2.setKey("key1");
+        exceptionRecords2.setRowId("rowId1");
+        exceptionRecords2.setSchedulerName("schedularName1");
+        exceptionRecords2.setErrorDescription("errorDescr1");
+        exceptionRecords2.setTableName("tableName1");
+        exceptionRecords2.setFieldInError(RefDataElinksConstants.LOCATION);
+        exceptionRecords2.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords2.setUpdatedTimeStamp(LocalDateTime.now());
+        exceptionRecords2.setPageId(2);
+        List<ElinkDataExceptionRecords> exceptionRecords = Arrays.asList(exceptionRecords1,exceptionRecords2);
+
+        when(elinkDataExceptionRepository.findBySchedulerStartTime(any())).thenReturn(exceptionRecords);
+
+        ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
+        verify(elinkDataExceptionHelper,times(6))
+                .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
+        verify(emailService, atLeastOnce()).sendEmail(any());
+    }
+
+    @Test
+    void load_people_should_return_elinksException_when_updating_userprofileDb()
+        throws JsonProcessingException {
+
+        PaginationRequest paginationNew = PaginationRequest.builder()
+            .results(1)
+            .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
+
+        elinksApiResponseFirstHit.setPagination(paginationNew);
+        when(regionMappingRepository.fetchRegionIdfromRegion(any())).thenReturn("1");
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseFirstHit);
+        DataAccessException dataAccessException = mock(DataAccessException.class);
+        when(authorisationsRepository.save(any())).thenThrow(dataAccessException);
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(LocalDateTime.now());
+
+        when(emailTemplate.getMailTypeConfig(any(), any())).thenReturn(mailConfig);
+        when(emailConfiguration.getMailTypes()).thenReturn(Map.of("userprofile", config,
+            RefDataElinksConstants.USER_PROFILE, config,"TEST1",config));
+        when(config.isEnabled()).thenReturn(true);
+        when(config.getBody()).thenReturn("email sample body");
+        when(config.getSubject()).thenReturn("email sample subject");
+        when(config.getTemplate()).thenReturn("email sample template");
+        when(mailConfig.isEnabled()).thenReturn(true);
+        when(mailConfig.getBody()).thenReturn("email body");
+        when(mailConfig.getSubject()).thenReturn("email subject");
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+            Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+            .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ElinkDataExceptionRecords exceptionRecords1 = new ElinkDataExceptionRecords();
+        exceptionRecords1.setId(1L);
+        exceptionRecords1.setKey("key");
+        exceptionRecords1.setRowId("rowId");
+        exceptionRecords1.setSchedulerName("schedularName");
+        exceptionRecords1.setErrorDescription("errorDescr");
+        exceptionRecords1.setTableName("tableName");
+        exceptionRecords1.setFieldInError(RefDataElinksConstants.USER_PROFILE);
+        exceptionRecords1.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords1.setUpdatedTimeStamp(LocalDateTime.now());
+        ElinkDataExceptionRecords exceptionRecords2 = new ElinkDataExceptionRecords();
+        exceptionRecords2.setId(2L);
+        exceptionRecords2.setKey("key1");
+        exceptionRecords2.setRowId("rowId1");
+        exceptionRecords2.setSchedulerName("schedularName1");
+        exceptionRecords2.setErrorDescription("errorDescr1");
+        exceptionRecords2.setTableName("tableName1");
+        exceptionRecords2.setFieldInError(RefDataElinksConstants.USER_PROFILE);
+        exceptionRecords2.setSchedulerStartTime(LocalDateTime.now());
+        exceptionRecords2.setUpdatedTimeStamp(LocalDateTime.now());
+        List<ElinkDataExceptionRecords> exceptionRecords = Arrays.asList(exceptionRecords1,exceptionRecords2);
+
+        when(elinkDataExceptionRepository.findBySchedulerStartTime(any())).thenReturn(exceptionRecords);
 
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         verify(elinkDataExceptionHelper,times(6))
             .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
+
+
 
     @Test
     void load_people_should_return_elinksException_when_updating_JudicialRoleTypeDb()
@@ -1023,4 +1253,6 @@ class ElinksPeopleServiceImplTest {
         assertThat(thrown.getErrorDescription()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
 
     }
+
+
 }

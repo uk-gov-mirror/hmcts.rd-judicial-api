@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Objects.isNull;
@@ -268,6 +269,49 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 .body(response);
     }
 
+    private void sendEmail(LocalDateTime schedulerStartTime) {
+        List<ElinkDataExceptionRecords> list = elinkDataExceptionRepository
+                .findBySchedulerStartTime(schedulerStartTime);
+
+        Map<String, List<ElinkDataExceptionRecords>> map = list
+                .stream()
+                .collect(Collectors.groupingBy(ElinkDataExceptionRecords::getFieldInError));
+
+        if (map.containsKey(BASE_LOCATION_ID)) {
+            sendEmail(new HashSet<>(map.get(BASE_LOCATION_ID)), "baselocation",
+                    LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        }
+        if (map.containsKey(LOCATION)) {
+            sendEmail(new HashSet<>(map.get(LOCATION)), "location",
+                    LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        }
+        if (map.containsKey(APPOINTMENTID)) {
+            sendEmail(new HashSet<>(map.get(APPOINTMENTID)), "appointment",
+                    LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        }
+        if (map.containsKey(USER_PROFILE)) {
+            sendEmail(new HashSet<>(map.get(USER_PROFILE)), "userprofile",
+                LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        }
+    }
+
+    public int sendEmail(Set<ElinkDataExceptionRecords> data, String type, Object... params) {
+        log.info("{} : send Email",logComponentName);
+        ElinkEmailConfiguration.MailTypeConfig config = emailConfiguration.getMailTypes()
+                .get(type);
+        if (config != null && config.isEnabled()) {
+            Email email = Email.builder()
+                    .contentType(CONTENT_TYPE_HTML)
+                    .from(config.getFrom())
+                    .to(config.getTo())
+                    .subject(String.format(config.getSubject(), params))
+                    .messageBody(emailTemplate.getEmailBody(config.getTemplate(), Map.of("resultsRequest", data)))
+                    .build();
+            return emailService.sendEmail(email);
+        }
+        return -1;
+    }
+
     private void auditStatus(LocalDateTime schedulerStartTime, String status) {
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
                 schedulerStartTime,
@@ -331,13 +375,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private void savePeopleDetails(
         ResultsRequest resultsRequest, LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (saveUserProfile(resultsRequest,pageValue)) {
+        if (saveUserProfile(resultsRequest,schedulerStartTime,pageValue)) {
             try {
                 elinksPeopleDeleteServiceimpl.deleteAuth(resultsRequest);
                 saveAppointmentDetails(resultsRequest.getPersonalCode(), resultsRequest
                     .getObjectId(), resultsRequest.getAppointmentsRequests(),schedulerStartTime,pageValue);
                 saveAuthorizationDetails(resultsRequest.getPersonalCode(), resultsRequest
-                    .getObjectId(), resultsRequest.getAuthorisationsRequests(),pageValue);
+                    .getObjectId(), resultsRequest.getAuthorisationsRequests(),schedulerStartTime,pageValue);
                 saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles(),pageValue);
             } catch (Exception exception) {
                 log.warn("saveUserProfile is failed  " + resultsRequest.getPersonalCode());
@@ -376,9 +420,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
 
-    private boolean saveUserProfile(ResultsRequest resultsRequest, int pageValue) {
+    private boolean saveUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (validateUserProfile(resultsRequest,pageValue)) {
+        if (validateUserProfile(resultsRequest, schedulerStartTime,pageValue)) {
             try {
                 UserProfile userProfile = UserProfile.builder()
                     .personalCode(resultsRequest.getPersonalCode())
@@ -415,7 +459,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         return false;
     }
 
-    private boolean validateUserProfile(ResultsRequest resultsRequest, int pageValue) {
+    private boolean validateUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
 
         if (StringUtils.isEmpty(resultsRequest.getEmail())) {
             log.warn("Mapped Base location not found in base table " + resultsRequest.getPersonalCode());
@@ -434,7 +478,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 USERPROFILEISPRESENT, resultsRequest.getPersonalCode());
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                now(),
+                schedulerStartTime,
                 resultsRequest.getPersonalCode(),
                 PERSONALCODE,errorDescription, USER_PROFILE,personalCode,pageValue);
             return false;
@@ -444,7 +488,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                now(),
+                schedulerStartTime,
                 resultsRequest.getObjectId(),
                 OBJECTID,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode,pageValue);
             return false;
@@ -454,7 +498,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                now(),
+                schedulerStartTime,
                 resultsRequest.getPersonalCode(),
                 OBJECTID,OBJECTIDISPRESENT, USER_PROFILE,personalCode,pageValue);
             return false;
@@ -521,7 +565,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     private void saveAuthorizationDetails(String personalCode, String objectId,
-                                          List<AuthorisationsRequest> authorisationsRequests, int pageValue) {
+                                          List<AuthorisationsRequest> authorisationsRequests,
+                                          LocalDateTime schedulerStartTime,int pageValue) {
 
         for (AuthorisationsRequest authorisationsRequest : authorisationsRequests) {
             try {
@@ -551,7 +596,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                             APPOINTMENTIDNOTAVAILABLE, authorisationsRequest.getAppointmentId());
                 }
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                    now(),
+                        schedulerStartTime,
                     authorisationsRequest.getAuthorisationId(),
                     APPOINTMENTID, errorDescription, AUTHORISATION_TABLE,personalCode,pageValue);
             }
@@ -576,7 +621,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             String baseLocationId = appointmentsRequest.getBaseLocationId();
             String errorDescription = appendFieldWithErrorDescription(LOCATIONIDFAILURE, baseLocationId);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                now(),
+                    schedulerStartTime,
                 appointmentsRequest.getAppointmentId(),
                 BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
             return false;
@@ -691,19 +736,4 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         }
     }
 
-    public int sendEmail(Set<ElinkDataExceptionRecords> data, String type, Object... params) {
-        ElinkEmailConfiguration.MailTypeConfig config = emailConfiguration.getMailTypes()
-                .get(type);
-        if (config != null && config.isEnabled()) {
-            Email email = Email.builder()
-                    .contentType(CONTENT_TYPE_HTML)
-                    .from(config.getFrom())
-                    .to(config.getTo())
-                    .subject(String.format(config.getSubject(), params))
-                    .messageBody(emailTemplate.getEmailBody(config.getTemplate(), Map.of("resultsRequest", data)))
-                    .build();
-            return emailService.sendEmail(email);
-        }
-        return -1;
-    }
 }
