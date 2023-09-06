@@ -49,7 +49,7 @@ public interface ProfileRepository extends JpaRepository<UserProfile, String> {
             + "LEFT JOIN FETCH judicialOfficeAppointment appt "
             + "on per.personalCode = appt.personalCode "
             + "LEFT JOIN FETCH judicialOfficeAuthorisation auth "
-            + "on appt.appointmentId = auth.appointmentId "
+            + "on appt.appointmentId = auth.appointmentId "//should i write a query seperately or use this same query ? separately means only from
             + "LEFT JOIN FETCH judicial_additional_roles jrt "
             + "ON per.personalCode = jrt.personalCode "
             + "where (per.objectId != '' and per.objectId is not null) "
@@ -95,5 +95,13 @@ public interface ProfileRepository extends JpaRepository<UserProfile, String> {
             + "and (jlm.serviceCode IN :ccdServiceCode or auth.ticketCode IN :ticketCode )")
     Page<UserProfile> fetchUserProfileByServiceNames(Set<String> ccdServiceCode,
                                                      List<String> ticketCode, Pageable pageable);
+
+
+    @Query(value = "select distinct per.sidamId,per.objectId"
+            + "from judicialUserProfile per "
+            + "where (per.objectId != '' and per.objectId is not null)")
+    List<UserProfile> fetchSidamObjectIdByObjectId();
+
+
 
 }

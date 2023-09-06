@@ -14,11 +14,14 @@ import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.IdamFeignClient;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamOpenIdTokenResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.IdamResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IdamElasticSearchService;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.SqlConstants;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
@@ -34,10 +37,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static java.time.LocalDateTime.now;
 import static java.util.Objects.nonNull;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTIDFAILURE;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENT_TABLE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAM_ERROR_MESSAGE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAM_TOKEN_ERROR_MESSAGE;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE;
 
 @Slf4j
 @Component
@@ -60,6 +69,13 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
+
+
+    @Autowired
+    private ProfileRepository userProfileRepository;
+
+    @Autowired
+    ElinkDataExceptionHelper elinkDataExceptionHelper;
 
     @Override
     public String getIdamBearerToken() {
@@ -140,12 +156,63 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             }
             count++;
             log.debug("{}:: batch count :: ", count);
+
         } while (totalCount > 0 && recordsPerPage * count < totalCount);
+
+       validateSidamObjectIds(judicialUsers);
         updateSidamIds(judicialUsers);
 
         return ResponseEntity
                 .status(response.status())
                 .body(judicialUsers);
+    }
+
+    public void validateSidamObjectIds(Set<IdamResponse> sidamUsers) {
+        List<Pair<String, String>> sidamObjectId = new ArrayList<>();
+        sidamUsers.stream().filter(user -> nonNull(user.getSsoId())).forEach(s ->
+                sidamObjectId.add(Pair.of(s.getId(), s.getSsoId())));
+
+        List<UserProfile> jrdObjectIdsList = userProfileRepository.fetchSidamObjectIdByObjectId();
+
+        List<UserProfile> objectIds = jrdObjectIdsList.stream().filter(j -> !sidamObjectId.contains(jrdObjectIdsList))
+                .collect(Collectors.toList());
+
+
+        String errorDescription = "Object Id, received from Idam is not present in Judicial Reference Data";
+        if(!objectIds.isEmpty()) {
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                            now(),
+                    objectIds.forEach( s -> s.getObjectId()),
+                            "object_id", errorDescription, USER_PROFILE, objectIds.forEach(s -> s.getSidamId())
+            );
+        }
+        /*
+        1. get objectids,sidam ids from sidam
+        2. get objectids from jrd
+        3. compare them each if not present in jrd login exception along with corresponding object id and sidam id
+
+questions ::
+
+1. How you are getting sidamids list from idam ...
+
+2.First step above is sorted out ... already sidam Users having sidam id and object id ...
+
+3. How to get Object Ids from jrd now ...get it --- shall i write a query like
+select object id , Sidam Id  from User Profile where Object id is not null or not equal to ' '
+so should i call a repository and write a query
+put it in a hashset --- sorted I written a query and got the objectIds
+
+how ? and store in a variable ... what is that just a list or list<pair> or hashset ?  -- as we written distinct its not set its a list
+
+4. should we compare only object ids or Sidam ids along with that ?
+I think only objectids u should compare bcas if no objectids present login exception table ...
+but log both objectid and sidamid in audit table like pradipta said ...
+
+5. how to compare objectids is it if loop or comparator ?
+6. am thinking to write for each so for each for jrd objectids list or sidam ids object list ... i think write for jrd object ids list...
+
+7.
+         */
     }
 
     private void logIdamResponses(Response response) {
@@ -187,7 +254,5 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                         ps.setString(2, argument.getRight());
                     }
                 });
-
-
     }
 }
