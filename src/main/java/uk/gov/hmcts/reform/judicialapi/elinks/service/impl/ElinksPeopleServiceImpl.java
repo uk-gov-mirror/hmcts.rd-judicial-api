@@ -421,9 +421,17 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
 
     private boolean saveUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
-
+        
         if (validateUserProfile(resultsRequest, schedulerStartTime,pageValue)) {
             try {
+                LocalDateTime createdOn = null;
+                String sidamId = null;
+                if (personalCodePresentInDb(resultsRequest).isEmpty()) {
+                    createdOn = now();
+                } else {
+                    createdOn = personalCodePresentInDb(resultsRequest).get(0).getCreatedDate();
+                    sidamId = personalCodePresentInDb(resultsRequest).get(0).getSidamId();
+                }
                 UserProfile userProfile = UserProfile.builder()
                     .personalCode(resultsRequest.getPersonalCode())
                     .knownAs(resultsRequest.getKnownAs())
@@ -433,11 +441,12 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .ejudiciaryEmailId(resultsRequest.getEmail())
                     .lastWorkingDate(convertToLocalDate(resultsRequest.getLastWorkingDate()))
                     .activeFlag(true)
-                    .createdDate(now())
-                    .lastLoadedDate(now())
+                    .sidamId(sidamId)
+                    .createdDate(createdOn)
                     .objectId(resultsRequest.getObjectId())
                     .initials(resultsRequest.getInitials())
                     .title(resultsRequest.getTitle())
+                    .lastLoadedDate(now())
                     .retirementDate(convertToLocalDate(resultsRequest.getRetirementDate()))
                     .build();
                 userProfileCache.put(resultsRequest.getPersonalCode(),userProfile);
@@ -510,6 +519,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         return userProfilesSnapshot.stream()
             .anyMatch(userProfile -> resultsRequest.getObjectId().equals(userProfile.getObjectId())
                 && !resultsRequest.getPersonalCode().equals(userProfile.getPersonalCode()));
+    }
+
+    private List<UserProfile> personalCodePresentInDb(ResultsRequest resultsRequest) {
+        return userProfilesSnapshot.stream()
+            .filter(userProfile -> resultsRequest.getPersonalCode()
+                .equals(userProfile.getPersonalCode()))
+            .toList();
     }
 
     private List<String> objectIdisPresent(ResultsRequest resultsRequest) {

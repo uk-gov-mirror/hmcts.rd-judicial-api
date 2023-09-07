@@ -53,9 +53,11 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.EmailTemplate;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -641,6 +643,48 @@ class ElinksPeopleServiceImplTest {
         verify(elinkDataExceptionHelper,times(1))
             .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
 
+    }
+
+    @Test
+    void loadPeopleWithSidamIdPresentinDb() throws JsonProcessingException {
+
+        UserProfile userProfile = UserProfile.builder()
+            .personalCode("1234")
+            .objectId("objectId1")
+            .ejudiciaryEmailId("email@justice")
+            .sidamId("sidamId")
+            .createdDate(convertToLocalDateTime("2023-04-12T16:42:35Z"))
+            .build();
+        when(profileRepository.findAll()).thenReturn(List.of(userProfile));
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(null);
+        BaseLocation location = new BaseLocation();
+        location.setBaseLocationId("12345");
+        location.setName("ABC");
+        LocationMapping locationMapping = LocationMapping.builder()
+            .serviceCode("BHA1")
+            .epimmsId("1234").build();
+        when(regionMappingRepository.fetchRegionIdfromRegion(any())).thenReturn("1");
+        when(baseLocationRepository.fetchParentId(any())).thenReturn("1234");
+        ObjectMapper mapper = new ObjectMapper();
+        when(locationMapppingRepository.fetchEpimmsIdfromLocationId(any())).thenReturn("234");
+        String body = mapper.writeValueAsString(elinksApiResponseSecondHit);
+
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+            Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+            .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ResponseEntity<ElinkPeopleWrapperResponse> response = elinksPeopleServiceImpl.updatePeople();
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+        assertThat(response.getBody().getMessage()).isEqualTo(PEOPLE_DATA_LOAD_SUCCESS);
+
+
+        verify(elinksFeignClient, times(1)).getPeopleDetails(any(), any(), any(),
+            Boolean.parseBoolean(any()));
+        verify(profileRepository, times(2)).save(any());
+
+        verify(appointmentsRepository, atLeastOnce()).save(any());
+
+        verify(authorisationsRepository, atLeastOnce()).save(any());
     }
 
     @Test
@@ -1254,5 +1298,12 @@ class ElinksPeopleServiceImplTest {
 
     }
 
+    private static LocalDateTime convertToLocalDateTime(String date) {
+        if (Optional.ofNullable(date).isPresent()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            return LocalDateTime.parse(date, formatter);
+        }
+        return null;
+    }
 
 }
