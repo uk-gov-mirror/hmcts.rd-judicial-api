@@ -49,7 +49,7 @@ public interface ProfileRepository extends JpaRepository<UserProfile, String> {
             + "LEFT JOIN FETCH judicialOfficeAppointment appt "
             + "on per.personalCode = appt.personalCode "
             + "LEFT JOIN FETCH judicialOfficeAuthorisation auth "
-            + "on appt.appointmentId = auth.appointmentId "//should i write a query seperately or use this same query ? separately means only from
+            + "on appt.appointmentId = auth.appointmentId "
             + "LEFT JOIN FETCH judicial_additional_roles jrt "
             + "ON per.personalCode = jrt.personalCode "
             + "where (per.objectId != '' and per.objectId is not null) "
