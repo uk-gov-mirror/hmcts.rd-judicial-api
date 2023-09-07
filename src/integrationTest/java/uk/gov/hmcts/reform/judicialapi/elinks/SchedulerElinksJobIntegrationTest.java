@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.JOSEException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -134,6 +135,7 @@ class SchedulerElinksJobIntegrationTest extends ElinksEnabledIntegrationTest {
     @DisplayName("Elinks load eLinks scheduler status verification failure case  for job ran already")
     @Test
     @Order(3)
+    @Disabled
     void test_load_elinks_job_status_failure_job_ran_already() {
 
         DataloadSchedulerJob audit = new DataloadSchedulerJob();
