@@ -97,10 +97,10 @@ public interface ProfileRepository extends JpaRepository<UserProfile, String> {
                                                      List<String> ticketCode, Pageable pageable);
 
 
-    @Query(value = "select distinct per.sidamId,per.objectId"
+    @Query(value = "select distinct per.objectId"
             + "from judicialUserProfile per "
             + "where (per.objectId != '' and per.objectId is not null)")
-    List<UserProfile> fetchSidamObjectIdByObjectId();
+    List<String> fetchObjectId();
 
 
 
