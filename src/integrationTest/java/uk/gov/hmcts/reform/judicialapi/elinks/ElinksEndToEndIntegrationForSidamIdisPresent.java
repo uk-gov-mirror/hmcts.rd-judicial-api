@@ -95,10 +95,6 @@ class ElinksEndToEndIntegrationForSidamIdisPresent extends ElinksEnabledIntegrat
             loadJson("src/integrationTest/resources/wiremock_responses/base_location.json");
         String peopleResponseValidationJson =
             loadJson("src/integrationTest/resources/wiremock_responses/testpeople_withoutsidam.json");
-        String leaversResponseValidationJson =
-            loadJson("src/integrationTest/resources/wiremock_responses/leavers.json");
-        String deletedResponseValidationJson =
-            loadJson("src/integrationTest/resources/wiremock_responses/deleted.json");
 
         elinks.stubFor(get(urlPathMatching("/reference_data/location"))
             .willReturn(aResponse()
