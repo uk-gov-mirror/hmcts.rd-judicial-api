@@ -117,37 +117,32 @@ public class ELinksServiceImpl implements ELinksService {
         Response locationsResponse;
         HttpStatus httpStatus;
         ResponseEntity<ElinkBaseLocationWrapperResponse> result = null;
-
         try {
-
             locationsResponse = elinksFeignClient.getLocationDetails();
+            //am expecting write a method here call that method to filter json responses ...
 
-
+            storeElinksResponse(locationsResponse);
 
             httpStatus = HttpStatus.valueOf(locationsResponse.status());
-
             log.info("Get location details response status ELinksService.retrieveLocation" + httpStatus.value());
             if (httpStatus.is2xxSuccessful()) {
                 ResponseEntity<Object> responseEntity = JsonFeignResponseUtil.toResponseEntity(locationsResponse,
-                    ElinkBaseLocationResponse.class);
-
-
+                        ElinkBaseLocationResponse.class);
                 ElinkBaseLocationResponse elinkBaseLocationResponse =
-                    (ElinkBaseLocationResponse) responseEntity.getBody();
-
+                        (ElinkBaseLocationResponse) responseEntity.getBody();
                 if (nonNull(responseEntity.getBody())) {
                     if (nonNull(elinkBaseLocationResponse) && elinkBaseLocationResponse.getResults().size() > 0) {
                         List<BaseLocationResponse> baseLocationResponses = elinkBaseLocationResponse.getResults();
 
                         List<BaseLocation> baselocations = baseLocationResponses.stream()
-                            .map(BaseLocationResponse::toBaseLocationEntity)
-                            .toList();
+                                .map(BaseLocationResponse::toBaseLocationEntity)
+                                .toList();
                         result = loadBaseLocationData(baselocations);
                     } else {
                         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                            schedulerStartTime,
-                            now(),
-                            RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
+                                schedulerStartTime,
+                                now(),
+                                RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
                         throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                     }
                 } else {
@@ -157,8 +152,6 @@ public class ELinksServiceImpl implements ELinksService {
                             RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
                     throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
                 }
-
-
             } else {
 
                 elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
@@ -173,15 +166,15 @@ public class ELinksServiceImpl implements ELinksService {
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         } catch (JSONException ex) {
             elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime,
-                now(),
-                RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
+                    schedulerStartTime,
+                    now(),
+                    RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         } catch (Exception ex) {
             elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime,
-                now(),
-                RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
+                    schedulerStartTime,
+                    now(),
+                    RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
             throw ex;
         }
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
@@ -191,6 +184,29 @@ public class ELinksServiceImpl implements ELinksService {
 
         return result;
     }
+
+    // write a method here to method name vla vla vla {
+
+    private void storeElinksResponse(Response locationsResponse) {
+
+        // In this method I have to first check the condition to see if the response is equal to json ... then
+
+
+
+    }
+
+
+    // store in the gtable how will i store in the table u need to write a repository or already repository is ther e?
+
+    // create a repository if repo is not there ...
+
+    // if repo is there just introduce new method in it to call it ...
+
+    // thats it ...
+
+//
+//
+// }
 
     private void handleELinksErrorResponse(HttpStatus httpStatus) {
 
