@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperRespon
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksResponsesHelper;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
@@ -60,6 +61,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LEAVERSSUCCESS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
 
@@ -101,6 +103,9 @@ public class ELinksServiceImpl implements ELinksService {
     @Autowired
     ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
+    @Autowired
+    ElinksResponsesHelper elinksResponsesHelper;
+
 
     @Override
     public ResponseEntity<ElinkBaseLocationWrapperResponse> retrieveLocation() {
@@ -119,10 +124,7 @@ public class ELinksServiceImpl implements ELinksService {
         ResponseEntity<ElinkBaseLocationWrapperResponse> result = null;
         try {
             locationsResponse = elinksFeignClient.getLocationDetails();
-            //am expecting write a method here call that method to filter json responses ...
-
-            storeElinksResponse(locationsResponse);
-
+            elinksResponsesHelper.saveElinksResponse(LOCATION, locationsResponse.body());
             httpStatus = HttpStatus.valueOf(locationsResponse.status());
             log.info("Get location details response status ELinksService.retrieveLocation" + httpStatus.value());
             if (httpStatus.is2xxSuccessful()) {
@@ -160,8 +162,6 @@ public class ELinksServiceImpl implements ELinksService {
                         RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
                 handleELinksErrorResponse(httpStatus);
             }
-
-
         } catch (FeignException ex) {
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         } catch (JSONException ex) {
@@ -184,29 +184,6 @@ public class ELinksServiceImpl implements ELinksService {
 
         return result;
     }
-
-    // write a method here to method name vla vla vla {
-
-    private void storeElinksResponse(Response locationsResponse) {
-
-        // In this method I have to first check the condition to see if the response is equal to json ... then
-
-
-
-    }
-
-
-    // store in the gtable how will i store in the table u need to write a repository or already repository is ther e?
-
-    // create a repository if repo is not there ...
-
-    // if repo is there just introduce new method in it to call it ...
-
-    // thats it ...
-
-//
-//
-// }
 
     private void handleELinksErrorResponse(HttpStatus httpStatus) {
 
@@ -301,6 +278,7 @@ public class ELinksServiceImpl implements ELinksService {
         int pageValue = Integer.parseInt(page);
         do {
             Response leaverApiResponse = getLeaversResponseFromElinks(pageValue++);
+            elinksResponsesHelper.saveElinksResponse(LEAVERSAPI, leaverApiResponse.body());
             httpStatus = HttpStatus.valueOf(leaverApiResponse.status());
             ResponseEntity<Object> responseEntity;
 
@@ -431,6 +409,7 @@ public class ELinksServiceImpl implements ELinksService {
         int pageValue = Integer.parseInt(page);
         do {
             Response deletedApiResponse = getDeletedResponseFromElinks(pageValue++);
+            elinksResponsesHelper.saveElinksResponse(DELETEDAPI, deletedApiResponse.body());
             httpStatus = HttpStatus.valueOf(deletedApiResponse.status());
             ResponseEntity<Object> responseEntity;
 
