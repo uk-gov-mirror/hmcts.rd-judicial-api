@@ -19,11 +19,13 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.ElinksFeignClient;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinksResponsesRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.BaseLocationResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksResponsesHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +66,13 @@ class ELinksBaseLocationServiceImplTest {
 
     @InjectMocks
     private ELinksServiceImpl eLinksServiceImpl;
+
+
+    @Mock
+    ElinksResponsesHelper elinksResponsesHelper;
+
+    @Spy
+    ElinksResponsesRepository elinksResponsesRepository;
 
     @Test
     void elinksService_load_location_should_return_sucess_msg_with_status_200() throws JsonProcessingException {
