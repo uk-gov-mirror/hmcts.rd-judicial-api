@@ -91,7 +91,8 @@ class ELinksBaseLocationServiceImplTest {
 
         when(elinksFeignClient.getLocationDetails()).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(HttpStatus.OK.value()).build());
-
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
         when(baseLocationRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
 
         ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity = eLinksServiceImpl.retrieveLocation();
@@ -106,12 +107,7 @@ class ELinksBaseLocationServiceImplTest {
 
     @Test
     void elinksService_load_location_should_return_sucess_msg_with_empty_response() throws JsonProcessingException {
-
-
-
         ElinkBaseLocationResponse elinkBaseLocationResponse = new ElinkBaseLocationResponse();
-
-
         ObjectMapper mapper = new ObjectMapper();
 
         String body = mapper.writeValueAsString(elinkBaseLocationResponse);
@@ -120,6 +116,8 @@ class ELinksBaseLocationServiceImplTest {
         when(elinksFeignClient.getLocationDetails()).thenReturn(Response.builder()
             .request(mock(Request.class)).body(body, defaultCharset()).status(HttpStatus.OK.value()).build());
 
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity = eLinksServiceImpl.retrieveLocation();
@@ -150,7 +148,8 @@ class ELinksBaseLocationServiceImplTest {
 
         when(elinksFeignClient.getLocationDetails()).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(HttpStatus.OK.value()).build());
-
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
         when(baseLocationRepository.saveAll(anyList())).thenThrow(dataAccessException);
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
@@ -201,13 +200,12 @@ class ELinksBaseLocationServiceImplTest {
     @Test
     void elinksService_load_location_should_return_elinksException_when_http_BAD_REQUEST()
             throws JsonProcessingException {
-
-
         when(elinksFeignClient.getLocationDetails()).thenReturn(Response.builder()
                 .request(mock(Request.class))
                 .body("", defaultCharset()).status(HttpStatus.BAD_REQUEST.value()).build());
-
-
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class))
+                .body("", defaultCharset()).status(HttpStatus.BAD_REQUEST.value()).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity = eLinksServiceImpl.retrieveLocation();
@@ -231,7 +229,9 @@ class ELinksBaseLocationServiceImplTest {
                 .request(mock(Request.class))
                 .body("", defaultCharset()).status(HttpStatus.UNAUTHORIZED.value()).build());
 
-
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class))
+                .body("", defaultCharset()).status(HttpStatus.UNAUTHORIZED.value()).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity = eLinksServiceImpl.retrieveLocation();
@@ -254,8 +254,9 @@ class ELinksBaseLocationServiceImplTest {
         when(elinksFeignClient.getLocationDetails()).thenReturn(Response.builder()
                 .request(mock(Request.class))
                 .body("", defaultCharset()).status(HttpStatus.FORBIDDEN.value()).build());
-
-
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class))
+                .body("", defaultCharset()).status(HttpStatus.FORBIDDEN.value()).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity = eLinksServiceImpl.retrieveLocation();
@@ -277,9 +278,9 @@ class ELinksBaseLocationServiceImplTest {
         when(elinksFeignClient.getLocationDetails()).thenReturn(Response.builder()
                 .request(mock(Request.class))
                 .body("", defaultCharset()).status(HttpStatus.NOT_FOUND.value()).build());
-
-
-
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class))
+                .body("", defaultCharset()).status(HttpStatus.NOT_FOUND.value()).build());
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity = eLinksServiceImpl.retrieveLocation();
         });
@@ -301,7 +302,9 @@ class ELinksBaseLocationServiceImplTest {
                 .request(mock(Request.class))
                 .body("", defaultCharset()).status(HttpStatus.TOO_MANY_REQUESTS.value()).build());
 
-
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class))
+                .body("", defaultCharset()).status(HttpStatus.TOO_MANY_REQUESTS.value()).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkBaseLocationWrapperResponse> responseEntity = eLinksServiceImpl.retrieveLocation();

@@ -124,7 +124,8 @@ public class ELinksServiceImpl implements ELinksService {
         ResponseEntity<ElinkBaseLocationWrapperResponse> result = null;
         try {
             locationsResponse = elinksFeignClient.getLocationDetails();
-            elinksResponsesHelper.saveElinksResponse(LOCATION, locationsResponse.body());
+            locationsResponse = elinksResponsesHelper.saveElinksResponse(LOCATION, locationsResponse);
+
             httpStatus = HttpStatus.valueOf(locationsResponse.status());
             log.info("Get location details response status ELinksService.retrieveLocation" + httpStatus.value());
             if (httpStatus.is2xxSuccessful()) {
@@ -278,7 +279,7 @@ public class ELinksServiceImpl implements ELinksService {
         int pageValue = Integer.parseInt(page);
         do {
             Response leaverApiResponse = getLeaversResponseFromElinks(pageValue++);
-            elinksResponsesHelper.saveElinksResponse(LEAVERSAPI, leaverApiResponse.body());
+            leaverApiResponse = elinksResponsesHelper.saveElinksResponse(LEAVERSAPI, leaverApiResponse);
             httpStatus = HttpStatus.valueOf(leaverApiResponse.status());
             ResponseEntity<Object> responseEntity;
 
@@ -409,7 +410,7 @@ public class ELinksServiceImpl implements ELinksService {
         int pageValue = Integer.parseInt(page);
         do {
             Response deletedApiResponse = getDeletedResponseFromElinks(pageValue++);
-            elinksResponsesHelper.saveElinksResponse(DELETEDAPI, deletedApiResponse.body());
+            deletedApiResponse = elinksResponsesHelper.saveElinksResponse(DELETEDAPI, deletedApiResponse);
             httpStatus = HttpStatus.valueOf(deletedApiResponse.status());
             ResponseEntity<Object> responseEntity;
 

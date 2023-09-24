@@ -145,6 +145,11 @@ class ElinksLeaversServiceImplTest {
                 .thenReturn(Response.builder().request(mock(Request.class))
                         .body(body2, defaultCharset()).status(200).build());
 
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                        .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
+                .thenReturn(Response.builder().request(mock(Request.class))
+                        .body(body2, defaultCharset()).status(200).build());
+
         ResponseEntity<ElinkLeaversWrapperResponse> response = elinksServiceImpl.retrieveLeavers();
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertThat(response.getBody().getMessage()).isEqualTo(LEAVERSSUCCESS);
@@ -162,6 +167,11 @@ class ElinksLeaversServiceImplTest {
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(null);
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
+                        .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
+                .thenReturn(Response.builder().request(mock(Request.class))
+                        .body(body2, defaultCharset()).status(200).build());
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                         .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
                 .thenReturn(Response.builder().request(mock(Request.class))
                         .body(body2, defaultCharset()).status(200).build());
@@ -214,6 +224,9 @@ class ElinksLeaversServiceImplTest {
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkLeaversWrapperResponse> responseEntity = elinksServiceImpl.retrieveLeavers();
         });
@@ -234,6 +247,9 @@ class ElinksLeaversServiceImplTest {
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
@@ -257,6 +273,9 @@ class ElinksLeaversServiceImplTest {
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkLeaversWrapperResponse> responseEntity = elinksServiceImpl.retrieveLeavers();
         });
@@ -271,6 +290,10 @@ class ElinksLeaversServiceImplTest {
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.BAD_REQUEST.value())
+                .build());
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.BAD_REQUEST.value())
                 .build());
 
@@ -293,6 +316,10 @@ class ElinksLeaversServiceImplTest {
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.UNAUTHORIZED.value())
                 .build());
 
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.UNAUTHORIZED.value())
+                .build());
+
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkLeaversWrapperResponse> responseEntity = elinksServiceImpl.retrieveLeavers();
         });
@@ -308,6 +335,9 @@ class ElinksLeaversServiceImplTest {
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.FORBIDDEN.value()).build());
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.FORBIDDEN.value()).build());
 
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
@@ -328,6 +358,10 @@ class ElinksLeaversServiceImplTest {
                 .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.NOT_FOUND.value())
                 .build());
 
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.NOT_FOUND.value())
+                .build());
+
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkLeaversWrapperResponse> responseEntity = elinksServiceImpl.retrieveLeavers();
         });
@@ -342,6 +376,10 @@ class ElinksLeaversServiceImplTest {
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers()).thenReturn(LocalDateTime.now());
 
         when(elinksFeignClient.getLeaversDetails(any(), any(), any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body("", defaultCharset())
+                .status(HttpStatus.TOO_MANY_REQUESTS.value()).build());
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body("", defaultCharset())
                 .status(HttpStatus.TOO_MANY_REQUESTS.value()).build());
 

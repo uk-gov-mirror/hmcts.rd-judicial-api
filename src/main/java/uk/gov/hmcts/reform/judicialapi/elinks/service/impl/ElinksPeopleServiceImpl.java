@@ -195,7 +195,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         try {
             do {
                 Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
-                elinksResponsesHelper.saveElinksResponse(PEOPLEAPI, peopleApiResponse.body());
+                peopleApiResponse = elinksResponsesHelper.saveElinksResponse(PEOPLEAPI, peopleApiResponse);
                 httpStatus = HttpStatus.valueOf(peopleApiResponse.status());
                 ResponseEntity<Object> responseEntity;
 
