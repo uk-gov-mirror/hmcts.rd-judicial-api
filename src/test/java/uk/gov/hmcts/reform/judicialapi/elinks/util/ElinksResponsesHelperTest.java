@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinksResponsesReposito
 import uk.gov.hmcts.reform.judicialapi.elinks.response.BaseLocationResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 import static java.nio.charset.Charset.defaultCharset;
@@ -22,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +60,30 @@ public class ElinksResponsesHelperTest {
     void saveElinksResponsesFailure() throws JsonProcessingException {
         Assertions.assertThrows(IllegalStateException.class, () -> elinksResponsesHelper
                     .saveElinksResponse(LOCATION, Response.builder().build()));
+    }
+
+    @Test
+    void saveElinksResponsesFailure01() throws JsonProcessingException {
+        elinksResponsesHelper.saveElinksResponse(LOCATION, Response.builder()
+                .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.OK.value()).build());
+
+        verify(elinksResponsesRepository, times(1))
+                .save(any());
+
+    }
+
+    @Test
+    void saveElinksResponses_thenExceptionIsThrown() throws Exception {
+
+        Response.Body response = mock(Response.Body.class);
+
+        when(response.asInputStream()).thenThrow(IOException.class);
+
+        elinksResponsesHelper
+                .saveElinksResponse("word",Response.builder().request(mock(Request.class)).body(response).build());
+
+        verify(elinksResponsesRepository, times(0))
+                .save(any());
     }
 
 
