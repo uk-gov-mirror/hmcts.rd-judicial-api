@@ -7,14 +7,17 @@ import feign.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import uk.gov.hmcts.reform.judicialapi.elinks.feign.ElinksFeignClient;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinksResponsesRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.BaseLocationResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 import static java.nio.charset.Charset.defaultCharset;
@@ -22,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,28 +34,11 @@ public class ElinksResponsesHelperTest {
     @Spy
     private ElinksResponsesRepository elinksResponsesRepository;
 
-    @Mock
+    @InjectMocks
     ElinksResponsesHelper elinksResponsesHelper;
 
-    @Test
-    void saveElinksResponses() throws JsonProcessingException {
-
-        List<BaseLocationResponse> baseLocations = getBaseLocationResponseData();
-
-        ElinkBaseLocationResponse elinkBaseLocationResponse = new ElinkBaseLocationResponse();
-        elinkBaseLocationResponse.setResults(baseLocations);
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        String body = mapper.writeValueAsString(elinkBaseLocationResponse);
-
-        elinksResponsesHelper.saveElinksResponse(LOCATION, Response.builder()
-                .request(mock(Request.class)).body(body, defaultCharset()).status(HttpStatus.OK.value()).build());
-
-        verify(elinksResponsesRepository, times(0))
-                .save(any());
-
-    }
+    @Spy
+    ElinksFeignClient elinksFeignClient;
 
     @Test
     void saveElinksResponsesSuccess() throws JsonProcessingException {
@@ -68,7 +55,7 @@ public class ElinksResponsesHelperTest {
         elinksResponsesHelper.saveElinksResponse(LOCATION, Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(HttpStatus.OK.value()).build());
 
-        verify(elinksResponsesRepository, times(0))
+        verify(elinksResponsesRepository, times(1))
                 .save(any());
 
     }
@@ -103,9 +90,5 @@ public class ElinksResponsesHelperTest {
         return List.of(baseLocationOne,baseLocationTwo);
 
     }
-
-
-
-
 
 }
