@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinksResponsesRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksEnabledIntegrationTest;
@@ -29,6 +30,8 @@ class LocationsIntegrationTest extends ElinksEnabledIntegrationTest {
     @Autowired
     LocationRepository locationRepository;
 
+    @Autowired
+    private ElinksResponsesRepository elinksResponsesRepository;
 
     @Autowired
     private ElinkSchedularAuditRepository elinkSchedularAuditRepository;
