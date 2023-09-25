@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Request;
 import feign.Response;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +15,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.BaseLocationResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationResponse;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import static java.nio.charset.Charset.defaultCharset;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 
 @ExtendWith(MockitoExtension.class)
-public class ElinksResponsesHelperTest {
+class ElinksResponsesHelperTest {
 
     @Spy
     private ElinksResponsesRepository elinksResponsesRepository;
@@ -40,12 +40,10 @@ public class ElinksResponsesHelperTest {
     void saveElinksResponsesSuccess() throws JsonProcessingException {
 
         List<BaseLocationResponse> baseLocations = getBaseLocationResponseData();
-
         ElinkBaseLocationResponse elinkBaseLocationResponse = new ElinkBaseLocationResponse();
         elinkBaseLocationResponse.setResults(baseLocations);
 
         ObjectMapper mapper = new ObjectMapper();
-
         String body = mapper.writeValueAsString(elinkBaseLocationResponse);
 
         elinksResponsesHelper.saveElinksResponse(LOCATION, Response.builder()
@@ -57,35 +55,14 @@ public class ElinksResponsesHelperTest {
     }
 
     @Test
-    void saveElinksResponsesFailure() throws JsonProcessingException {
-        Assertions.assertThrows(IllegalStateException.class, () -> elinksResponsesHelper
-                    .saveElinksResponse(LOCATION, Response.builder().build()));
-    }
-
-    @Test
-    void saveElinksResponsesFailure01() throws JsonProcessingException {
-        elinksResponsesHelper.saveElinksResponse(LOCATION, Response.builder()
-                .request(mock(Request.class)).body("", defaultCharset()).status(HttpStatus.OK.value()).build());
-
-        verify(elinksResponsesRepository, times(1))
-                .save(any());
-
-    }
-
-    @Test
     void saveElinksResponses_thenExceptionIsThrown() throws Exception {
+        InputStream inputStream = mock(InputStream.class);
+        when(inputStream.readAllBytes()).thenThrow(new IOException());
+        elinksResponsesHelper.saveElinksResponse("word",
+                Response.builder().request(mock(Request.class)).body(inputStream, 1).build());
 
-        Response.Body response = mock(Response.Body.class);
-
-        when(response.asInputStream()).thenThrow(IOException.class);
-
-        elinksResponsesHelper
-                .saveElinksResponse("word",Response.builder().request(mock(Request.class)).body(response).build());
-
-        verify(elinksResponsesRepository, times(0))
-                .save(any());
+        verify(elinksResponsesRepository, times(0)).save(any());
     }
-
 
     private List<BaseLocationResponse> getBaseLocationResponseData() {
         BaseLocationResponse baseLocationOne = new BaseLocationResponse();

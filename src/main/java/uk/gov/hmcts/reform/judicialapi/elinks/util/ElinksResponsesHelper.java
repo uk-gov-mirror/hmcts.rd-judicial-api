@@ -36,7 +36,7 @@ public class ElinksResponsesHelper {
 
             return elinksData.toBuilder().body(jsonBody).build();
         } catch (IOException e) {
-            log.error("Saving base request failed ");
+            log.error("Saving base request failed " + apiName);
         }
         return elinksData;
     }
