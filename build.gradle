@@ -37,9 +37,8 @@ def versions = [
         junit              : '5.10.0',
         launchDarklySdk    : '5.10.9',
         pact_version       : '4.1.7',
-        log4j              : '2.18.0',
+        log4j              : '2.20.0',
         springVersion      : '6.0.11',
-        logback            : '1.2.11',
         bytebuddy          : '1.12.7',
         testContainer_postgresql: '1.17.6',
         feign              : '3.8.0',
@@ -170,6 +169,8 @@ pact {
 }
 
 configurations {
+    testCompile.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    testCompile.exclude group: 'ch.qos.logback', module: 'logback-classic'
     integrationTestImplementation.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
     functionalTestImplementation.extendsFrom testCompile
@@ -334,7 +335,10 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version: versions.springBoot
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-freemarker', version: versions.springBoot
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
-    implementation group: 'org.springframework.security', name: 'spring-security-core', version: '5.7.10'
+    implementation group: 'org.springframework.security', name: 'spring-security-core', version: '6.1.2'
+    implementation(group: 'org.springframework.security', name: 'spring-security-test'){
+        exclude group: 'org.springframework', module: 'spring-test'
+    }
 
     implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.70'
 
@@ -405,19 +409,18 @@ dependencies {
     implementation group: 'io.github.openfeign.form', name: 'feign-form', version: versions.feign
     implementation group: 'io.github.openfeign.form', name: 'feign-form-spring', version: versions.feign
     implementation "io.github.openfeign:feign-httpclient:12.2"
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
     implementation "com.github.hmcts.java-logging:logging:${versions.reformLogging}"
-    implementation "com.github.hmcts.java-logging:logging-appinsights:5.1.9"
+    implementation "com.github.hmcts.java-logging:logging-appinsights:6.0.1"
 
     implementation group: 'com.nimbusds', name: 'lang-tag', version: '1.7'
     implementation group: 'org.json', name: 'json', version: '20230227'
 
 
-    testImplementation ('com.github.hmcts:rd-commons-lib:v0.0.14'){
+    testImplementation ('com.github.hmcts:rd-commons-lib:v0.0.14') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-web'
-//        exclude group: 'org.apache.groovy', module: 'groovy-json'
-//        exclude group: 'org.apache.groovy', module: 'groovy'
-//        exclude group: 'org.apache.groovy', module: 'groovy-xml'
+        exclude group: 'org.apache.groovy', module: 'groovy-json'
+        exclude group: 'org.apache.groovy', module: 'groovy'
+        exclude group: 'org.apache.groovy', module: 'groovy-xml'
     }
 
 
@@ -446,13 +449,10 @@ dependencies {
         exclude group: 'com.github.jknack'
     }
 
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    testImplementation (group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot) {
         exclude group: 'junit', module: 'junit'
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
-
 
     testImplementation group: 'com.github.mifmif', name: 'generex', version: '1.0.2'
 
@@ -463,8 +463,6 @@ dependencies {
 
     testImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
     testImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
-
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
 
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
 
