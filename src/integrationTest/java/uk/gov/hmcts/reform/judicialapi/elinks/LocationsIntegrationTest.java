@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinksResponses;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinksResponsesRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
