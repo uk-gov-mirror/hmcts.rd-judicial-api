@@ -18,7 +18,7 @@ public class ApplicationConfiguration {
     private final String s2sMicroService;
     private final String s2sUrl;
 
-    public ApplicationConfiguration(@Value("${idam.s2s-auth.totp_secret}") String s2sSecret,
+    public ApplicationConfiguration(@Value("${JUDICIAL_API_S2S_SECRET}") String s2sSecret,
                                     @Value("${idam.s2s-auth.microservice}") String s2sMicroService,
                                     @Value("${idam.s2s-auth.url}") String s2sUrl) {
         this.s2sSecret = s2sSecret;
