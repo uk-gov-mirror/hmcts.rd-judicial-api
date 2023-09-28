@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import uk.gov.hmcts.reform.authorisation.ServiceAuthorisationApi;
 import uk.gov.hmcts.reform.idam.client.IdamApi;
 
@@ -18,8 +19,7 @@ import uk.gov.hmcts.reform.idam.client.IdamApi;
         ServiceAuthorisationApi.class
 })
 @ImportAutoConfiguration({
-        org.springframework.cloud.openfeign.FeignContext.class,
-        org.springframework.cloud.openfeign.FeignClientProperties.class
+        FeignAutoConfiguration.class
 })
 @EnableCaching
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class

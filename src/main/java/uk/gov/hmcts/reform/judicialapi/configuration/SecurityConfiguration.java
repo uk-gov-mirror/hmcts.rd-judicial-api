@@ -69,11 +69,6 @@ public class SecurityConfiguration {
         return web -> web.ignoring().requestMatchers(anonymousPaths.toArray(String[]::new));
     }
 
-    @Bean
-    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
-        return new DefaultMethodSecurityExpressionHandler();
-    }
-
     @Inject
     public SecurityConfiguration(final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter,
                                  final ServiceAuthFilter serviceAuthFilter,
