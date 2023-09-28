@@ -3,8 +3,8 @@ package uk.gov.hmcts.reform.judicialapi.configuration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,7 +30,7 @@ import uk.gov.hmcts.reform.judicialapi.oidc.JwtGrantedAuthoritiesConverter;
 import java.util.List;
 import javax.inject.Inject;
 
-@Configuration
+@EnableConfigurationProperties
 @ConfigurationProperties(prefix = "security")
 @EnableWebSecurity
 @Slf4j
@@ -45,7 +45,7 @@ public class SecurityConfiguration {
     private String issuerOverride;
 
     @Order(1)
-    private ServiceAuthFilter serviceAuthFilter;
+    private final ServiceAuthFilter serviceAuthFilter;
     @Order(2)
     private final SecurityEndpointFilter securityEndpointFilter;
     List<String> anonymousPaths;
