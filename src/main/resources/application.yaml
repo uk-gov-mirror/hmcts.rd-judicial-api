@@ -173,7 +173,6 @@ logging:
         jdbc:
           core:
             JdbcTemplate: DEBUG
-    javax.net.ssl: DEBUG
 elastic:
   search:
     query: ${JRD_SIDAM_SEARCH_QUERY:(roles:judiciary) AND lastModified:>now-%sh}
