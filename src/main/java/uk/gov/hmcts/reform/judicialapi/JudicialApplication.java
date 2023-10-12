@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.idam.client.IdamApi;
 public class JudicialApplication {
 
     public static void main(final String[] args) {
+        System.setProperty("javax.net.debug", "ssl:handshake");
         SpringApplication.run(JudicialApplication.class, args);
     }
 }

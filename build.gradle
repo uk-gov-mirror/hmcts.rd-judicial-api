@@ -563,7 +563,7 @@ bootJar {
 // UTF-8 as the default character set instead of windows-1252 which causes issues.
 // this setting only applies when running via gradle bootRun -- see web.config for the
 // java flag that configures the deployed applications
-applicationDefaultJvmArgs = ["-Dfile.encoding=UTF-8"]
+applicationDefaultJvmArgs = ["-Dfile.encoding=UTF-8","-Djavax.net.debug=ssl"]
 
 tasks.withType(Test) {
     useJUnitPlatform()
