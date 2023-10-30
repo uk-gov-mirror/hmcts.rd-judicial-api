@@ -20,12 +20,17 @@ import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversResultsR
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.DeletedResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.ElinksDeleteApiResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.feign.ElinksFeignClient;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinksResponsesRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.BaseLocationResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
@@ -71,6 +76,10 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 @Service
 @Slf4j
 public class ELinksServiceImpl implements ELinksService {
+
+    @Autowired
+    private ProfileRepository profileRepository;
+
     @Autowired
     private ElinksResponsesRepository elinksResponsesRepository;
 
@@ -95,6 +104,12 @@ public class ELinksServiceImpl implements ELinksService {
     @Value("${elinks.cleanElinksResponsesDays}")
     private Long cleanElinksResponsesDays;
 
+    @Value("${elinks.delJohProfilesYears:7}")
+    private Long delJohProfilesYears;
+
+    @Value("${elinks.delJohProfiles:false}")
+    private boolean delJohProfiles;
+
     @Autowired
     ElinksFeignClient elinksFeignClient;
 
@@ -116,6 +131,15 @@ public class ELinksServiceImpl implements ELinksService {
 
     @Autowired
     ElinkDataExceptionHelper elinkDataExceptionHelper;
+
+    @Autowired
+    AppointmentsRepository appointmentsRepository;
+
+    @Autowired
+    AuthorisationsRepository authorisationsRepository;
+
+    @Autowired
+    JudicialRoleTypeRepository judicialRoleTypeRepository;
 
     @Override
     public ResponseEntity<ElinkBaseLocationWrapperResponse> retrieveLocation() {
@@ -524,6 +548,31 @@ public class ELinksServiceImpl implements ELinksService {
                     null,
                     "elinks_responses", "Error while deleting records from elinks_responses table",
                     ELINKSRESPONSES,null,null);
+        }
+    }
+
+
+    @Transactional("transactionManager")
+    public void deleteJohProfiles(LocalDateTime schedulerStartTime) {
+        try {
+            if (delJohProfiles) {
+                LocalDateTime delDate = LocalDateTime.now().minusYears(delJohProfilesYears);
+                List<UserProfile> userProfiles = profileRepository
+                        .findByDeletedOnBeforeAndDeletedFlag(delDate,true);
+
+                List<String> personalCodes = userProfiles.stream().map(UserProfile::getPersonalCode).toList();
+                if (!personalCodes.isEmpty()) {
+                    authorisationsRepository.deleteByPersonalCodeIn(personalCodes);
+                    appointmentsRepository.deleteByPersonalCodeIn(personalCodes);
+                    judicialRoleTypeRepository.deleteByPersonalCodeIn(personalCodes);
+                    profileRepository.deleteByDeletedOnBeforeAndDeletedFlag(delDate,true);
+
+                    log.info("Deleted JOH UserProfiles Successfully");
+                    elinkDataExceptionHelper.auditException(personalCodes, schedulerStartTime);
+                }
+            }
+        } catch (Exception exception) {
+            log.warn("Deleting JOH User Profiles failed");
         }
     }
 }
