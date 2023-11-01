@@ -205,7 +205,7 @@ public class ElinksApiJobScheduler {
         ResponseEntity<Object> idamSearchResponse
                 = retrieveIdamElasticSearchDetails();
         } catch(Exception ex) {
-            log.error("Elinks idam elastic search Job execution completed failure for sidam Response",ex);
+            log.error("Elinks idam elastic search Job execution completed failure for elastic Response",ex);
             if (ex instanceof HttpClientErrorException)
             {
                 HttpClientErrorException exception=(HttpClientErrorException)ex;
