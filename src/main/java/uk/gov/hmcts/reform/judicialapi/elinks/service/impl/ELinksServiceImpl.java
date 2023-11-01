@@ -199,7 +199,6 @@ public class ELinksServiceImpl implements ELinksService {
                 handleELinksErrorResponse(httpStatus);
             }
         } catch (FeignException ex) {
-            log.error("feign exception on calling elinks location",ex);
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         } catch (JSONException ex) {
             log.error("json exception elinks location response",ex);
