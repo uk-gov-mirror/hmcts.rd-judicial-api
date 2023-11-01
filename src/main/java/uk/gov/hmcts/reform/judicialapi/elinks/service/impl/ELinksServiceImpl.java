@@ -307,14 +307,12 @@ public class ELinksServiceImpl implements ELinksService {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
         LocalDateTime schedulerStartTime = now();
+        log.info("Calling Elinks Leavers service");
         ElinkLeaversWrapperResponse elinkLeaversWrapperResponse = new ElinkLeaversWrapperResponse();
-
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
                 schedulerStartTime,
                 null,
                 RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), LEAVERSAPI);
-
-        log.info("Calling Elinks Leavers service");
         int pageValue = Integer.parseInt(page);
         do {
             Response leaverApiResponse = getLeaversResponseFromElinks(pageValue++);
@@ -439,6 +437,7 @@ public class ELinksServiceImpl implements ELinksService {
         boolean isMorePagesAvailable = true;
         HttpStatus httpStatus = null;
         LocalDateTime schedulerStartTime = now();
+        log.info("Calling Elinks Deleted service");
         ElinkDeletedWrapperResponse elinkDeletedWrapperResponse = new ElinkDeletedWrapperResponse();
 
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
@@ -446,7 +445,6 @@ public class ELinksServiceImpl implements ELinksService {
             null,
             RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), DELETEDAPI);
 
-        log.info("Calling Elinks Deleted service");
         int pageValue = Integer.parseInt(page);
         do {
             Response deletedApiResponse = getDeletedResponseFromElinks(pageValue++);
