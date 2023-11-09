@@ -157,6 +157,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Value("${elinks.people.retriggerStatus}")
     private List<Integer> retriggerStatusCode;
 
+    @Value("${elinks.people.updatedSinceEnabled:false}")
+    private boolean isCustomizeUpdatedSince;
+
     @Value("${elinks.people.page}")
     private String page;
 
@@ -188,6 +191,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         int pageValue = Integer.parseInt(page);
         int retryCount = 0;
         try {
+            log.info("calling elinks people service");
             do {
                 Response peopleApiResponse = getPeopleResponseFromElinks(pageValue++, schedulerStartTime);
                 peopleApiResponse = elinksResponsesHelper.saveElinksResponse(PEOPLEAPI, peopleApiResponse);
@@ -220,6 +224,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 pauseThread(Long.valueOf(threadPauseTime), schedulerStartTime);
             } while (isMorePagesAvailable);
         } catch (Exception ex) {
+            log.error("People service exception", ex);
             auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
             throw ex;
         }
@@ -274,18 +279,22 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private String getUpdateSince() {
         String updatedSince;
         LocalDateTime maxSchedulerEndTime;
-        try {
-            maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
-        } catch (Exception ex) {
-            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
-        }
-        if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+        if (isCustomizeUpdatedSince) {
             updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
         } else {
-            updatedSince = maxSchedulerEndTime.toString();
-            updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            try {
+                maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
+            } catch (Exception ex) {
+                throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
+            }
+            if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+                updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
+            } else {
+                updatedSince = maxSchedulerEndTime.toString();
+                updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            }
         }
-        log.info("updatedSince : " + updatedSince);
+        log.info("People Service updatedSince : " + updatedSince);
         return updatedSince;
     }
 
