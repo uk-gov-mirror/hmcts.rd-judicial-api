@@ -42,7 +42,7 @@ def vaultOverrides = [
 ]
 
 // Configure branches to sync with master branch
-def branchesToSync = []
+def branchesToSync = ['demo', 'ithc', 'perftest']
 
 // Vars for Kubernetes PACT
 env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
@@ -81,6 +81,14 @@ withPipeline(type, product, component) {
     before('smoketest:aat') {
       env.execution_environment = "aat"
       env.TEST_URL = "http://rd-judicial-api-aat.aat.platform.hmcts.net"
+    }
+
+    before('dbmigrate:aat') {
+        env.DB_READER_USERNAME = "DTS CFT DB Access Reader"
+    }
+
+    before('dbmigrate:prod') {
+        env.DB_READER_USERNAME = "DTS JIT Access rd DB Reader SC"
     }
 
     // Sync demo and perftest with master branch

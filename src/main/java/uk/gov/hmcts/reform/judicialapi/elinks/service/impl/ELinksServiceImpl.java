@@ -110,6 +110,9 @@ public class ELinksServiceImpl implements ELinksService {
     @Value("${elinks.delJohProfiles:false}")
     private boolean delJohProfiles;
 
+    @Value("${elinks.people.updatedSinceEnabled:false}")
+    private boolean isCustomizeUpdatedSince;
+
     @Autowired
     ElinksFeignClient elinksFeignClient;
 
@@ -285,18 +288,24 @@ public class ELinksServiceImpl implements ELinksService {
     private String getUpdateSince() {
         String updatedSince;
         LocalDateTime maxSchedulerEndTime;
-        try {
-            maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers();
-        } catch (Exception ex) {
-            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, AUDIT_DATA_ERROR, AUDIT_DATA_ERROR);
-        }
-        if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+
+        if (isCustomizeUpdatedSince) {
             updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
         } else {
-            updatedSince = maxSchedulerEndTime.toString();
-            updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            try {
+                maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTimeForLeavers();
+            } catch (Exception ex) {
+                throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, AUDIT_DATA_ERROR, AUDIT_DATA_ERROR);
+            }
+            if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+                updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
+            } else {
+                updatedSince = maxSchedulerEndTime.toString();
+                updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            }
         }
-        log.info("updatedSince : " + updatedSince);
+
+        log.info("Leavers Service updatedSince : " + updatedSince);
         return updatedSince;
     }
 
@@ -415,18 +424,23 @@ public class ELinksServiceImpl implements ELinksService {
     private String getDeletedSince() {
         String updatedSince;
         LocalDateTime maxSchedulerEndTime;
-        try {
-            maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestDeletedSchedularEndTime();
-        } catch (Exception ex) {
-            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, AUDIT_DATA_ERROR, AUDIT_DATA_ERROR);
-        }
-        if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+        if (isCustomizeUpdatedSince) {
             updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
         } else {
-            updatedSince = maxSchedulerEndTime.toString();
-            updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            try {
+                maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestDeletedSchedularEndTime();
+            } catch (Exception ex) {
+                throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, AUDIT_DATA_ERROR, AUDIT_DATA_ERROR);
+            }
+            if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+                updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
+            } else {
+                updatedSince = maxSchedulerEndTime.toString();
+                updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            }
         }
-        log.info("updatedSince : " + updatedSince);
+
+        log.info("Deleted Service updatedSince : " + updatedSince);
         return updatedSince;
     }
 

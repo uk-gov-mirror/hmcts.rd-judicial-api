@@ -25,6 +25,7 @@ java:
     ELINKS_URL: https://judiciary-middleware-futureehr.herokuapp.com/api/v5
     LAST_UPDATED: 2014-01-01
     SCHEDULER_ENABLED: false
+    CUSTOMIZE_UPDATEDSINCE: false
     CRON_EXPRESSION: "0 0 0 25 03 ?"
     PER_PAGE: 50
     INCLUDE_PREVIOUS_APPOINTMENT: false
@@ -33,6 +34,7 @@ java:
     Clean_Elinks_Responses_Days: 30
     Del_Joh_Profiles_Years: 7
     Del_Joh_Profiles: false
+    DB_READER_USERNAME: "DTS CFT DB Access Reader"
   image: 'hmctspublic.azurecr.io/rd/judicial-api:latest'
   keyVaults:
     rd:

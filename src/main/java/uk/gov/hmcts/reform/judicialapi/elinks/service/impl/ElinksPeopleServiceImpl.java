@@ -74,15 +74,18 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIALROLETYPE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTIDISDUPLICATED;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECTIDISPRESENT;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.OBJECT_ID;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PARENTIDFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLE_DATA_LOAD_SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PERSONALCODE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ROLENAME;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.TYPEIDFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEEMAILID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEISPRESENT;
@@ -156,6 +159,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     @Value("${elinks.people.retriggerStatus}")
     private List<Integer> retriggerStatusCode;
+
+    @Value("${elinks.people.updatedSinceEnabled:false}")
+    private boolean isCustomizeUpdatedSince;
 
     @Value("${elinks.people.page}")
     private String page;
@@ -276,18 +282,22 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private String getUpdateSince() {
         String updatedSince;
         LocalDateTime maxSchedulerEndTime;
-        try {
-            maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
-        } catch (Exception ex) {
-            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
-        }
-        if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+        if (isCustomizeUpdatedSince) {
             updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
         } else {
-            updatedSince = maxSchedulerEndTime.toString();
-            updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            try {
+                maxSchedulerEndTime = dataloadSchedularAuditRepository.findLatestSchedularEndTime();
+            } catch (Exception ex) {
+                throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
+            }
+            if (Optional.ofNullable(maxSchedulerEndTime).isEmpty()) {
+                updatedSince = commonUtil.getUpdatedDateFormat(lastUpdated);
+            } else {
+                updatedSince = maxSchedulerEndTime.toString();
+                updatedSince = updatedSince.substring(0, updatedSince.indexOf('T'));
+            }
         }
-        log.info("updatedSince : " + updatedSince);
+        log.info("People Service updatedSince : " + updatedSince);
         return updatedSince;
     }
 
@@ -317,6 +327,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .getObjectId(), resultsRequest.getAuthorisationsRequests(),schedulerStartTime,pageValue);
                 saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles(),pageValue);
             } catch (Exception exception) {
+                log.error("saveUserProfile exception", exception.getMessage());
                 log.warn("saveUserProfile is failed  " + resultsRequest.getPersonalCode());
                 partialSuccessFlag = true;
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
@@ -346,6 +357,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .build());
 
             } catch (Exception e) {
+                log.error("Save Role Details exception", e.getMessage());
                 log.warn("Judicial additional role  not loaded for " + personalCode);
                 partialSuccessFlag = true;
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
@@ -391,6 +403,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 profileRepository.save(userProfile);
                 return true;
             }   catch (Exception e) {
+                log.error("saveUserProfile exception", e.getMessage());
                 log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
                 partialSuccessFlag = true;
                 String personalCode = resultsRequest.getPersonalCode();
@@ -409,7 +422,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private boolean validateUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
 
         if (StringUtils.isEmpty(resultsRequest.getEmail())) {
-            log.warn("Mapped Base location not found in base table " + resultsRequest.getPersonalCode());
+            log.warn("Email is empty or null for the personal code : " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String errorField = resultsRequest.getPersonalCode();
             String errorDescription = appendFieldWithErrorDescription(USERPROFILEEMAILID, errorField);
@@ -437,7 +450,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 schedulerStartTime,
                 resultsRequest.getObjectId(),
-                OBJECTID,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode,pageValue);
+                OBJECT_ID,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode,pageValue);
             return false;
         } else if (!isNull(resultsRequest.getObjectId())
             && !resultsRequest.getObjectId().isEmpty() && objectIdisPresentInDb(resultsRequest)) {
@@ -447,7 +460,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                 schedulerStartTime,
                 resultsRequest.getPersonalCode(),
-                OBJECTID,OBJECTIDISPRESENT, USER_PROFILE,personalCode,pageValue);
+                    OBJECT_ID,OBJECTIDISPRESENT, USER_PROFILE,personalCode,pageValue);
             return false;
         }
         return true;
@@ -507,6 +520,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .build();
                 appointmentsRepository.save(appointment);
             } catch (Exception e) {
+                log.error("Save Appointment exception", e.getMessage());
                 log.warn("failed to load appointment details for " + appointmentsRequest.getAppointmentId());
                 partialSuccessFlag = true;
                 String errorDescription = appendFieldWithErrorDescription(LOCATIONIDFAILURE, baseLocationId);
@@ -540,6 +554,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .jurisdictionId(authorisationsRequest.getJurisdictionId())
                         .build());
             } catch (Exception e) {
+                log.error("Save Authorisation exception", e.getMessage());
                 log.warn("failed to load Authorisation details for " + authorisationsRequest.getAuthorisationId());
                 partialSuccessFlag = true;
                 String errorDescription;
@@ -568,8 +583,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private boolean validAppointments(AppointmentsRequest appointmentsRequest, String personalCode, LocalDateTime
         schedulerStartTime, int pageValue) {
 
-        if (StringUtils.isEmpty(appointmentsRequest.getBaseLocationId())
-            || StringUtils.isEmpty(fetchBaseLocationId(appointmentsRequest))) {
+        if (StringUtils.isEmpty(appointmentsRequest.getBaseLocationId()) || StringUtils
+                .isEmpty(baseLocationRepository.fetchBaseLocationId(appointmentsRequest.getBaseLocationId()))) {
             log.warn("Mapped Base location not found in base table " + appointmentsRequest.getBaseLocationId());
             partialSuccessFlag = true;
             String baseLocationId = appointmentsRequest.getBaseLocationId();
@@ -578,6 +593,25 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     schedulerStartTime,
                 appointmentsRequest.getAppointmentId(),
                 BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
+            return false;
+        } else if (StringUtils.isBlank(appointmentsRequest.getType())) {
+            log.warn("The Type field is null for the given Appointment.");
+            partialSuccessFlag = true;
+            String errorDescription = TYPEIDFAILURE;
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                    schedulerStartTime,
+                    appointmentsRequest.getAppointmentId(),
+                    BASE_LOCATION_ID, errorDescription, APPOINTMENT_TABLE,personalCode,pageValue);
+            return false;
+        }  else if (StringUtils.isBlank(fetchBaseLocationId(appointmentsRequest))) {
+            log.warn("Mapped parentId not found in locationType table " + appointmentsRequest.getBaseLocationId());
+            partialSuccessFlag = true;
+            String errorDescription = appendFieldWithErrorDescription(appointmentsRequest.getBaseLocationId(),
+                    PARENTIDFAILURE);
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                    schedulerStartTime,
+                    appointmentsRequest.getAppointmentId(),
+                    BASE_LOCATION_ID, errorDescription + LOCATIONFAILURE, APPOINTMENT_TABLE,personalCode,pageValue);
             return false;
         } else if (StringUtils.isEmpty(fetchRegionId(appointmentsRequest.getLocation()))) {
             log.warn("Mapped  location not found in jrd lrd mapping table " + appointmentsRequest.getLocation());
