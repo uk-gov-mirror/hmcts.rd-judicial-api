@@ -161,7 +161,6 @@ class DeletedIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(false, userprofile.get(13).getDeletedFlag());
         assertEquals("2022-07-10", userprofile.get(13).getDeletedOn().toLocalDate().toString());
 
-
         List<ElinkDataSchedularAudit>  elinksAudit = elinkSchedularAuditRepository.findAll();
 
         ElinkDataSchedularAudit auditEntry = elinksAudit.get(2);
