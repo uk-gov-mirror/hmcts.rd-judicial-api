@@ -263,6 +263,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             return elinksFeignClient.getPeopleDetails(updatedSince, perPage, String.valueOf(currentPage),
                     Boolean.parseBoolean(includePreviousAppointments));
         } catch (FeignException ex) {
+            log.error("elinks feign exception", ex);
             auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         }
