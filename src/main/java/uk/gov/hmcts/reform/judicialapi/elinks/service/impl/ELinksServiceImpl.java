@@ -202,6 +202,7 @@ public class ELinksServiceImpl implements ELinksService {
                 handleELinksErrorResponse(httpStatus);
             }
         } catch (FeignException ex) {
+            log.error("elinks feign exception", ex);
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         } catch (JSONException ex) {
             log.error("json exception elinks location response",ex);
@@ -281,6 +282,7 @@ public class ELinksServiceImpl implements ELinksService {
         try {
             return elinksFeignClient.getLeaversDetails(leftSince, perPage, String.valueOf(currentPage));
         } catch (FeignException ex) {
+            log.error("elinks feign exception", ex);
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         }
     }
@@ -417,6 +419,7 @@ public class ELinksServiceImpl implements ELinksService {
         try {
             return elinksFeignClient.getDeletedDetails(leftSince, perPage, String.valueOf(currentPage));
         } catch (FeignException ex) {
+            log.error("elinks feign exception", ex);
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         }
     }
