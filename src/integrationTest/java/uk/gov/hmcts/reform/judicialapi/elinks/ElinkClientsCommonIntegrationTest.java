@@ -753,14 +753,4 @@ class ElinkClientsCommonIntegrationTest extends ElinksEnabledIntegrationTest {
         tokenConfigProperties.setUrl(url);
 
     }
-
-    private void cleanupData() {
-        elinkSchedularAuditRepository.deleteAll();
-        authorisationsRepository.deleteAll();
-        appointmentsRepository.deleteAll();
-        baseLocationRepository.deleteAll();
-        appointmentsRepository.deleteAll();
-        baseLocationRepository.deleteAll();
-    }
-
 }

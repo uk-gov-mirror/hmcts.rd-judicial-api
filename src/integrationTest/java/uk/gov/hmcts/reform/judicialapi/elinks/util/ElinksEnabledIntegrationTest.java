@@ -22,6 +22,17 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.judicialapi.configuration.RestTemplateConfiguration;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedulerJobRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkDataExceptionRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinksResponsesRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.scheduler.ElinksApiJobScheduler;
 import uk.gov.hmcts.reform.judicialapi.service.impl.FeatureToggleServiceImpl;
 import uk.gov.hmcts.reform.judicialapi.util.SpringBootIntegrationTest;
 import uk.gov.hmcts.reform.judicialapi.versions.V2;
@@ -86,9 +97,45 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
     @Autowired
     Flyway flyway;
 
+    @Autowired
+    protected ElinkSchedularAuditRepository elinkSchedularAuditRepository;
+
+    @Autowired
+    protected DataloadSchedulerJobRepository dataloadSchedulerJobRepository;
+
+    @Autowired
+    protected ElinksResponsesHelper elinksResponsesHelper;
+
+    @Autowired
+    protected ElinksResponsesRepository elinksResponsesRepository;
+
+    @Autowired
+    protected AuthorisationsRepository authorisationsRepository;
+
+    @Autowired
+    protected AppointmentsRepository appointmentsRepository;
+
+    @Autowired
+    protected JudicialRoleTypeRepository judicialRoleTypeRepository;
+
+    @Autowired
+    protected BaseLocationRepository baseLocationRepository;
+
+    @Autowired
+    protected ProfileRepository profileRepository;
+
+    @Autowired
+    protected LocationRepository locationRepository;
+
+    @Autowired
+    protected ElinkDataExceptionRepository elinkDataExceptionRepository;
+
+    @Autowired
+    protected ElinksApiJobScheduler elinksApiJobScheduler;
+
     @BeforeAll
     public void setUpClient() {
-        ElinksReferenceDataClient.setBearerToken("");
+        cleanupTestData();
         elinksReferenceDataClient = new ElinksReferenceDataClient(port, issuer, expiration, serviceName);
         when(featureToggleServiceImpl.isFlagEnabled(anyString())).thenReturn(true);
         flyway.clean();
@@ -101,7 +148,6 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
 
     @BeforeAll
     public void setupIdamStubs() throws Exception {
-
         String locationResponseValidationJson =
                 loadJson("src/integrationTest/resources/wiremock_responses/location.json");
         String baselocationResponseValidationJson =
@@ -236,6 +282,16 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
         public boolean applyGlobally() {
             return false;
         }
+    }
+
+    protected void cleanupData() {
+        elinkSchedularAuditRepository.deleteAll();
+        authorisationsRepository.deleteAll();
+        appointmentsRepository.deleteAll();
+        judicialRoleTypeRepository.deleteAll();
+        baseLocationRepository.deleteAll();
+        profileRepository.deleteAll();
+        dataloadSchedulerJobRepository.deleteAll();
     }
 }
 
