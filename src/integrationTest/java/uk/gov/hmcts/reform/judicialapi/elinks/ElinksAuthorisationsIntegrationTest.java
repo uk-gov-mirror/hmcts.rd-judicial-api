@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
-import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.DataloadSchedulerJob;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataExceptionRecords;
@@ -16,6 +15,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
@@ -57,7 +57,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @Autowired
-    IdamTokenConfigProperties tokenConfigProperties;
+    private ElinkSchedularAuditRepository elinkSchedularAuditRepository;
     @Autowired
     private ElinksApiJobScheduler elinksApiJobScheduler;
     @Autowired
@@ -126,7 +126,7 @@ class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
         validateDeleted(elinksAudit);
 
         //assert elastic search api
-        idamSetUp();
+        initialize();
         validateElasticSearch(audits);
 
         // asserting SIDAM publishing
@@ -229,22 +229,6 @@ class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(11, locationsList.size());
         assertEquals("1", locationsList.get(1).getRegionId());
         assertEquals("London", locationsList.get(1).getRegionDescEn());
-    }
-
-    private void idamSetUp() {
-
-        final String clientId = "234342332";
-        final String redirectUri = "http://idam-api.aat.platform.hmcts.net";
-        //The authorization and clientAuth is the dummy value which we can evaluate using BASE64 encoder.
-        final String authorization = "ZHVtbXl2YWx1ZUBobWN0cy5uZXQ6SE1DVFMxMjM0";
-        final String clientAuth = "cmQteHl6LWFwaTp4eXo=";
-        final String url = "http://127.0.0.1:5000";
-        tokenConfigProperties.setClientId(clientId);
-        tokenConfigProperties.setClientAuthorization(clientAuth);
-        tokenConfigProperties.setAuthorization(authorization);
-        tokenConfigProperties.setRedirectUri(redirectUri);
-        tokenConfigProperties.setUrl(url);
-
     }
 
     private void validateSidamPublish() {

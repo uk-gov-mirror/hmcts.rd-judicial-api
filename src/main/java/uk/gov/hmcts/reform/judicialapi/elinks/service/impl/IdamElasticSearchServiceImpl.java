@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.idam.client.models.TokenRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
@@ -35,7 +36,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +57,8 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 @Slf4j
 @Component
 public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
+
+    public static final String SCOPE = "openid profile roles manage-user create-user search-user";
 
     @Value("${logging-component-name}")
     String loggingComponentName;
@@ -99,20 +101,17 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
         IdamOpenIdTokenResponse idamOpenIdTokenResponse = null;
         try {
 
-            byte[] base64UserDetails = Base64.getDecoder().decode(props.getAuthorization());
-            Map<String, String> formParams = new HashMap<>();
-            formParams.put("grant_type", "password");
-            String[] userDetails = new String(base64UserDetails).split(":");
-            formParams.put("username", userDetails[0].trim());
-            formParams.put("password", userDetails[1].trim());
-            formParams.put("client_id", props.getClientId());
-            byte[] base64ClientAuth = Base64.getDecoder().decode(props.getClientAuthorization());
-            String[] clientAuth = new String(base64ClientAuth).split(":");
-            formParams.put("redirect_uri", props.getRedirectUri());
-            formParams.put("client_secret", clientAuth[1]);
-            formParams.put("scope", "openid profile roles manage-user create-user search-user");
+            String authorisation = props.getAuthorization();
+            String[] userDetails = authorisation.split(":");
+            TokenRequest tokenRequest = new TokenRequest(props.getClientId(),
+                    props.getClientAuthorization(),
+                    "password",
+                    props.getRedirectUri(),
+                    userDetails[0].trim(),
+                    userDetails[1].trim(),
+                    SCOPE, "", "");
 
-            idamOpenIdTokenResponse = idamFeignClient.getOpenIdToken(formParams);
+            idamOpenIdTokenResponse = idamFeignClient.getOpenIdToken(tokenRequest);
 
             if (idamOpenIdTokenResponse == null) {
                 throw new ElinksException(HttpStatus.FORBIDDEN, IDAM_TOKEN_ERROR_MESSAGE,
@@ -152,15 +151,14 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), ELASTICSEARCH);
 
         log.info("Calling idam client");
-        do {
-            params.put("page", String.valueOf(count));
-            try {
-                String bearerToken = "Bearer ".concat(getIdamBearerToken(schedulerStartTime));
+        try {
+            String bearerToken = "Bearer ".concat(getIdamBearerToken(schedulerStartTime));
+            do {
+                params.put("page", String.valueOf(count));
                 response = idamFeignClient.getUserFeed(bearerToken, params);
                 logIdamResponses(response);
                 responseEntity = JsonFeignResponseUtil.toResponseEntity(response,
-                    new TypeReference<Set<IdamResponse>>() {
-                    });
+                        new TypeReference<Set<IdamResponse>>() {});
                 if (response.status() == 200) {
 
                     Set<IdamResponse> users = (Set<IdamResponse>) responseEntity.getBody();
@@ -177,21 +175,21 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 } else {
                     log.error("{}:: Idam Search Service Failed :: ", loggingComponentName);
                     throw new ElinksException(responseEntity.getStatusCode(), IDAM_ERROR_MESSAGE,
-                        IDAM_ERROR_MESSAGE);
+                            IDAM_ERROR_MESSAGE);
                 }
-            } catch (Exception ex) {
-                //There is No header.
-                log.error("{}:: X-Total-Count header not return Idam Search Service::{}", loggingComponentName, ex);
-                elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                count++;
+                log.debug("{}:: batch count :: ", count);
+            } while (totalCount > 0 && recordsPerPage * count < totalCount);
+        } catch (Exception ex) {
+            //There is No header.
+            log.error("{}:: X-Total-Count header not return Idam Search Service::{}", loggingComponentName, ex);
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
                     schedulerStartTime,
                     now(),
                     RefDataElinksConstants.JobStatus.FAILED.getStatus(), ELASTICSEARCH);
-                throw new ElinksException(HttpStatus.valueOf(response.status()), ex.getMessage(),
-                        IDAM_ERROR_MESSAGE);
-            }
-            count++;
-            log.debug("{}:: batch count :: ", count);
-        } while (totalCount > 0 && recordsPerPage * count < totalCount);
+            throw new ElinksException(HttpStatus.valueOf(response.status()), ex.getMessage(),
+                    IDAM_ERROR_MESSAGE);
+        }
 
         validateObjectIds(judicialUsers,schedulerStartTime);
         sendEmail.sendEmail(schedulerStartTime);
@@ -220,21 +218,22 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), IDAMSEARCH);
         Set<IdamResponse> judicialUsers = new HashSet<>();
         List<UserProfile> userProfiles = userProfileRepository.fetchObjectIdFromCurrentDate();
+        int userProfileSize = userProfiles.size();
+        String bearerToken = userProfileSize > 0 ? "Bearer ".concat(getIdamBearerToken(schedulerStartTime)) : "";
+        log.debug("{}:: Number of User profiles from JRD :: " + userProfileSize, loggingComponentName);
         userProfiles.forEach(userProfile -> {
             Map<String, String> params = new HashMap<>();
             params.put("query", idamFindQuery.concat(userProfile.getObjectId()));
             log.debug("{}:: search elk query {}", loggingComponentName, params.get("query"));
-            int count = 0;
             int totalCount = 0;
             ResponseEntity<Object> responseEntity = null;
             Response response = null;
             try {
-                String bearerToken = "Bearer ".concat(getIdamBearerToken(schedulerStartTime));
                 response = idamFeignClient.getUserFeed(bearerToken, params);
                 logIdamResponses(response);
                 responseEntity = JsonFeignResponseUtil.toResponseEntity(response,
-                    new TypeReference<Set<IdamResponse>>() {
-                    });
+                        new TypeReference<Set<IdamResponse>>() {
+                        });
                 if (response.status() == 200) {
 
                     Set<IdamResponse> users = (Set<IdamResponse>) responseEntity.getBody();
@@ -242,7 +241,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
 
                     List<String> headerCount = responseEntity.getHeaders().get("X-Total-Count");
                     if (headerCount != null && !headerCount.isEmpty()
-                        && !headerCount.get(0).isEmpty()) {
+                            && !headerCount.get(0).isEmpty()) {
 
                         totalCount = Integer.parseInt(headerCount.get(0));
                         log.debug("{}:: Header Records count from Idam :: " + totalCount, loggingComponentName);
@@ -251,17 +250,17 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 } else {
                     log.error("{}:: Idam Search Service Failed :: ", loggingComponentName);
                     throw new ElinksException(responseEntity.getStatusCode(), IDAM_ERROR_MESSAGE,
-                        IDAM_ERROR_MESSAGE);
+                            IDAM_ERROR_MESSAGE);
                 }
             } catch (Exception ex) {
                 //There is No header.
                 log.error("{}:: X-Total-Count header not return Idam Search Service::{}", loggingComponentName, ex);
                 elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
-                    schedulerStartTime,
-                    now(),
-                    RefDataElinksConstants.JobStatus.FAILED.getStatus(), IDAMSEARCH);
+                        schedulerStartTime,
+                        now(),
+                        RefDataElinksConstants.JobStatus.FAILED.getStatus(), IDAMSEARCH);
                 throw new ElinksException(HttpStatus.valueOf(response.status()), ex.getMessage(),
-                    IDAM_ERROR_MESSAGE);
+                        IDAM_ERROR_MESSAGE);
             }
         });
 

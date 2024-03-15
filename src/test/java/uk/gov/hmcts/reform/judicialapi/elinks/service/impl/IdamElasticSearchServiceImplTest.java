@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,17 +90,14 @@ class IdamElasticSearchServiceImplTest {
 
     @BeforeEach
     void setUP() {
-        final String clientId = "234342332";
-        final String redirectUri = "http://idam-api.aat.platform.hmcts.net";
-        //The authorization and clientAuth is the dummy value which we can evaluate using BASE64 encoder.
-        final String authorization = "ZHVtbXl2YWx1ZUBobWN0cy5uZXQ6SE1DVFMxMjM0";
-        final String clientAuth = "cmQteHl6LWFwaTp4eXo=";
-        final String url = "http://127.0.0.1:5000";
-        tokenConfigProperties.setClientId(clientId);
-        tokenConfigProperties.setClientAuthorization(clientAuth);
-        tokenConfigProperties.setAuthorization(authorization);
-        tokenConfigProperties.setRedirectUri(redirectUri);
-        tokenConfigProperties.setUrl(url);
+        byte[] base64UserDetails = Base64.getDecoder().decode("ZHVtbXl2YWx1ZUBobWN0cy5uZXQ6SE1DVFMxMjM0");
+        byte[] clientAuth = Base64.getDecoder().decode("cmQteHl6LWFwaTp4eXo");
+        tokenConfigProperties.setClientId("234342332");
+        tokenConfigProperties.setClientAuthorization(new String(clientAuth));
+        tokenConfigProperties.setAuthorization(new String(base64UserDetails));
+        tokenConfigProperties.setRedirectUri("http://idam-api.aat.platform.hmcts.net");
+        tokenConfigProperties.setUrl("http://127.0.0.1:5000");
+
         idamElasticSearchServiceImpl.props = tokenConfigProperties;
         idamElasticSearchServiceImpl.recordsPerPage = 1;
         idamElasticSearchServiceImpl.page = "1";

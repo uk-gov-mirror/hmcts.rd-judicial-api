@@ -22,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.judicialapi.configuration.RestTemplateConfiguration;
+import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
@@ -41,6 +42,7 @@ import uk.gov.hmcts.reform.judicialapi.wiremock.WireMockExtension;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -92,6 +94,9 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
 
     @RegisterExtension
     protected final WireMockExtension elinks = new WireMockExtension(8000);
+
+    @Autowired
+    protected IdamTokenConfigProperties tokenConfigProperties;
 
 
     @Autowired
@@ -292,6 +297,17 @@ public abstract class ElinksEnabledIntegrationTest extends SpringBootIntegration
         baseLocationRepository.deleteAll();
         profileRepository.deleteAll();
         dataloadSchedulerJobRepository.deleteAll();
+    }
+
+    protected void initialize() {
+        byte[] base64UserDetails = Base64.getDecoder().decode("ZHVtbXl2YWx1ZUBobWN0cy5uZXQ6SE1DVFMxMjM0");
+        byte[] base64ClientAuth = Base64.getDecoder().decode("cmQteHl6LWFwaTp4eXo");
+        String[] clientAuth = new String(base64ClientAuth).split(":");
+        tokenConfigProperties.setClientId("234342332");
+        tokenConfigProperties.setClientAuthorization(clientAuth[1]);
+        tokenConfigProperties.setAuthorization(new String(base64UserDetails));
+        tokenConfigProperties.setRedirectUri("http://idam-api.aat.platform.hmcts.net");
+        tokenConfigProperties.setUrl("http://127.0.0.1:5000");
     }
 }
 
