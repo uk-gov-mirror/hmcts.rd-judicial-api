@@ -1,0 +1,1 @@
+-- Grant usage and select privs on Reader user have moved to 1_97__elink_grant_access_dbjudicialdata.sql
