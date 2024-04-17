@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
-import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.DataloadSchedulerJob;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataExceptionRecords;
@@ -16,15 +15,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedulerJobRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkDataExceptionRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
@@ -45,8 +36,6 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,69 +52,26 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.PEOPLEAPI;
-import static uk.gov.hmcts.reform.judicialapi.util.KeyGenUtil.getDynamicJwksResponse;
 
 @SuppressWarnings("unchecked")
 class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
 
     @Autowired
-    LocationRepository locationRepository;
-    @Autowired
-    ProfileRepository profileRepository;
-    @Autowired
-    JudicialRoleTypeRepository judicialRoleTypeRepository;
-    @Autowired
-    BaseLocationRepository baseLocationRepository;
-    @Autowired
-    AuthorisationsRepository authorisationsRepository;
-    @Autowired
-    AppointmentsRepository appointmentsRepository;
-    @Autowired
-    IdamTokenConfigProperties tokenConfigProperties;
-    @Autowired
     private ElinkSchedularAuditRepository elinkSchedularAuditRepository;
     @Autowired
     private ElinksApiJobScheduler elinksApiJobScheduler;
     @Autowired
-    private DataloadSchedulerJobRepository dataloadSchedulerJobRepository;
-    @Autowired
     PublishSidamIdService publishSidamIdService;
     @MockBean
     ElinkTopicPublisher elinkTopicPublisher;
-    @Autowired
-    ElinkDataExceptionRepository elinkDataExceptionRepository;
-
 
     @BeforeAll
     void loadElinksResponse() throws Exception {
 
         cleanupData();
 
-        String locationResponseValidationJson =
-                loadJson("src/integrationTest/resources/wiremock_responses/location.json");
-        String baselocationResponseValidationJson =
-                loadJson("src/integrationTest/resources/wiremock_responses/base_location.json");
         String peopleResponseValidationJson =
                 loadJson("src/integrationTest/resources/wiremock_responses/people_null_appointmentId.json");
-        String leaversResponseValidationJson =
-                loadJson("src/integrationTest/resources/wiremock_responses/leavers.json");
-        String deletedResponseValidationJson =
-                loadJson("src/integrationTest/resources/wiremock_responses/deleted.json");
-
-        elinks.stubFor(get(urlPathMatching("/reference_data/location"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", V2.MediaType.SERVICE)
-                        .withHeader("Connection", "close")
-                        .withBody(locationResponseValidationJson)));
-
-        elinks.stubFor(get(urlPathMatching("/reference_data/base_location"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", V2.MediaType.SERVICE)
-                        .withHeader("Connection", "close")
-                        .withBody(baselocationResponseValidationJson)
-                        .withTransformers("user-token-response")));
 
         elinks.stubFor(get(urlPathMatching("/people"))
                 .willReturn(aResponse()
@@ -133,76 +79,6 @@ class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
                         .withHeader("Content-Type", V2.MediaType.SERVICE)
                         .withHeader("Connection", "close")
                         .withBody(peopleResponseValidationJson)));
-
-        elinks.stubFor(get(urlPathMatching("/leavers"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", V2.MediaType.SERVICE)
-                        .withHeader("Connection", "close")
-                        .withBody(leaversResponseValidationJson)));
-
-        elinks.stubFor(get(urlPathMatching("/deleted"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", V2.MediaType.SERVICE)
-                        .withHeader("Connection", "close")
-                        .withBody(deletedResponseValidationJson)));
-
-
-        String idamResponseValidationJson =
-                loadJson("src/integrationTest/resources/wiremock_responses/idamresponse.json");
-
-        sidamService.stubFor(get(urlPathMatching("/api/v1/users"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withHeader("Connection", "close")
-                        .withBody(idamResponseValidationJson)
-                ));
-
-        sidamService.stubFor(post(urlPathMatching("/o/token"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withHeader("Connection", "close")
-                        .withBody("{"
-                                + "        \"access_token\": \"12345\""
-                                + "    }")
-                ));
-
-        s2sService.stubFor(get(urlEqualTo("/details"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withHeader("Connection", "close")
-                        .withBody("rd_judicial_api")));
-
-        sidamService.stubFor(get(urlPathMatching("/o/userinfo"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withHeader("Connection", "close")
-                        .withBody("{"
-                                + "  \"id\": \"%s\","
-                                + "  \"uid\": \"%s\","
-                                + "  \"forename\": \"Super\","
-                                + "  \"surname\": \"User\","
-                                + "  \"email\": \"super.user@hmcts.net\","
-                                + "  \"accountStatus\": \"active\","
-                                + "  \"roles\": ["
-                                + "  \"%s\""
-                                + "  ]"
-                                + "}")
-                        .withTransformers("user-token-response")));
-
-        mockHttpServerForOidc.stubFor(get(urlPathMatching("/jwks"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withHeader("Connection", "close")
-                        .withBody(getDynamicJwksResponse())));
-
-
     }
 
     @BeforeEach
@@ -250,7 +126,7 @@ class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
         validateDeleted(elinksAudit);
 
         //assert elastic search api
-        idamSetUp();
+        initialize();
         validateElasticSearch(audits);
 
         // asserting SIDAM publishing
@@ -355,22 +231,6 @@ class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals("London", locationsList.get(1).getRegionDescEn());
     }
 
-    private void idamSetUp() {
-
-        final String clientId = "234342332";
-        final String redirectUri = "http://idam-api.aat.platform.hmcts.net";
-        //The authorization and clientAuth is the dummy value which we can evaluate using BASE64 encoder.
-        final String authorization = "ZHVtbXl2YWx1ZUBobWN0cy5uZXQ6SE1DVFMxMjM0";
-        final String clientAuth = "cmQteHl6LWFwaTp4eXo=";
-        final String url = "http://127.0.0.1:5000";
-        tokenConfigProperties.setClientId(clientId);
-        tokenConfigProperties.setClientAuthorization(clientAuth);
-        tokenConfigProperties.setAuthorization(authorization);
-        tokenConfigProperties.setRedirectUri(redirectUri);
-        tokenConfigProperties.setUrl(url);
-
-    }
-
     private void validateSidamPublish() {
         Map<String, Object> idamResponse = elinksReferenceDataClient.publishSidamIds();
         doNothing().when(elinkTopicPublisher).sendMessage(anyList(),anyString());
@@ -415,16 +275,6 @@ class ElinksAuthorisationsIntegrationTest extends ElinksEnabledIntegrationTest {
         assertEquals(JUDICIAL_REF_DATA_ELINKS, auditEntry.getSchedulerName());
         assertNotNull(auditEntry.getSchedulerStartTime());
         assertNotNull(auditEntry.getSchedulerEndTime());
-    }
-
-    private void cleanupData() {
-        elinkSchedularAuditRepository.deleteAll();
-        authorisationsRepository.deleteAll();
-        appointmentsRepository.deleteAll();
-        judicialRoleTypeRepository.deleteAll();
-        baseLocationRepository.deleteAll();
-        profileRepository.deleteAll();
-        dataloadSchedulerJobRepository.deleteAll();
     }
 }
 

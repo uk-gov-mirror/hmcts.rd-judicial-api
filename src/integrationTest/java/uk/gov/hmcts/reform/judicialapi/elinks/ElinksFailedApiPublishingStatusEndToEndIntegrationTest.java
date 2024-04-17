@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
-import uk.gov.hmcts.reform.judicialapi.elinks.configuration.IdamTokenConfigProperties;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.DataloadSchedulerJob;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataExceptionRecords;
@@ -18,19 +17,9 @@ import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Location;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.BaseLocationRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedulerJobRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkDataExceptionRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.ElinkSchedularAuditRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
-import uk.gov.hmcts.reform.judicialapi.elinks.scheduler.ElinksApiJobScheduler;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksEnabledIntegrationTest;
@@ -56,44 +45,11 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 
 class ElinksFailedApiPublishingStatusEndToEndIntegrationTest extends ElinksEnabledIntegrationTest {
 
-    @Autowired
-    LocationRepository locationRepository;
-
-    @Autowired
-    AppointmentsRepository appointmentsRepository;
-
-    @Autowired
-    AuthorisationsRepository authorisationsRepository;
-
-    @Autowired
-    ProfileRepository profileRepository;
-
-    @Autowired
-    BaseLocationRepository baseLocationRepository;
-
-    @Autowired
-    JudicialRoleTypeRepository judicialRoleTypeRepository;
-
-    @Autowired
-    private ElinkSchedularAuditRepository elinkSchedularAuditRepository;
-
-    @Autowired
-    private ElinksApiJobScheduler elinksApiJobScheduler;
-
-    @Autowired
-    private DataloadSchedulerJobRepository dataloadSchedulerJobRepository;
-
-    @Autowired
-    IdamTokenConfigProperties tokenConfigProperties;
-
     @MockBean
     ElinkTopicPublisher elinkTopicPublisher;
 
     @Autowired
     PublishSidamIdService publishSidamIdService;
-
-    @Autowired
-    ElinkDataExceptionRepository elinkDataExceptionRepository;
 
     @BeforeEach
     void setUp() {
@@ -249,36 +205,10 @@ class ElinksFailedApiPublishingStatusEndToEndIntegrationTest extends ElinksEnabl
                         .withHeader("Connection", "close")
                         .withBody(body)
                 ));
-
-    }
-
-    private void cleanupData() {
-        elinkSchedularAuditRepository.deleteAll();
-        elinkDataExceptionRepository.deleteAll();
-        dataloadSchedulerJobRepository.deleteAll();
-        authorisationsRepository.deleteAll();
-        appointmentsRepository.deleteAll();
-        baseLocationRepository.deleteAll();
-        authorisationsRepository.deleteAll();
-        profileRepository.deleteAll();
-        judicialRoleTypeRepository.deleteAll();
-
     }
 
     @BeforeEach
     void idamSetUp() {
-
-        final String clientId = "234342332";
-        final String redirectUri = "http://idam-api.aat.platform.hmcts.net";
-        //The authorization and clientAuth is the dummy value which we can evaluate using BASE64 encoder.
-        final String authorization = "ZHVtbXl2YWx1ZUBobWN0cy5uZXQ6SE1DVFMxMjM0";
-        final String clientAuth = "cmQteHl6LWFwaTp4eXo=";
-        final String url = "http://127.0.0.1:5000";
-        tokenConfigProperties.setClientId(clientId);
-        tokenConfigProperties.setClientAuthorization(clientAuth);
-        tokenConfigProperties.setAuthorization(authorization);
-        tokenConfigProperties.setRedirectUri(redirectUri);
-        tokenConfigProperties.setUrl(url);
-
+        initialize();
     }
 }
