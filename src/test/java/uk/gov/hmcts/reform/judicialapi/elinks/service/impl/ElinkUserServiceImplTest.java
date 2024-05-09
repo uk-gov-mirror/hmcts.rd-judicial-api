@@ -85,7 +85,7 @@ class ElinkUserServiceImplTest {
     @Mock
     RegionMappingRepository regionMappingRepository;
 
-    @Mock
+    @Spy
     private LocationReferenceDataFeignClient locationReferenceDataFeignClient;
 
     @Spy
