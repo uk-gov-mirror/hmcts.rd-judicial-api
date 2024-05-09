@@ -181,7 +181,7 @@ public class JrdApiProviderV2Test {
         regionMapping.setRegionId("1");
         regionMapping.setRegion("National");
         regionMapping.setJrdRegion("National");
-        when(regionMappingRepository.findAllRegionMappingData()).thenReturn(List.of(regionMapping));
+        when(regionMappingRepository.findAll()).thenReturn(List.of(regionMapping));
 
         var locationMappings1 = new LocationMapping();
         locationMappings1.setEpimmsId("1");
