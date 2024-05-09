@@ -8,9 +8,9 @@ import net.serenitybdd.rest.SerenityRest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorResponse;
-import uk.gov.hmcts.reform.judicialapi.controller.request.RefreshRoleRequest;
-import uk.gov.hmcts.reform.judicialapi.controller.request.UserSearchRequest;
-import uk.gov.hmcts.reform.judicialapi.controller.response.UserSearchResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RefreshRoleRequest;
+import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.UserSearchRequest;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.UserSearchResponseWrapper;
 import uk.gov.hmcts.reform.judicialapi.idam.IdamOpenIdClient;
 import uk.gov.hmcts.reform.judicialapi.versions.V2;
 
@@ -83,14 +83,14 @@ public class JudicialApiClient {
                 .statusCode(expectedStatus.value());
 
         if (expectedStatus.is2xxSuccessful()) {
-            return List.of(fetchResponse.getBody().as(UserSearchResponse[].class));
+            return List.of(fetchResponse.getBody().as(UserSearchResponseWrapper[].class));
         } else {
             return fetchResponse.getBody().as(ErrorResponse.class);
         }
     }
 
     public Response refreshUserProfiles(RefreshRoleRequest refreshRoleRequest, int pageSize, int pageNumber,
-                                        String sortColumn,String sortDirection,
+                                        String sortColumn, String sortDirection,
                                         String role) {
 
         Response refreshResponse = getMultipleAuthHeaders(role,pageSize,pageNumber,sortColumn,sortDirection)
