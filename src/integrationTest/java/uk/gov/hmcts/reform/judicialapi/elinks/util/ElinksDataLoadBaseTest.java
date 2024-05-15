@@ -113,7 +113,7 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
 
         return Stream.of(
                 arguments(
-                        named("Should load people data with success status", successLoadTestDataArguments)),
+                        named("Should load people data with success status", successLoadTestDataArguments))
         );
     }
 
