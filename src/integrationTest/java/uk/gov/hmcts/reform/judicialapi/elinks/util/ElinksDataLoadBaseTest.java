@@ -596,11 +596,12 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
     protected void verifyUserAppointmentsData(TestDataArguments testDataArguments, boolean update) {
         final List<Appointment> appointments = appointmentsRepository.findAll();
 
-        assertThat(appointments).isNotNull().isNotEmpty().hasSize(testDataArguments.expectedAppointmentsSize());
 
         if (update) {
+            assertThat(appointments).isNotNull().isNotEmpty().hasSize(testDataArguments.expectedAppointmentsSizeUpdate());
             verifyFirstUserAppointmentsDataUpdate(appointments);
         } else {
+            assertThat(appointments).isNotNull().isNotEmpty().hasSize(testDataArguments.expectedAppointmentsSize());
             verifyFirstUserAppointmentsData(appointments);
         }
 
