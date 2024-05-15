@@ -598,7 +598,8 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
 
 
         if (update) {
-            assertThat(appointments).isNotNull().isNotEmpty().hasSize(testDataArguments.expectedAppointmentsSizeUpdate());
+            assertThat(appointments).isNotNull().isNotEmpty().hasSize(testDataArguments
+                    .expectedAppointmentsSizeUpdate());
             verifyFirstUserAppointmentsDataUpdate(appointments);
         } else {
             assertThat(appointments).isNotNull().isNotEmpty().hasSize(testDataArguments.expectedAppointmentsSize());
