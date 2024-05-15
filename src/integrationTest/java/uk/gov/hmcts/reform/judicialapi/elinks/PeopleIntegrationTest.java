@@ -89,7 +89,8 @@ class PeopleIntegrationTest extends ElinksDataLoadBaseTest {
 
         verifyExceptions(testDataArguments);
 
-        final String peopleApiUpdateResponseJson = readJsonAsString(testDataArguments.eLinksPeopleApiUpdateResponseJson());
+        final String peopleApiUpdateResponseJson = readJsonAsString(testDataArguments
+                .eLinksPeopleApiUpdateResponseJson());
 
         stubPeopleApiResponse(peopleApiUpdateResponseJson, OK);
         loadPeopleData(OK, RESPONSE_BODY_MSG_KEY, PEOPLE_DATA_LOAD_SUCCESS);
