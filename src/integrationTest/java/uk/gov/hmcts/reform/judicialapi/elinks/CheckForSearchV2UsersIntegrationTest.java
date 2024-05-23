@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.util.AuthorizationEnabledIntegrationTest;
 import uk.gov.hmcts.reform.judicialapi.util.JudicialReferenceDataClient;
-import uk.gov.hmcts.reform.judicialapi.versions.V1;
 import uk.gov.hmcts.reform.judicialapi.versions.V2;
 
 import java.util.List;
@@ -54,7 +53,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .searchString("test")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         assertEquals(3, profiles.size());
@@ -78,7 +77,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode(serviceCode)
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         assertEquals(1, profiles.size());
@@ -101,7 +100,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode(serviceCode)
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         assertEquals(0, profiles.size());
@@ -120,7 +119,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode(serviceCode)
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         assertEquals(0, profiles.size());
@@ -139,7 +138,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode(serviceCode)
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         assertEquals(0, profiles.size());
@@ -159,7 +158,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode(serviceCode)
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         if (("BBA3").equals(serviceCode)) {
@@ -184,7 +183,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode(serviceCode)
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         if (("BBA3").equals(serviceCode)) {
@@ -207,7 +206,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode(serviceCode)
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         assertEquals(1, profiles.size());
@@ -225,7 +224,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode("BFA1")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, true, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, true, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         assertThat(response).containsEntry("http_status", "401");
     }
@@ -240,7 +239,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode("BFA1")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         assertThat(response).containsEntry("http_status", "400");
         var responseBody = (String) response.get("response_body");
@@ -258,7 +257,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode("BFA1")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         assertThat(response).containsEntry("http_status", "400");
         var responseBody = (String) response.get("response_body");
@@ -277,7 +276,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode("BFA1")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
@@ -293,7 +292,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode("BFA1")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         assertThat(response).containsEntry("http_status", "400");
         var responseBody = (String) response.get("response_body");
@@ -312,7 +311,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .serviceCode("BFA1")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         assertThat(response).containsEntry("http_status", "200 OK");
     }
@@ -326,7 +325,7 @@ class CheckForSearchV2UsersIntegrationTest extends AuthorizationEnabledIntegrati
                 .searchString("test")
                 .build();
         var response = judicialReferenceDataClient.searchUsers(
-                userSearchRequest, role, false, MediaType.valueOf(V1.MediaType.SERVICE),
+                userSearchRequest, role, false, MediaType.valueOf(V2.MediaType.SERVICE),
                 MediaType.valueOf(V2.MediaType.SERVICE));
         var profiles = (List<Map<String, String>>) response.get("body");
         assertEquals(3, profiles.size());
