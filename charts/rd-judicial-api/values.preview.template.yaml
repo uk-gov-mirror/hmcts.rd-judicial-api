@@ -17,10 +17,10 @@ java:
     ENVIRONMENT_NAME: "preview"
     CUSTOMIZE_UPDATEDSINCE: false
     JRD_SEARCH_SERVICE_CODE: bfa1,bba3
-    ELINKS_URL: https://judiciary-middleware-futureehr.herokuapp.com/api/v5
+    ELINKS_URL: https://gateway.staging.elinks.judiciary.uk/elinks/api/v5
     LAST_UPDATED: 2014-01-01
-    SCHEDULER_ENABLED: false
-    CRON_EXPRESSION: "0 0 0 25 03 ?"
+    SCHEDULER_ENABLED: true
+    CRON_EXPRESSION: "0 45 18 * * *"
     DB_READER_USERNAME: "{{ .Values.postgresql.auth.username}}"
   postgresql:
     enabled: true
