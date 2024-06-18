@@ -538,11 +538,32 @@ class ElinksPeopleServiceImplTest {
         when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
-        ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
-            ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
-        });
         verify(elinkDataIngestionSchedularAudit,times(3))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
+    }
+
+    @Test
+    void loadPeopleWhenEmailNullWithoutPagination() throws JsonProcessingException {
+
+        PeopleRequest elinksApiResponseHit;
+        ResultsRequest result;
+        ObjectMapper mapper = new ObjectMapper();
+        result = ResultsRequest.builder().personalCode("1234").knownAs("knownas").fullName("fullName")
+                .surname("surname").postNominals("postNOmi").email(null).lastWorkingDate("2022-12-20")
+                .objectId("objectId1").initials("initials").appointmentsRequests(null)
+                .authorisationsRequests(null).judiciaryRoles(null).build();
+        elinksApiResponseHit = PeopleRequest.builder().resultsRequests(List.of(result)).pagination(null).build();
+        String body = mapper.writeValueAsString(elinksApiResponseHit);
+
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+                Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        verify(elinkDataIngestionSchedularAudit,times(3))
+                .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
     @Test

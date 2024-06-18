@@ -66,7 +66,6 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_NOT_FOUND;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_TOO_MANY_REQUESTS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELINKS_ERROR_RESPONSE_UNAUTHORIZED;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.EMAILID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALIDROLEID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALIDROLENAMES;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALIDROLETYPE;
@@ -86,7 +85,6 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ROLENAME;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.THREAD_INVOCATION_EXCEPTION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.TYPEIDFAILURE;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEEMAILID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEISPRESENT;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE;
@@ -421,17 +419,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private boolean validateUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (StringUtils.isEmpty(resultsRequest.getEmail())) {
-            log.warn("Email is empty or null for the personal code : " + resultsRequest.getPersonalCode());
-            partialSuccessFlag = true;
-            String errorField = resultsRequest.getPersonalCode();
-            String errorDescription = appendFieldWithErrorDescription(USERPROFILEEMAILID, errorField);
-            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                now(),
-                resultsRequest.getPersonalCode(),
-                EMAILID, errorDescription, USER_PROFILE,resultsRequest.getPersonalCode(),pageValue);
-            return false;
-        } else if (!isNull(userProfileCache.get(resultsRequest.getPersonalCode()))) {
+        if (!isNull(userProfileCache.get(resultsRequest.getPersonalCode()))) {
             log.warn("User Profile not loaded for " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String errorDescription = appendFieldWithErrorDescription(
