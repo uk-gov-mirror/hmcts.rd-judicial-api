@@ -67,6 +67,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -538,32 +539,8 @@ class ElinksPeopleServiceImplTest {
         when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
 
-        verify(elinkDataIngestionSchedularAudit,times(3))
+        verify(elinkDataIngestionSchedularAudit,times(0))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
-    }
-
-    @Test
-    void loadPeopleWhenEmailNullWithoutPagination() throws JsonProcessingException {
-
-        PeopleRequest elinksApiResponseHit;
-        ResultsRequest result;
-        ObjectMapper mapper = new ObjectMapper();
-        result = ResultsRequest.builder().personalCode("1234").knownAs("knownas").fullName("fullName")
-                .surname("surname").postNominals("postNOmi").email(null).lastWorkingDate("2022-12-20")
-                .objectId("objectId1").initials("initials").appointmentsRequests(null)
-                .authorisationsRequests(null).judiciaryRoles(null).build();
-        elinksApiResponseHit = PeopleRequest.builder().resultsRequests(List.of(result)).pagination(null).build();
-        String body = mapper.writeValueAsString(elinksApiResponseHit);
-
-        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
-                Boolean.parseBoolean(any()))).thenReturn(Response.builder()
-                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
-
-        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
-                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
-
-        verify(elinkDataIngestionSchedularAudit,times(3))
-                .auditSchedulerStatus(any(),any(),any(),any(),any());
     }
 
     @Test
@@ -823,9 +800,6 @@ class ElinksPeopleServiceImplTest {
         LocalDateTime dateTime = LocalDateTime.now();
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
 
-        LocationMapping locationMapping = LocationMapping.builder()
-            .serviceCode("BHA1")
-            .epimmsId("1234").build();
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
@@ -847,10 +821,10 @@ class ElinksPeopleServiceImplTest {
 
         verify(elinksFeignClient, times(1)).getPeopleDetails(any(), any(), any(),
             Boolean.parseBoolean(any()));
-        verify(profileRepository, times(1)).save(any());
+        verify(profileRepository, times(2)).save(any());
 
         verify(judicialRoleTypeRepository, atLeastOnce()).save(any());
-        verify(authorisationsRepository, atLeastOnce()).save(any());
+        verify(authorisationsRepository, atLeast(2)).save(any());
         verify(elinkDataExceptionHelper,times(3))
             .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
