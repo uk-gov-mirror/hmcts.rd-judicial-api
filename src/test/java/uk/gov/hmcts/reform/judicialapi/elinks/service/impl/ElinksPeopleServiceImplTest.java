@@ -838,9 +838,12 @@ class ElinksPeopleServiceImplTest {
     @Test
     void loadPeopleForTribunalsWithLocationNameWhiteSpace() throws JsonProcessingException {
         LocalDateTime dateTime = LocalDateTime.now();
-        ResultsRequest resultsRequest = ResultsRequest.builder().personalCode("12345").knownAs("knownas").fullName("fullName")
-                .surname("surname").postNominals("postNOmi").email("email").lastWorkingDate("2022-12-20")
-                .objectId("objectId2").initials("initials").appointmentsRequests(List.of(AppointmentsRequest.builder()
+        ResultsRequest resultsRequest = ResultsRequest.builder().personalCode("12345")
+                .knownAs("knownas").fullName("fullName")
+                .surname("surname").postNominals("postNOmi")
+                .email("email").lastWorkingDate("2022-12-20")
+                .objectId("objectId2").initials("initials")
+                .appointmentsRequests(List.of(AppointmentsRequest.builder()
                         .baseLocationId("baselocId").circuit("circuit").location("location ")
                         .isPrincipleAppointment(true).startDate("1991-12-19").endDate("2022-12-20")
                         .roleName("appointment").contractType("type").type("Tribunals").build()))
