@@ -67,6 +67,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -116,7 +117,7 @@ class ElinksPeopleServiceImplTest {
     @Spy
     private LocationRepository locationRepository;
 
-    @Spy
+    @Mock
     private JrdRegionMappingRepository regionMappingRepository;
 
     @Spy
@@ -837,11 +838,8 @@ class ElinksPeopleServiceImplTest {
 
     @Test
     void loadPeopleForTribunalsWithLocationNameWhiteSpace() throws JsonProcessingException {
-
-        ResultsRequest resultsRequest;
-        PeopleRequest peopleRequest;
         LocalDateTime dateTime = LocalDateTime.now();
-        resultsRequest = ResultsRequest.builder().personalCode("12345").knownAs("knownas").fullName("fullName")
+        ResultsRequest resultsRequest = ResultsRequest.builder().personalCode("12345").knownAs("knownas").fullName("fullName")
                 .surname("surname").postNominals("postNOmi").email("email").lastWorkingDate("2022-12-20")
                 .objectId("objectId2").initials("initials").appointmentsRequests(List.of(AppointmentsRequest.builder()
                         .baseLocationId("baselocId").circuit("circuit").location("location ")
@@ -853,14 +851,14 @@ class ElinksPeopleServiceImplTest {
 
         when(baseLocationRepository.fetchBaseLocationId("baselocId")).thenReturn("baselocId");
         when(baseLocationRepository.fetchParentId("baselocId")).thenReturn("baselocId");
-        when(regionMappingRepository.fetchRegionIdfromRegion("location")).thenReturn("location");
+        when(regionMappingRepository.fetchRegionIdfromRegion(anyString())).thenReturn("location");
 
         PaginationRequest pagination = PaginationRequest.builder()
                 .results(1)
                 .pages(1).currentPage(1).resultsPerPage(1).morePages(false).build();
 
-        peopleRequest = PeopleRequest.builder().resultsRequests(List.of(resultsRequest)).pagination(pagination)
-                .build();
+        PeopleRequest peopleRequest = PeopleRequest.builder().resultsRequests(List.of(resultsRequest))
+                .pagination(pagination).build();
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
 
         ObjectMapper mapper = new ObjectMapper();
