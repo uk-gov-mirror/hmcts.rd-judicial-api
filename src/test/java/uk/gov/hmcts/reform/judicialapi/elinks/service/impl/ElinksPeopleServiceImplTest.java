@@ -67,7 +67,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -851,8 +850,6 @@ class ElinksPeopleServiceImplTest {
 
         when(baseLocationRepository.fetchBaseLocationId("baselocId")).thenReturn("baselocId");
         when(baseLocationRepository.fetchParentId("baselocId")).thenReturn("baselocId");
-        when(regionMappingRepository.fetchRegionIdfromRegion(anyString())).thenReturn("location")
-                .thenReturn("location2");
         PaginationRequest pagination = PaginationRequest.builder()
                 .results(1)
                 .pages(1).currentPage(1).resultsPerPage(1).morePages(false).build();
