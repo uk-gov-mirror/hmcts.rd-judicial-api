@@ -421,7 +421,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private boolean validateUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (StringUtils.isEmpty(resultsRequest.getEmail())) {
+        if (validateEmail(resultsRequest)) {
             log.warn("Email is empty or null for the personal code : " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String errorField = resultsRequest.getPersonalCode();
@@ -470,6 +470,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         return userProfilesSnapshot.stream()
             .anyMatch(userProfile -> resultsRequest.getObjectId().equals(userProfile.getObjectId())
                 && !resultsRequest.getPersonalCode().equals(userProfile.getPersonalCode()));
+    }
+
+    private boolean validateEmail(ResultsRequest resultsRequest) {
+        String leaver = StringUtils.defaultString(resultsRequest.getLeaver(), "false");
+        String deleted = StringUtils.defaultString(resultsRequest.getDeleted(), "false");
+        return "false".equalsIgnoreCase(leaver) && "false".equalsIgnoreCase(deleted)
+                && StringUtils.isEmpty(resultsRequest.getEmail());
     }
 
     private List<UserProfile> personalCodePresentInDb(ResultsRequest resultsRequest) {
@@ -650,15 +657,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     private String fetchRegionId(String location) {
-
-        String regionId = null;
+        location = StringUtils.defaultString(location, "").strip();
         if ("Unassigned".equals(location) || StringUtils.isEmpty(location) || "Unknown".equals(location)) {
-            regionId = "0";
-        } else {
-            regionId = regionMappingRepository.fetchRegionIdfromRegion(location);
+            return "0";
         }
-        return regionId;
-
+        return regionMappingRepository.fetchRegionIdfromRegion(location);
     }
 
     // Append the string to add error description for the given format

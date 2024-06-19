@@ -834,6 +834,105 @@ class ElinksPeopleServiceImplTest {
             .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
     }
 
+
+    @Test
+    void loadPeopleForTribunalsWithLocationNameWhiteSpace() throws JsonProcessingException {
+
+        ResultsRequest resultsRequest;
+        PeopleRequest peopleRequest;
+        LocalDateTime dateTime = LocalDateTime.now();
+        resultsRequest = ResultsRequest.builder().personalCode("12345").knownAs("knownas").fullName("fullName")
+                .surname("surname").postNominals("postNOmi").email("email").lastWorkingDate("2022-12-20")
+                .objectId("objectId2").initials("initials").appointmentsRequests(List.of(AppointmentsRequest.builder()
+                        .baseLocationId("baselocId").circuit("circuit").location("location ")
+                        .isPrincipleAppointment(true).startDate("1991-12-19").endDate("2022-12-20")
+                        .roleName("appointment").contractType("type").type("Tribunals").build()))
+                .authorisationsRequests(List.of(AuthorisationsRequest.builder().jurisdiction("juristriction")
+                        .ticket("lowerlevel").startDate("1991-12-19")
+                        .endDate("2022-12-20").ticketCode("ticketId").build())).build();
+
+        when(baseLocationRepository.fetchBaseLocationId("baselocId")).thenReturn("baselocId");
+        when(baseLocationRepository.fetchParentId("baselocId")).thenReturn("baselocId");
+        when(regionMappingRepository.fetchRegionIdfromRegion("location")).thenReturn("location");
+
+        PaginationRequest pagination = PaginationRequest.builder()
+                .results(1)
+                .pages(1).currentPage(1).resultsPerPage(1).morePages(false).build();
+
+        peopleRequest = PeopleRequest.builder().resultsRequests(List.of(resultsRequest)).pagination(pagination)
+                .build();
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(peopleRequest);
+
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+                Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ResponseEntity<ElinkPeopleWrapperResponse> response = elinksPeopleServiceImpl.updatePeople();
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+        assertThat(response.getBody().getMessage()).isEqualTo(PEOPLE_DATA_LOAD_SUCCESS);
+
+        verify(elinksFeignClient, times(1)).getPeopleDetails(any(), any(), any(),
+                Boolean.parseBoolean(any()));
+        verify(profileRepository, times(1)).save(any());
+    }
+
+
+    @Test
+    void shouldNotLoadPeopleWithEmailIdBlankWhenNotLeaverAndNotDeleted() throws JsonProcessingException {
+
+        LocalDateTime dateTime = LocalDateTime.now();
+        when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
+
+        BaseLocation location = new BaseLocation();
+        location.setBaseLocationId("12345");
+        location.setName("ABC");
+
+        ResultsRequest result1 = ResultsRequest.builder().personalCode("1234").knownAs("knownas").fullName("fullName")
+                .surname("surname").postNominals("postNOmi").lastWorkingDate("2022-12-20")
+                .leaver("false").objectId("objectId1").initials("initials").build();
+
+        ResultsRequest result3 = ResultsRequest.builder().perId("80851").personalCode("3456").deleted("false").build();
+
+        List<ResultsRequest> results = Arrays.asList(result1,result3);
+
+        PaginationRequest paginationFalse = PaginationRequest.builder()
+                .results(1)
+                .pages(1).currentPage(1).resultsPerPage(3).morePages(false).build();
+        PeopleRequest elinksApiResponseThirdHit = PeopleRequest.builder()
+                .resultsRequests(results).pagination(paginationFalse).build();
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(elinksApiResponseThirdHit);
+
+        when(elinksFeignClient.getPeopleDetails(any(), any(), any(),
+                Boolean.parseBoolean(any()))).thenReturn(Response.builder()
+                .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
+                        .request(mock(Request.class)).body(body, defaultCharset()).status(200).build())
+                .thenReturn(Response.builder()
+                        .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
+
+        ResponseEntity<ElinkPeopleWrapperResponse> response = elinksPeopleServiceImpl.updatePeople();
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+        assertThat(response.getBody().getMessage()).isEqualTo(PEOPLE_DATA_LOAD_SUCCESS);
+
+        verify(elinksFeignClient, times(1)).getPeopleDetails(any(), any(), any(),
+                Boolean.parseBoolean(any()));
+        verify(profileRepository, times(0)).save(any());
+
+        verify(judicialRoleTypeRepository, times(0)).save(any());
+        verify(authorisationsRepository, times(0)).save(any());
+        verify(elinkDataExceptionHelper,times(2))
+                .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
+    }
+
     @Test
     void loadPeopleWhenAuditEntryNotPresentSuccess() throws JsonProcessingException {
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(null);
