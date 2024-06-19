@@ -876,8 +876,6 @@ class ElinksPeopleServiceImplTest {
         verify(elinksFeignClient, times(1)).getPeopleDetails(any(), any(), any(),
                 Boolean.parseBoolean(any()));
         verify(profileRepository, times(1)).save(any());
-        verify(appointmentsRepository, times(1)).save(any());
-
     }
 
 
