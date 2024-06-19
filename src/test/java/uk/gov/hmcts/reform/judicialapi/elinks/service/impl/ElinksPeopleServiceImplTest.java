@@ -117,7 +117,7 @@ class ElinksPeopleServiceImplTest {
     @Spy
     private LocationRepository locationRepository;
 
-    @Mock
+    @Spy
     private JrdRegionMappingRepository regionMappingRepository;
 
     @Spy
@@ -851,8 +851,8 @@ class ElinksPeopleServiceImplTest {
 
         when(baseLocationRepository.fetchBaseLocationId("baselocId")).thenReturn("baselocId");
         when(baseLocationRepository.fetchParentId("baselocId")).thenReturn("baselocId");
-        when(regionMappingRepository.fetchRegionIdfromRegion(anyString())).thenReturn("location");
-
+        when(regionMappingRepository.fetchRegionIdfromRegion(anyString())).thenReturn("location")
+                .thenReturn("location2");
         PaginationRequest pagination = PaginationRequest.builder()
                 .results(1)
                 .pages(1).currentPage(1).resultsPerPage(1).morePages(false).build();
