@@ -22,7 +22,7 @@ public interface AppointmentsRepository extends JpaRepository<Appointment, Long>
 
     void deleteByPersonalCodeIn(List<String> personalCode);
 
-    List<Appointment> findAllByPersonalCode(List<String> personalCode);
+    List<Appointment> findAllByPersonalCodeIn(List<String> personalCode);
 
 
 }

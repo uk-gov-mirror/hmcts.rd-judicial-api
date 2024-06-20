@@ -66,9 +66,9 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     public void deletePeople(List<String> personalCodes) {
         log.info("Delete people by personal codes");
         // Get and persist into audit table
-        List<Authorisation> authorisations = authorisationsRepository.findAllByPersonalCode(personalCodes);
-        List<Appointment> appointments = appointmentsRepository.findAllByPersonalCode(personalCodes);
-        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAllByPersonalCode(personalCodes);
+        List<Authorisation> authorisations = authorisationsRepository.findAllByPersonalCodeIn(personalCodes);
+        List<Appointment> appointments = appointmentsRepository.findAllByPersonalCodeIn(personalCodes);
+        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAllByPersonalCodeIn(personalCodes);
         List<UserProfile> userProfiles = profileRepository.findAllById(personalCodes);
         elinksPeopleDeleteAuditService.auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
 

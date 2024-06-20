@@ -17,5 +17,5 @@ public interface JudicialRoleTypeRepository extends JpaRepository<JudicialRoleTy
 
     void deleteByPersonalCodeIn(List<String> personalCode);
 
-    List<JudicialRoleType> findAllByPersonalCode(List<String> personalCode);
+    List<JudicialRoleType> findAllByPersonalCodeIn(List<String> personalCode);
 }
