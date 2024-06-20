@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Authorisation;
 
 @Repository
-public interface AuthorisationsRepository extends JpaRepository<Authorisation, Long> {
+public interface AuthorisationsRepositoryAudit extends JpaRepository<Authorisation, Long> {
 
 }

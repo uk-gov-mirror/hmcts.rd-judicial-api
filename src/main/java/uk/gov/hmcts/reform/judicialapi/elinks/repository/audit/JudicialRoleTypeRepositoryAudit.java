@@ -8,6 +8,6 @@ import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleType;
 @SuppressWarnings("all")
 @Repository
 
-public interface JudicialRoleTypeRepository extends JpaRepository<JudicialRoleType, String> {
+public interface JudicialRoleTypeRepositoryAudit extends JpaRepository<JudicialRoleType, String> {
 
 }

@@ -11,10 +11,10 @@ import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.AppointmentsRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.AuthorisationsRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.JudicialRoleTypeRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.ProfileRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.AppointmentsRepositoryAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.AuthorisationsRepositoryAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.JudicialRoleTypeRepositoryAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.ProfileRepositoryAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteAuditService;
 
 import java.util.List;
@@ -26,16 +26,16 @@ import java.util.stream.Collectors;
 public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAuditService {
 
     @Autowired
-    private JudicialRoleTypeRepository judicialRoleTypeRepositoryAudit;
+    private JudicialRoleTypeRepositoryAudit judicialRoleTypeRepositoryAudit;
 
     @Autowired
-    private AuthorisationsRepository authorisationsRepositoryAudit;
+    private AuthorisationsRepositoryAudit authorisationsRepositoryAudit;
 
     @Autowired
-    private AppointmentsRepository appointmentsRepositoryAudit;
+    private AppointmentsRepositoryAudit appointmentsRepositoryAudit;
 
     @Autowired
-    private ProfileRepository profileRepositoryAudit;
+    private ProfileRepositoryAudit profileRepositoryAudit;
 
 
     @Override
