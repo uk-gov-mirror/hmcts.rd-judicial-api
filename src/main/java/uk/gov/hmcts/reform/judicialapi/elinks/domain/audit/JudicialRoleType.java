@@ -13,7 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-@Entity(name = "judicial_additional_roles")
+@Entity(name = "judicial_additional_roles_audit")
 @Table(name = "judicial_additional_roles_audit", schema = "dbjudicialdata")
 @Builder
 @NoArgsConstructor

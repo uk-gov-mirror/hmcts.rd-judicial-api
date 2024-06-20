@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 
-@Entity(name = "judicialOfficeAppointment")
+@Entity(name = "judicialOfficeAppointmentAudit")
 @Table(name = "judicial_office_appointment_audit", schema = "dbjudicialdata")
 @Getter
 @Setter
