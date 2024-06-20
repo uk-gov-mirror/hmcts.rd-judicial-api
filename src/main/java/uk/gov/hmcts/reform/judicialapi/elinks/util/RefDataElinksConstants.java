@@ -97,6 +97,8 @@ public class RefDataElinksConstants {
 
     public static final String EMAILID = "email_id";
 
+    public static final String KNOWN_AS = "known_as";
+
     public static final String AUTHORISATION = "authorisations_with_dates";
 
     public static final String APPOINTMENTTYPE = "appointment type";
@@ -115,6 +117,9 @@ public class RefDataElinksConstants {
     public static final String USERPROFILEEMAILID = "Personal Code : "
         + " is not having any email id";
 
+    public static final String USER_PROFILE_KNOWN_AS = "Personal Code : "
+            + " is not having any known as";
+
     public static final String FAIL_LOAD = "is failed to load";
 
     public static final String APPOINTMENTIDFAILURE = APP_ID
@@ -125,7 +130,7 @@ public class RefDataElinksConstants {
 
     public static final String USERPROFILEISPRESENT = "Personal  Code : "
         + "is already loaded";
-    public static final String OBJECTIDISDUPLICATED = "Object is duplicated in Request";
+    public static final String OBJECTIDISDUPLICATED = "Object ID %s is duplicated in Request";
 
     public static final String OBJECTIDISPRESENT = "Object  ID is already present";
 

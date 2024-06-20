@@ -238,7 +238,7 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
                         .exceptionSize(1)
                         .expectedActiveFlag(true)
                         .expectedLastWorkingDate("2028-07-23")
-                        .errorMsg1(OBJECTIDISDUPLICATED)
+                        .errorMsg1(String.format(OBJECTIDISDUPLICATED, "5f8b26ba-0c8b-4192-b5c7-311d737f0cae"))
                         .build();
 
         final TestDataArguments duplicatePersonalCodeTestDataArguments =

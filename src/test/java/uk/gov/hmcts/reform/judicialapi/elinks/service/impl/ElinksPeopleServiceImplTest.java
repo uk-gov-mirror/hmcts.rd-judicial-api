@@ -46,6 +46,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationMapppingReposit
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IEmailService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
@@ -126,7 +127,7 @@ class ElinksPeopleServiceImplTest {
     private ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
     @Mock
-    ElinkDataExceptionHelper elinkDataExceptionHelper;
+    private ElinkDataExceptionHelper elinkDataExceptionHelper;
 
     @Mock
     private ElinkDataExceptionRepository elinkDataExceptionRepository;
@@ -138,7 +139,7 @@ class ElinksPeopleServiceImplTest {
     private ElinksPeopleServiceImpl elinksPeopleServiceImpl;
 
     @Mock
-    private ElinksPeopleDeleteServiceimpl elinksPeopleDeleteServiceimpl;
+    private ElinksPeopleDeleteService elinksPeopleDeleteService;
 
     private ResultsRequest result1;
 
@@ -337,7 +338,7 @@ class ElinksPeopleServiceImplTest {
         verify(elinkDataIngestionSchedularAudit,times(2))
             .auditSchedulerStatus(any(),any(),any(),any(),any());
         verify(elinkDataExceptionRepository, times(1)).save(any());
-        verify(elinksPeopleDeleteServiceimpl,times(2)).deleteAuth(any());
+        verify(elinksPeopleDeleteService,times(2)).deleteAuth(any());
     }
 
     @Test

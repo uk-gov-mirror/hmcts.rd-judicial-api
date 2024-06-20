@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Triple;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,11 +11,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversRequest;
-import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversResultsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.DeletedResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.response.ElinksDeleteApiResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.BaseLocation;
@@ -37,6 +34,8 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperR
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleLeaverService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
@@ -44,12 +43,10 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksResponsesHelper;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Objects.nonNull;
@@ -88,6 +85,12 @@ public class ELinksServiceImpl implements ELinksService {
 
     @Autowired
     LocationRepository locationRepository;
+
+    @Autowired
+    private ElinksPeopleLeaverService elinksPeopleLeaverService;
+
+    @Autowired
+    ElinksPeopleDeleteService elinksPeopleDeleteService;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -336,7 +339,7 @@ public class ELinksServiceImpl implements ELinksService {
                         && Optional.ofNullable(elinkLeaverResponseRequest.getPagination()).isPresent()
                         && Optional.ofNullable(elinkLeaverResponseRequest.getLeaversResultsRequests()).isPresent()) {
                     isMorePagesAvailable = elinkLeaverResponseRequest.getPagination().getMorePages();
-                    processLeaverResponse(elinkLeaverResponseRequest);
+                    elinksPeopleLeaverService.processLeavers(elinkLeaverResponseRequest.getLeaversResultsRequests());
 
                 } else {
                     elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
@@ -375,41 +378,6 @@ public class ELinksServiceImpl implements ELinksService {
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, THREAD_INVOCATION_EXCEPTION,
                     THREAD_INVOCATION_EXCEPTION);
         }
-    }
-
-
-
-    private void processLeaverResponse(LeaversRequest elinkLeaverResponseRequest) {
-        try {
-            updateLeavers(elinkLeaverResponseRequest.getLeaversResultsRequests());
-        } catch (Exception ex) {
-            throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
-        }
-
-    }
-
-    public void updateLeavers(List<LeaversResultsRequest> leaversResultsRequests) {
-
-        List<Triple<String, String,String>> leaversId = new ArrayList<>();
-
-        String updateLeaversId = "UPDATE dbjudicialdata.judicial_user_profile SET last_working_date = Date(?) , "
-                + "active_flag = ?, last_loaded_date= NOW() AT TIME ZONE 'utc' WHERE personal_code = ?";
-
-        leaversResultsRequests.stream().filter(request -> nonNull(request.getPersonalCode())).forEach(s ->
-                leaversId.add(Triple.of(s.getPersonalCode(), s.getLeaver(),s.getLeftOn())));
-        log.info("Insert Query batch Response from Leavers" + leaversId.size());
-        jdbcTemplate.batchUpdate(
-                updateLeaversId,
-                leaversId,
-                10,
-                new ParameterizedPreparedStatementSetter<Triple<String, String, String>>() {
-                    public void setValues(PreparedStatement ps, Triple<String, String, String> argument)
-                            throws SQLException {
-                        ps.setString(1, argument.getRight());
-                        ps.setBoolean(2, !(Boolean.valueOf(argument.getMiddle())));
-                        ps.setString(3, argument.getLeft());
-                    }
-                });
     }
 
     private Response getDeletedResponseFromElinks(int currentPage) {
@@ -517,38 +485,16 @@ public class ELinksServiceImpl implements ELinksService {
     }
 
 
-
     private void processDeletedResponse(ElinksDeleteApiResponse elinkDeletedResponseRequest) {
         try {
-            updateDeleted(elinkDeletedResponseRequest.getDeletedResponse());
+            List<DeletedResponse> deletedResponses = elinkDeletedResponseRequest.getDeletedResponse();
+            List<String> personalCodes = deletedResponses.stream()
+                    .filter(request -> nonNull(request.getPersonalCode()))
+                    .map(request -> request.getPersonalCode()).collect(Collectors.toList());
+            elinksPeopleDeleteService.deletePeople(personalCodes);
         } catch (Exception ex) {
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }
-
-    }
-
-    public void updateDeleted(List<DeletedResponse> deletedResponse) {
-
-        List<Triple<String, String, String>> deletedId = new ArrayList<>();
-
-        String updateDeletedId = "UPDATE dbjudicialdata.judicial_user_profile SET date_of_deletion = Date(?) , "
-                + "deleted_flag = ?,active_flag=false WHERE personal_code = ?";
-
-        deletedResponse.stream().filter(request -> nonNull(request.getPersonalCode())).forEach(s ->
-                deletedId.add(Triple.of(s.getPersonalCode(), s.getDeleted(), s.getDeletedOn())));
-        log.info("Insert Query batch Response from Deleted" + deletedId.size());
-        jdbcTemplate.batchUpdate(
-                updateDeletedId,
-                deletedId,
-                10,
-                new ParameterizedPreparedStatementSetter<Triple<String, String, String>>() {
-                    public void setValues(PreparedStatement ps, Triple<String, String, String> argument)
-                            throws SQLException {
-                        ps.setString(1, argument.getRight());
-                        ps.setBoolean(2, Boolean.valueOf(argument.getMiddle()));
-                        ps.setString(3, argument.getLeft());
-                    }
-                });
     }
 
 

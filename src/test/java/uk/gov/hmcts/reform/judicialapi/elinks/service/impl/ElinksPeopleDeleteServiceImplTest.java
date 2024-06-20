@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"AbbreviationAsWordInName","MemberName"})
-class ElinksPeopleDeleteServiceimplTest {
+class ElinksPeopleDeleteServiceImplTest {
 
     @Spy
     private JudicialRoleTypeRepository judicialRoleTypeRepository;
@@ -39,7 +39,7 @@ class ElinksPeopleDeleteServiceimplTest {
     private ProfileRepository profileRepository;
 
     @InjectMocks
-    private ElinksPeopleDeleteServiceimpl elinksPeopleDeleteServiceimpl;
+    private ElinksPeopleDeleteServiceImpl elinksPeopleDeleteServiceimpl;
 
 
     private ResultsRequest result1;

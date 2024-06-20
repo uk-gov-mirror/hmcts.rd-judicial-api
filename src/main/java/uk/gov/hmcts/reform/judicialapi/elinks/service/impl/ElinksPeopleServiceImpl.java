@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AppointmentsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AuthorisationsRequest;
+import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.LeaversResultsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.PeopleRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.ResultsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RoleRequest;
@@ -31,6 +33,8 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationMapppingReposit
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleLeaverService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
@@ -73,6 +77,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALID_ROLES;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIALROLETYPE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.KNOWN_AS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATION;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONIDFAILURE;
@@ -90,6 +95,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEFAILURE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USERPROFILEISPRESENT;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.USER_PROFILE_KNOWN_AS;
 
 @Slf4j
 @Service
@@ -134,7 +140,11 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Autowired
     ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
-    @Autowired ElinksPeopleDeleteServiceimpl elinksPeopleDeleteServiceimpl;
+    @Autowired
+    ElinksPeopleDeleteService elinksPeopleDeleteService;
+
+    @Autowired
+    ElinksPeopleLeaverService elinksPeopleLeaverService;
 
     @Autowired
     CommonUtil commonUtil;
@@ -318,9 +328,13 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private void savePeopleDetails(
         ResultsRequest resultsRequest, LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (saveUserProfile(resultsRequest,schedulerStartTime,pageValue)) {
+        if (isLeaver(resultsRequest)) {
+            elinksPeopleLeaverService.processLeavers(mapToLeaversRequest(resultsRequest));
+        } else if (isDeleted(resultsRequest)) {
+            elinksPeopleDeleteService.deletePeople(resultsRequest.getPersonalCode());
+        } else if (saveUserProfile(resultsRequest,schedulerStartTime,pageValue)) {
             try {
-                elinksPeopleDeleteServiceimpl.deleteAuth(resultsRequest);
+                elinksPeopleDeleteService.deleteAuth(resultsRequest);
                 saveAppointmentDetails(resultsRequest.getPersonalCode(), resultsRequest
                     .getObjectId(), resultsRequest.getAppointmentsRequests(),schedulerStartTime,pageValue);
                 saveAuthorizationDetails(resultsRequest.getPersonalCode(), resultsRequest
@@ -337,6 +351,27 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             }
 
         }
+    }
+
+    private List<LeaversResultsRequest> mapToLeaversRequest(ResultsRequest resultsRequest) {
+        LeaversResultsRequest leaversResultsRequest = LeaversResultsRequest.builder()
+                .personalCode(resultsRequest.getPersonalCode())
+                .objectId(resultsRequest.getObjectId())
+                .perId(resultsRequest.getPerId())
+                .leftOn(resultsRequest.getLeftOn())
+                .leaver(resultsRequest.getLeaver())
+                .build();
+        return Lists.newArrayList(leaversResultsRequest);
+    }
+
+    private boolean isLeaver(ResultsRequest resultsRequest) {
+        String leaver = StringUtils.defaultString(resultsRequest.getLeaver(), "false");
+        return "true".equalsIgnoreCase(leaver);
+    }
+
+    private boolean isDeleted(ResultsRequest resultsRequest) {
+        String deleted = StringUtils.defaultString(resultsRequest.getDeleted(), "false");
+        return "true".equalsIgnoreCase(deleted);
     }
 
     private void saveRoleDetails(String personalCode, List<RoleRequest> judiciaryRoles, int pageValue) {
@@ -421,7 +456,17 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private boolean validateUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (validateEmail(resultsRequest)) {
+        if (isNotValidKnownAs(resultsRequest)) {
+            log.warn("KnownAs is empty or null for the personal code : " + resultsRequest.getPersonalCode());
+            partialSuccessFlag = true;
+            String errorField = resultsRequest.getPersonalCode();
+            String errorDescription = appendFieldWithErrorDescription(USER_PROFILE_KNOWN_AS, errorField);
+            elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                    now(),
+                    resultsRequest.getPersonalCode(),
+                    KNOWN_AS, errorDescription, USER_PROFILE, resultsRequest.getPersonalCode(), pageValue);
+            return false;
+        } else if (isNotValidEmail(resultsRequest)) {
             log.warn("Email is empty or null for the personal code : " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String errorField = resultsRequest.getPersonalCode();
@@ -448,9 +493,10 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime,
-                resultsRequest.getObjectId(),
-                OBJECT_ID,OBJECTIDISDUPLICATED, USER_PROFILE,personalCode,pageValue);
+                    schedulerStartTime,
+                    resultsRequest.getObjectId(),
+                    OBJECT_ID, String.format(OBJECTIDISDUPLICATED, resultsRequest.getObjectId()),
+                    USER_PROFILE, personalCode, pageValue);
             return false;
         } else if (!isNull(resultsRequest.getObjectId())
             && !resultsRequest.getObjectId().isEmpty() && objectIdisPresentInDb(resultsRequest)) {
@@ -458,9 +504,10 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
             partialSuccessFlag = true;
             String personalCode = resultsRequest.getPersonalCode();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                schedulerStartTime,
-                resultsRequest.getPersonalCode(),
-                    OBJECT_ID,OBJECTIDISPRESENT, USER_PROFILE,personalCode,pageValue);
+                    schedulerStartTime,
+                    resultsRequest.getPersonalCode(),
+                    OBJECT_ID, OBJECTIDISPRESENT,
+                    USER_PROFILE, personalCode, pageValue);
             return false;
         }
         return true;
@@ -472,11 +519,16 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 && !resultsRequest.getPersonalCode().equals(userProfile.getPersonalCode()));
     }
 
-    private boolean validateEmail(ResultsRequest resultsRequest) {
-        String leaver = StringUtils.defaultString(resultsRequest.getLeaver(), "false");
-        String deleted = StringUtils.defaultString(resultsRequest.getDeleted(), "false");
-        return "false".equalsIgnoreCase(leaver) && "false".equalsIgnoreCase(deleted)
-                && StringUtils.isEmpty(resultsRequest.getEmail());
+    private boolean isNotValidEmail(ResultsRequest resultsRequest) {
+        boolean isLeaver = isLeaver(resultsRequest);
+        boolean isDeleted = isDeleted(resultsRequest);
+        return !isLeaver && !isDeleted && StringUtils.isEmpty(resultsRequest.getEmail());
+    }
+
+    private boolean isNotValidKnownAs(ResultsRequest resultsRequest) {
+        boolean isLeaver = isLeaver(resultsRequest);
+        boolean isDeleted = isDeleted(resultsRequest);
+        return !isLeaver && !isDeleted && StringUtils.isEmpty(resultsRequest.getKnownAs());
     }
 
     private List<UserProfile> personalCodePresentInDb(ResultsRequest resultsRequest) {

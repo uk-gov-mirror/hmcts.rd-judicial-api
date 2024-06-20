@@ -14,4 +14,6 @@ public interface AuthorisationsRepository extends JpaRepository<Authorisation, L
     void deleteByPersonalCode(String personalCode);
 
     void deleteByPersonalCodeIn(List<String> personalCode);
+
+    List<Authorisation> findAllByPersonalCode(List<String> personalCode);
 }
