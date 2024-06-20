@@ -569,7 +569,7 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
 
         verifyFirstUserAppointmentsData(appointments);
 
-        if (!testDataArguments.isDuplicateUserProfile()) {
+        if (!testDataArguments.isDuplicateUserProfile() && testDataArguments.expectedUserProfiles() > 1) {
             verifySecondUserAppointmentsData(appointments, testDataArguments.expectedAppointmentsSize());
         }
     }
@@ -664,7 +664,7 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
         assertThat(authorisations).isNotNull().isNotEmpty().hasSize(testDataArguments.expectedAuthorisationSize());
 
         verifyFirstUserAuthorisationsData(authorisations);
-        if (!testDataArguments.isDuplicateUserProfile()) {
+        if (!testDataArguments.isDuplicateUserProfile() && testDataArguments.expectedUserProfiles() > 1) {
             verifySecondUserAuthorisationsData(authorisations, testDataArguments.expectedAuthorisationSize());
         }
     }
