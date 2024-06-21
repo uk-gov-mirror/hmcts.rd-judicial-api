@@ -65,6 +65,7 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
     protected static final String LEAVERS_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/leavers.json";
     protected static final String DELETED_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/deleted.json";
     protected static final String PEOPLE_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/people.json";
+    protected static final String PEOPLE_LOAD_DELETE_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/people_load_delete.json";
 
     protected static final String PEOPLE_API_DUPLICATE_OBJECT_ID_RESPONSE_JSON =
             WIREMOCK_RESPONSES_FOLDER + "/people_duplicate_object_Id.json";
@@ -101,6 +102,20 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
                         .expectedAuthorisationSize(4)
                         .expectedRoleSize(2)
                         .expectedUserProfiles(2)
+                        .expectedJobStatus(SUCCESS)
+                        .expectedActiveFlag(true)
+                        .expectedLastWorkingDate("2028-07-23")
+                        .build();
+
+        final TestDataArguments successLoadAndDeleteTestDataArguments =
+                TestDataArguments
+                        .builder()
+                        .eLinksPeopleApiResponseJson(PEOPLE_LOAD_DELETE_API_RESPONSE_JSON)
+                        .eLinksLocationApiResponseJson(LOCATION_API_RESPONSE_JSON)
+                        .expectedAppointmentsSize(2)
+                        .expectedAuthorisationSize(2)
+                        .expectedRoleSize(1)
+                        .expectedUserProfiles(1)
                         .expectedJobStatus(SUCCESS)
                         .expectedActiveFlag(true)
                         .expectedLastWorkingDate("2028-07-23")
@@ -261,6 +276,8 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
         return Stream.of(
                 arguments(
                         named("Should load people data with success status", successLoadTestDataArguments)),
+                arguments(
+                        named("Should Load and Delete Success Scenarios", successLoadAndDeleteTestDataArguments)),
                 arguments(
                         named(
                                 "Should load people data with partial success status when judiciary role name "
