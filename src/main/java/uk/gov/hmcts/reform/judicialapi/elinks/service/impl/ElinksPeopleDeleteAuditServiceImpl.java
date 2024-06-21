@@ -44,8 +44,8 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
                                   List<Appointment> appointments,
                                   List<JudicialRoleType> judicialRoleTypes,
                                   List<UserProfile> userProfiles) {
-
-        if (authorisations != null) {
+        log.info("Audit People Delete");
+        if (authorisations != null && authorisations.size() > 0) {
             authorisationsRepositoryAudit.saveAll(authorisations.stream().map(authorisation ->
                             uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Authorisation.builder()
                                     .authorisationId(authorisation.getAuthorisationId())
@@ -62,9 +62,10 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
                                     .ticketCode(authorisation.getTicketCode())
                                     .build())
                     .collect(Collectors.toList()));
+            log.info("Audit Authorisations Success");
         }
 
-        if (appointments != null) {
+        if (appointments != null && appointments.size() > 0) {
             appointmentsRepositoryAudit.saveAll(appointments.stream()
                     .map(appointment -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Appointment.builder()
                             .appointmentMapping(appointment.getAppointmentMapping())
@@ -86,9 +87,10 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
                             .endDate(appointment.getEndDate())
                             .startDate(appointment.getStartDate())
                             .build()).collect(Collectors.toList()));
+            log.info("Audit Appointments Success");
         }
 
-        if (judicialRoleTypes != null) {
+        if (judicialRoleTypes != null && judicialRoleTypes.size() > 0) {
             judicialRoleTypeRepositoryAudit.saveAll(judicialRoleTypes.stream()
                     .map(judicialRoleType -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleType
                             .builder().jurisdictionRoleId(judicialRoleType.getJurisdictionRoleId())
@@ -99,9 +101,10 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
                             .title(judicialRoleType.getTitle())
                             .endDate(judicialRoleType.getEndDate())
                             .build()).collect(Collectors.toList()));
+            log.info("Audit Judicial Role Types Success");
         }
 
-        if (userProfiles != null) {
+        if (userProfiles != null && userProfiles.size() > 0) {
             profileRepositoryAudit.saveAll(userProfiles.stream()
                     .map(userProfile -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.UserProfile.builder()
                             .activeFlag(userProfile.getActiveFlag())
@@ -121,6 +124,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
                             .sidamId(userProfile.getSidamId())
                             .surname(userProfile.getSurname())
                             .title(userProfile.getTitle()).build()).collect(Collectors.toList()));
+            log.info("Audit User Profile Success");
         }
     }
 }
