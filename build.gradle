@@ -292,7 +292,10 @@ sonarqube {
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/configuration/SendGridConfig.java," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/util/DataloadSchedulerJobAudit.java," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/exception/**," +
-                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/scheduler/ElinksApiJobScheduler.java,"
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/scheduler/ElinksApiJobScheduler.java," +
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/ElinksPeopleLeaverServiceImpl.java" +
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/ElinksPeopleLeaverServiceImpl.java" +
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/ElinksPeopleDeleteServiceImpl.java"
 
     }
 }
