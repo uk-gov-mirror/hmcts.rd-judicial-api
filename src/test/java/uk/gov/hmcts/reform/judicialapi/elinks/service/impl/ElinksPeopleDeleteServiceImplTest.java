@@ -15,11 +15,12 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.AppointmentsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.AuthorisationsRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.JudicialRoleTypeRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteAuditService;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +38,9 @@ class ElinksPeopleDeleteServiceImplTest {
 
     @Spy
     private ProfileRepository profileRepository;
+
+    @Spy
+    private ElinksPeopleDeleteAuditService elinksPeopleDeleteAuditService;
 
     @InjectMocks
     private ElinksPeopleDeleteServiceImpl elinksPeopleDeleteServiceimpl;
@@ -82,20 +86,20 @@ class ElinksPeopleDeleteServiceImplTest {
     @Test
     void testdeleteAuth() {
         elinksPeopleDeleteServiceimpl.deleteAuth(result1);
-        Mockito.verify(authorisationsRepository,Mockito.times(1)).deleteByPersonalCode(any());
-        Mockito.verify(appointmentsRepository,Mockito.times(1)).deleteByPersonalCode(any());
-        Mockito.verify(judicialRoleTypeRepository,Mockito.times(1)).deleteByPersonalCode(any());
+        Mockito.verify(authorisationsRepository,Mockito.times(1)).deleteAll(anyList());
+        Mockito.verify(appointmentsRepository,Mockito.times(1)).deleteAll(anyList());
+        Mockito.verify(judicialRoleTypeRepository,Mockito.times(1)).deleteAll(anyList());
 
     }
 
     @Test
     void testdeletePeople() {
         elinksPeopleDeleteServiceimpl.deletePeople(result1.getPersonalCode());
-        Mockito.verify(profileRepository,Mockito.times(1)).deleteById(any());
-        Mockito.verify(authorisationsRepository,Mockito.times(1)).deleteByPersonalCode(any());
-        Mockito.verify(appointmentsRepository,Mockito.times(1)).deleteByPersonalCode(any());
-        Mockito.verify(judicialRoleTypeRepository,Mockito.times(1)).deleteByPersonalCode(any());
-        Mockito.verify(profileRepository,Mockito.times(1)).deleteById(any());
+        Mockito.verify(profileRepository,Mockito.times(1)).deleteAll(anyList());
+        Mockito.verify(authorisationsRepository,Mockito.times(1)).deleteAll(anyList());
+        Mockito.verify(appointmentsRepository,Mockito.times(1)).deleteAll(anyList());
+        Mockito.verify(judicialRoleTypeRepository,Mockito.times(1)).deleteAll(anyList());
+        Mockito.verify(profileRepository,Mockito.times(1)).deleteAll(anyList());
 
     }
 

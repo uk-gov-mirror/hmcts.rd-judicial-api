@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteAuditService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -47,7 +48,7 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteAuth(ResultsRequest resultsRequest) {
         List<String> personalCodes = Lists.newArrayList(resultsRequest.getPersonalCode());
-        auditAndDelete(personalCodes);
+        auditAndDelete(personalCodes, false);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     public void deletePeople(String personalCode) {
         log.info("Delete by personalCode");
         List<String> personalCodes = Lists.newArrayList(personalCode);
-        auditAndDelete(personalCodes);
+        auditAndDelete(personalCodes, true);
     }
 
     @Override
@@ -63,19 +64,31 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     public void deletePeople(List<String> personalCodes) {
         log.info("Delete people by personal codes");
         // Get and persist into audit table
-        auditAndDelete(personalCodes);
+        auditAndDelete(personalCodes, true);
     }
 
-    private void auditAndDelete(List<String> personalCodes) {
-        List<Authorisation> authorisations = authorisationsRepository.findAllByPersonalCodeIn(personalCodes);
-        List<Appointment> appointments = appointmentsRepository.findAllByPersonalCodeIn(personalCodes);
-        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAllByPersonalCodeIn(personalCodes);
-        List<UserProfile> userProfiles = profileRepository.findAllById(personalCodes);
-        elinksPeopleDeleteAuditService.auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
+    private void auditAndDelete(List<String> personalCodes, boolean deleteUserProfile) {
+        try {
+            List<Authorisation> authorisations = authorisationsRepository.findAllByPersonalCodeIn(personalCodes);
+            List<Appointment> appointments = appointmentsRepository.findAllByPersonalCodeIn(personalCodes);
+            List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository
+                    .findAllByPersonalCodeIn(personalCodes);
 
-        authorisationsRepository.deleteAll(authorisations);
-        appointmentsRepository.deleteAll(appointments);
-        judicialRoleTypeRepository.deleteAll(judicialRoleTypes);
-        profileRepository.deleteAll(userProfiles);
+            authorisationsRepository.deleteAll(authorisations);
+            appointmentsRepository.deleteAll(appointments);
+            judicialRoleTypeRepository.deleteAll(judicialRoleTypes);
+            List<UserProfile> userProfiles = new ArrayList<>();
+            if (deleteUserProfile) {
+                userProfiles = profileRepository.findAllById(personalCodes);
+                profileRepository.deleteAll(userProfiles);
+            }
+            elinksPeopleDeleteAuditService
+                    .auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
+        } catch (Exception e) {
+            log.error("Delete User Profile failed for personal codes {} error message: ",
+                    personalCodes, e.getMessage());
+            e.printStackTrace();
+        }
+
     }
 }
