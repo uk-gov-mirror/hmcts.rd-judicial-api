@@ -46,9 +46,8 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteAuth(ResultsRequest resultsRequest) {
-        authorisationsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
-        appointmentsRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
-        judicialRoleTypeRepository.deleteByPersonalCode(resultsRequest.getPersonalCode());
+        List<String> personalCodes = Lists.newArrayList(resultsRequest.getPersonalCode());
+        auditAndDelete(personalCodes);
     }
 
     @Override
@@ -56,17 +55,7 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     public void deletePeople(String personalCode) {
         log.info("Delete by personalCode");
         List<String> personalCodes = Lists.newArrayList(personalCode);
-        List<Authorisation> authorisations = authorisationsRepository.findAllByPersonalCodeIn(personalCodes);
-        List<Appointment> appointments = appointmentsRepository.findAllByPersonalCodeIn(personalCodes);
-        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAllByPersonalCodeIn(personalCodes);
-        List<UserProfile> userProfiles = profileRepository.findAllById(personalCodes);
-        elinksPeopleDeleteAuditService.auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
-
-        authorisationsRepository.deleteAll(authorisations);
-        appointmentsRepository.deleteAll(appointments);
-        judicialRoleTypeRepository.deleteAll(judicialRoleTypes);
-        profileRepository.deleteAll(userProfiles);
-
+        auditAndDelete(personalCodes);
     }
 
     @Override
@@ -74,13 +63,16 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     public void deletePeople(List<String> personalCodes) {
         log.info("Delete people by personal codes");
         // Get and persist into audit table
+        auditAndDelete(personalCodes);
+    }
+
+    private void auditAndDelete(List<String> personalCodes) {
         List<Authorisation> authorisations = authorisationsRepository.findAllByPersonalCodeIn(personalCodes);
         List<Appointment> appointments = appointmentsRepository.findAllByPersonalCodeIn(personalCodes);
         List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAllByPersonalCodeIn(personalCodes);
         List<UserProfile> userProfiles = profileRepository.findAllById(personalCodes);
         elinksPeopleDeleteAuditService.auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
 
-        //Delete entries from db
         authorisationsRepository.deleteAll(authorisations);
         appointmentsRepository.deleteAll(appointments);
         judicialRoleTypeRepository.deleteAll(judicialRoleTypes);
