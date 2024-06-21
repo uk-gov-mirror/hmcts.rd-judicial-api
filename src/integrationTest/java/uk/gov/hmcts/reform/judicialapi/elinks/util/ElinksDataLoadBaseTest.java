@@ -65,7 +65,8 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
     protected static final String LEAVERS_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/leavers.json";
     protected static final String DELETED_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/deleted.json";
     protected static final String PEOPLE_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/people.json";
-    protected static final String PEOPLE_LOAD_DELETE_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/people_load_delete.json";
+    protected static final String PEOPLE_LOAD_DELETE_API_RESPONSE_JSON =
+            WIREMOCK_RESPONSES_FOLDER + "/people_load_delete.json";
 
     protected static final String PEOPLE_API_DUPLICATE_OBJECT_ID_RESPONSE_JSON =
             WIREMOCK_RESPONSES_FOLDER + "/people_duplicate_object_Id.json";
