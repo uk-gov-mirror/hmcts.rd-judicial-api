@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 
+import com.launchdarkly.shaded.com.google.common.collect.Lists;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +55,17 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deletePeople(String personalCode) {
         log.info("Delete by personalCode");
-        authorisationsRepository.deleteByPersonalCode(personalCode);
-        appointmentsRepository.deleteByPersonalCode(personalCode);
-        judicialRoleTypeRepository.deleteByPersonalCode(personalCode);
-        profileRepository.deleteById(personalCode);
+        List<String> personalCodes = Lists.newArrayList(personalCode);
+        List<Authorisation> authorisations = authorisationsRepository.findAllByPersonalCodeIn(personalCodes);
+        List<Appointment> appointments = appointmentsRepository.findAllByPersonalCodeIn(personalCodes);
+        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository.findAllByPersonalCodeIn(personalCodes);
+        List<UserProfile> userProfiles = profileRepository.findAllById(personalCodes);
+        elinksPeopleDeleteAuditService.auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
+
+        authorisationsRepository.deleteAll(authorisations);
+        appointmentsRepository.deleteAll(appointments);
+        judicialRoleTypeRepository.deleteAll(judicialRoleTypes);
+        profileRepository.deleteAll(userProfiles);
 
     }
 
