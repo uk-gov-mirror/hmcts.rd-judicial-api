@@ -506,6 +506,7 @@ public class ELinksServiceImpl implements ELinksService {
             log.info("Cleaning Elinks Responses Table completed Successfully");
         } catch (Exception exception) {
             log.warn("Cleaning Elinks Responses Table failed");
+            exception.printStackTrace();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(),
                     null,
