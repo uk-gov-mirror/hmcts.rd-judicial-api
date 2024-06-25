@@ -31,14 +31,15 @@ public class ElinkDataExceptionHelper {
     public void auditException(String schedulerName, LocalDateTime schedulerStartTime,
                                String key, String fieldInError, String errorDescription,
                                String tableName, String personalCode, Integer pageValue) {
-        auditException(schedulerName,
+        auditExceptionMessage(schedulerName,
                 schedulerStartTime,
                 key,
                 fieldInError,
                 errorDescription,
                 tableName,
                 personalCode,
-                pageValue, "");
+                pageValue,
+                "");
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -47,6 +48,26 @@ public class ElinkDataExceptionHelper {
                                String tableName, String personalCode,
                                Integer pageValue, String errorMessage) {
 
+        auditExceptionMessage(schedulerName,
+                schedulerStartTime,
+                key,
+                fieldInError,
+                errorDescription,
+                tableName,
+                personalCode,
+                pageValue,
+                errorMessage);
+    }
+
+    private void auditExceptionMessage(String schedulerName,
+                                       LocalDateTime schedulerStartTime,
+                                       String key,
+                                       String fieldInError,
+                                       String errorDescription,
+                                       String tableName,
+                                       String personalCode,
+                                       Integer pageValue,
+                                       String errorMessage) {
         ElinkDataExceptionRecords audit = new ElinkDataExceptionRecords();
         try {
 
