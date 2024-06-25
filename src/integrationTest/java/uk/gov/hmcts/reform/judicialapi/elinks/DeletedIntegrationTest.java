@@ -165,14 +165,14 @@ class DeletedIntegrationTest extends ElinksDataLoadBaseTest {
     private void verifyDeletedPeopleAudit(TestDataArguments testDataArguments) {
 
         List<Authorisation> authorisations = authorisationsRepositoryAudit.findAll();
-        List<Appointment> appointments = appointmentsRepositoryAudit.findAll();
-        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepositoryAudit.findAll();
-        List<UserProfile> userProfiles = profileRepositoryAudit.findAll();
         assertNotNull(authorisations);
         assertEquals(testDataArguments.expectedAuthorisationSize(), authorisations.size());
+        List<Appointment> appointments = appointmentsRepositoryAudit.findAll();
         assertNotNull(appointments);
         assertEquals(testDataArguments.expectedAppointmentsSize(), appointments.size());
+        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepositoryAudit.findAll();
         assertNotNull(judicialRoleTypes);
+        List<UserProfile> userProfiles = profileRepositoryAudit.findAll();
         assertNotNull(userProfiles);
         assertEquals(testDataArguments.expectedUserProfiles(), userProfiles.size());
     }
