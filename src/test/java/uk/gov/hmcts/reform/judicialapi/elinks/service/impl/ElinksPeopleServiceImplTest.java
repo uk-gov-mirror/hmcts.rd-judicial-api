@@ -431,8 +431,10 @@ class ElinksPeopleServiceImplTest {
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         });
-        verify(elinkDataIngestionSchedularAudit,times(3))
-            .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
+        verify(elinkDataIngestionSchedularAudit,times(2))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
+        verify(elinkDataIngestionSchedularAudit,times(1))
+                .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
     }
 
     @Test
@@ -543,8 +545,11 @@ class ElinksPeopleServiceImplTest {
         ElinksException thrown = Assertions.assertThrows(ElinksException.class, () -> {
             ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         });
-        verify(elinkDataIngestionSchedularAudit,times(3))
-            .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
+        verify(elinkDataIngestionSchedularAudit,times(2))
+            .auditSchedulerStatus(any(),any(),any(),any(),any());
+
+        verify(elinkDataIngestionSchedularAudit,times(1))
+                .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
     }
 
     @Test
