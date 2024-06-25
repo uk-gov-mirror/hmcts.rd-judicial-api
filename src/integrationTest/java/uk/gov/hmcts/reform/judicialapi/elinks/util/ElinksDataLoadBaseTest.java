@@ -47,19 +47,19 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
 
     protected static final String APPOINTMENT_BASE_LOCATION_MISSING_ERROR_MSG =
-            "Appointment's Base Location ID : null  is not available in location_type table";
+            "Appointment's Base Location ID : null is not available in location_type table";
     protected static final String APPOINTMENT_TYPE_MISSING_ERROR_MSG =
             "The Type field is null for the given Appointment.";
     protected static final String APPOINTMENT_ID_UNAVAILABLE_ERROR_MSG =
-            "Appointment  ID : 25513  is not available in Appointment Table";
+            "Appointment ID : 25513 is not available in Appointment Table";
     protected static final String JUDICIARY_ROLE_NAME_MISSING_ERROR_MSG = "Judiciary Role Name ID is invalid";
     protected static final String INVALID_BASE_LOCATION_ID_ERROR_MSG =
-            "Appointment's Base Location ID : 5577  is not available in location_type table";
+            "Appointment's Base Location ID : 5577 is not available in location_type table";
     protected static final String INVALID_APPOINTMENT_LOCATION_ERROR_MSG =
-            "Location  : North London   is not available in jrd_lrd_region_mapping table";
-    protected static final String INVALID_APPOINTMENT_ROLE_NAME_ERROR_MSG = "Role Name  : Unknown   is invalid";
+            "Location : North London  is not available in jrd_lrd_region_mapping table";
+    protected static final String INVALID_APPOINTMENT_ROLE_NAME_ERROR_MSG = "Role Name : Unknown is invalid";
     protected static final String BASE_LOCATION_PARENT_ID_NULL_ERROR_MSG =
-            " The Parent ID is null/blanks for Tribunal Base Location ID  1122 in the Location_Type table.";
+            "The Parent ID is null/blanks for Tribunal Base Location ID 1122 in the Location_Type table.";
     private static final String WIREMOCK_RESPONSES_FOLDER = "/wiremock_responses";
     protected static final String LOCATION_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/location.json";
     protected static final String LEAVERS_API_RESPONSE_JSON = WIREMOCK_RESPONSES_FOLDER + "/leavers.json";
@@ -271,7 +271,7 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
                         .exceptionSize(1)
                         .expectedActiveFlag(true)
                         .expectedLastWorkingDate("2028-07-23")
-                        .errorMsg1("Personal  Code : 4913085  is already loaded")
+                        .errorMsg1("Personal Code : 4913085 is already loaded")
                         .build();
 
         return Stream.of(

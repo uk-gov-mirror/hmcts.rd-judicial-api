@@ -52,7 +52,8 @@ public class ElinkDataIngestionSchedularAudit {
             audit.setSchedulerStartTime(schedulerStartTime);
             audit.setStatus(status);
             audit.setApiName(apiName);
-            audit.setErrorMessage(errorMessage.length() > 500 ? errorMessage.substring(0, 500) : errorMessage);
+            audit.setErrorMessage(errorMessage != null && errorMessage.length() > 500
+                    ? errorMessage.substring(0, 500) : errorMessage);
 
             elinkSchedularAuditRepository.save(audit);
         } catch (Exception e) {

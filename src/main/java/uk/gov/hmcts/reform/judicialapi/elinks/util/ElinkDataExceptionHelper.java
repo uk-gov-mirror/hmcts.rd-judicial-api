@@ -59,7 +59,8 @@ public class ElinkDataExceptionHelper {
             audit.setUpdatedTimeStamp(LocalDateTime.now());
             audit.setRowId(personalCode);
             audit.setPageId(pageValue);
-            audit.setErrorMessage(errorMessage.length() > 500 ? errorMessage.substring(0, 500) : errorMessage);
+            audit.setErrorMessage(errorMessage != null && errorMessage.length() > 500
+                    ? errorMessage.substring(0, 500) : errorMessage);
             elinkDataExceptionRepository.save(audit);
         } catch (Exception e) {
             log.error("{}:: Failure error Message {} in auditSchedulerStatus {}  ",

@@ -505,8 +505,7 @@ public class ELinksServiceImpl implements ELinksService {
                     .deleteByCreatedDateBefore(LocalDateTime.now().minusDays(cleanElinksResponsesDays));
             log.info("Cleaning Elinks Responses Table completed Successfully");
         } catch (Exception exception) {
-            log.warn("Cleaning Elinks Responses Table failed");
-            exception.printStackTrace();
+            log.warn("Cleaning Elinks Responses Table failed", exception);
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                     now(), null,
                     "elinks_responses", "Error while deleting records from elinks_responses table",

@@ -86,8 +86,7 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
                     .auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
         } catch (Exception e) {
             log.error("Delete User Profile failed for personal codes {} error message: {} ",
-                    personalCodes, e.getMessage());
-            e.printStackTrace();
+                    personalCodes, e.getMessage(), e);
         }
 
     }

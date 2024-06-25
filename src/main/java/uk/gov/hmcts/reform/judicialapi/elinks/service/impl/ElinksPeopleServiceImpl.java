@@ -352,10 +352,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .getObjectId(), resultsRequest.getAuthorisationsRequests(),schedulerStartTime,pageValue);
                 saveRoleDetails(resultsRequest.getPersonalCode(), resultsRequest.getJudiciaryRoles(),pageValue);
             } catch (Exception exception) {
-                log.error("saveUserProfile exception {} ", exception.getMessage());
+                log.error("saveUserProfile exception {} ", exception.getMessage(), exception);
                 log.warn("saveUserProfile is failed {} " + resultsRequest.getPersonalCode());
                 partialSuccessFlag = true;
-                exception.printStackTrace();
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         now(), PERSONAL_CODE_KEY + resultsRequest.getPersonalCode(),
                         PERSONALCODE, exception.getMessage(), USER_PROFILE,
@@ -404,10 +403,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     .build());
 
             } catch (Exception e) {
-                log.error("Save Role Details exception {}", e.getMessage());
+                log.error("Save Role Details exception {}", e.getMessage(), e);
                 log.warn("Judicial additional role  not loaded for " + personalCode);
                 partialSuccessFlag = true;
-                e.printStackTrace();
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         now(), JUDICIARY_ROLE_ID__KEY + roleRequest.getJudiciaryRoleId(),
                         INVALIDROLEID, INVALIDROLETYPE, JUDICIALROLETYPE, PERSONAL_CODE_KEY + personalCode,
@@ -451,10 +449,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 profileRepository.save(userProfile);
                 return true;
             }   catch (Exception e) {
-                log.error("saveUserProfile exception {} ", e.getMessage());
+                log.error("saveUserProfile exception {} ", e.getMessage(), e);
                 log.warn("User Profile not loaded for {} " + resultsRequest.getPersonalCode());
                 partialSuccessFlag = true;
-                e.printStackTrace();
                 String personalCode = resultsRequest.getPersonalCode();
                 String errorDescription = formatErrorDescription(
                     USERPROFILEFAILURE, resultsRequest.getPersonalCode());
@@ -594,7 +591,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 log.error("Save Appointment exception {} ", e.getMessage());
                 log.warn("failed to load appointment details for {} " + appointmentsRequest.getAppointmentId());
                 partialSuccessFlag = true;
-                e.printStackTrace();
                 String errorDescription = formatErrorDescription(LOCATIONIDFAILURE, baseLocationId);
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS, now(),
                         APPOINTMENT_ID__KEY + appointmentsRequest.getAppointmentId(),
@@ -626,9 +622,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         .jurisdictionId(authorisationsRequest.getJurisdictionId())
                         .build());
             } catch (Exception e) {
-                log.error("Save Authorisation exception {} ", e.getMessage());
+                log.error("Save Authorisation exception {} ", e.getMessage(), e);
                 log.warn("failed to load Authorisation details for {} " + authorisationsRequest.getAuthorisationId());
-                e.printStackTrace();
                 partialSuccessFlag = true;
                 String errorDescription;
                 if (isNull(authorisationsRequest.getAppointmentId())) {
