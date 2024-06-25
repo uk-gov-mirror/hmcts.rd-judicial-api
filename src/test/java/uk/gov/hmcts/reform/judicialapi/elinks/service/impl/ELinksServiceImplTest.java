@@ -467,7 +467,7 @@ class ELinksServiceImplTest {
         eLinksServiceImpl.cleanUpElinksResponses();
 
         Mockito.verify(elinkDataExceptionHelper,Mockito.times(1))
-                .auditException(any(),any(),any(),any(),any(),any(),any(),any());
+                .auditException(any(),any(),any(),any(),any(),any(),any(),any(), any());
 
     }
 

@@ -12,7 +12,7 @@ created_date timestamp NULL,
 last_updated timestamp NULL,
 lower_level varchar(256) NOT NULL,
 ticket_code varchar(16) NOT NULL,
-appointment_id varchar(256) NOT NULL,
+appointment_id varchar(256) NULL,
 authorisation_id varchar(256) NOT NULL,
 jurisdiction_id varchar(64) NOT NULL
 );

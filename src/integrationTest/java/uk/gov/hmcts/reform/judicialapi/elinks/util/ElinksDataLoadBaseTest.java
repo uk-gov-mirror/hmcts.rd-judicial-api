@@ -911,5 +911,9 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
         profileRepository.deleteAll();
         baseLocationRepository.deleteAll();
         dataloadSchedulerJobRepository.deleteAll();
+        authorisationsRepositoryAudit.deleteAll();
+        judicialRoleTypeRepositoryAudit.deleteAll();
+        appointmentsRepositoryAudit.deleteAll();
+        profileRepositoryAudit.deleteAll();
     }
 }

@@ -25,7 +25,6 @@ public class RefDataElinksConstants {
 
     public static final String ELINKS_ACCESS_ERROR = "An error occurred while retrieving data from Elinks";
     public static final String ELINKS_DATA_STORE_ERROR = "An error occurred while storing data from Elinks";
-    public static final String ERROR_IN_PARSING_THE_FEIGN_RESPONSE = "Error in parsing %s Feign Response";
 
     public static final String ELINKS_ERROR_RESPONSE_BAD_REQUEST = "Syntax error or Bad request";
     public static final String ELINKS_ERROR_RESPONSE_UNAUTHORIZED =
@@ -47,10 +46,6 @@ public class RefDataElinksConstants {
 
     public static final String DATA_UPDATE_ERROR = "An error occurred while updating data in refDataDb";
 
-    public static final String REGION_DEFAULT_ID = "0";
-
-    public static final String UPDATED_SINCE = "2015-01-01";
-
     public static final String LEAVERSSUCCESS = "Leavers Data Loaded Successfully";
 
     public static final String DELETEDSUCCESS = "Deleted users Data Loaded Successfully";
@@ -67,17 +62,13 @@ public class RefDataElinksConstants {
 
     public static final String ELINKSRESPONSES = "elinks_responses";
 
-
     public static final String LOCATIONAPI = "Location";
 
     public static final String PEOPLEAPI = "People";
-    public static final String BASELOCATIONAPI = "BaseLocation";
 
     public static final String BASE_LOCATION_ID = "base_location_id";
 
     public static final String OBJECT_ID = "object_id";
-
-    public static final String LOCATION_ID = "region_id";
 
     public static final String LOCATION = "Location";
 
@@ -85,13 +76,9 @@ public class RefDataElinksConstants {
 
     public static final String IDAMSEARCH = "IdamCallByssoId";
 
-    public static final String PUBLISHASB = "Publish to ASB";
-
     public static final String JUDICIALROLETYPE = "judicial_additional_roles";
 
     public static final String USER_PROFILE = "judicial_user_profile";
-
-    public static final String APPOINTMENT = "appointments";
 
     public static final String APPOINTMENTID = "appointmentId";
 
@@ -99,75 +86,49 @@ public class RefDataElinksConstants {
 
     public static final String KNOWN_AS = "known_as";
 
-    public static final String AUTHORISATION = "authorisations_with_dates";
-
-    public static final String APPOINTMENTTYPE = "appointment type";
-
-
-    public static final String LOCATIONIDFAILURE = "Appointment's Base Location ID : "
+    public static final String LOCATIONIDFAILURE = "Appointment's Base Location ID : %s "
             + "is not available in location_type table";
 
-    public static final String APP_ID = "Appointment  ID : ";
-    public static final String APPOINTMENTIDNOTAVAILABLE = APP_ID
-        + "is not available in Appointment Table";
+    public static final String APPOINTMENTIDNOTAVAILABLE = "Appointment ID : %s "
+            + "is not available in Appointment Table";
 
-    public static final String APPOINTMENTID_IS_NULL = APP_ID
+    public static final String APPOINTMENTID_IS_NULL = "Appointment ID : %s "
             + "is Null for the given Authorisation";
 
-    public static final String USERPROFILEEMAILID = "Personal Code : "
+    public static final String USERPROFILEEMAILID = "Personal Code : %s "
         + " is not having any email id";
 
-    public static final String USER_PROFILE_KNOWN_AS = "Personal Code : "
+    public static final String USER_PROFILE_KNOWN_AS = "Personal Code : %s"
             + " is not having any known as";
 
-    public static final String FAIL_LOAD = "is failed to load";
-
-    public static final String APPOINTMENTIDFAILURE = APP_ID
-        + FAIL_LOAD;
-
-    public static final String AUTHORISATIONIDFAILURE = APP_ID
-        + FAIL_LOAD;
-
-    public static final String USERPROFILEISPRESENT = "Personal  Code : "
+    public static final String USERPROFILEISPRESENT = "Personal Code : %s "
         + "is already loaded";
     public static final String OBJECTIDISDUPLICATED = "Object ID %s is duplicated in Request";
 
-    public static final String OBJECTIDISPRESENT = "Object  ID is already present";
+    public static final String OBJECTIDISPRESENT = "Object ID is already present";
 
-    public static final String CFTREGIONIDFAILURE = "Location  : "
+    public static final String CFTREGIONIDFAILURE = "Location : %s "
         + " is not available in jrd_lrd_region_mapping table";
 
-    public static final String PARENTIDFAILURE = "The Parent ID is null/blanks for Tribunal Base Location ID ";
-
+    public static final String PARENTIDFAILURE = "The Parent ID is null/blanks for Tribunal Base Location ID %s";
 
     public static final String LOCATIONFAILURE = " in the Location_Type table.";
 
     public static final String TYPEIDFAILURE = "The Type field is null for the given Appointment.";
 
-    public static final String INVALIDROLENAMES = "Role Name  : "
-        + " is invalid";
+    public static final String INVALIDROLENAMES = "Role Name : %s is invalid";
 
-    public static final String USERPROFILEFAILURE = "UserProfile  : "
-        + FAIL_LOAD;
+    public static final String USERPROFILEFAILURE = "UserProfile : %s is failed to load";
 
     public static final String INVALIDROLETYPE = "Judiciary Role Name ID is invalid";
 
     public static final String INVALIDROLEID = "jurisdiction_role_name_id";
 
-    public static final String APPOINTMENTTYPENOTMATCHING = "Appointment type  : "
-        + "not matching";
-
-    public static final String ERRORDESCRIPTIONFORINTTEST = "Appointment Base Location ID : 1000  "
-            + "not available in BASE LOCATION table";
-
     public static final String APPOINTMENT_TABLE = "judicial_office_appointment";
 
     public static final String PERSONALCODE = "Personal_code";
 
-
     public static final String AUTHORISATION_TABLE = "judicial_office_authorisation";
-
-    public static final String ASB_PUBLISH_SIDAM_ERROR = "An error occurred while Publishing SIDAM to ASB";
 
     public static final String DATABASE_FETCH_ERROR
         = "An error occurred while getting Details from database";
@@ -178,13 +139,8 @@ public class RefDataElinksConstants {
     public static final String SEND_EMAIL_EXCEPTION
         = "An error occurred while sending mail";
 
-    public static final String ASB_PUBLISH_TOPIC_ERROR
-        = "An error occurred while Publishing message to service bus topic";
-
     public static final String SPTW
         = "SPTW-";
-
-    public static final String FORBIDEN_ERROR = "Forbidden Error: Access denied for invalid permissions";
 
     public enum JobStatus {
         IN_PROGRESS("IN_PROGRESS"),
@@ -216,5 +172,17 @@ public class RefDataElinksConstants {
     public static final String CONTENT_TYPE_HTML = "text/html";
 
     public static final String DATE_OF_DELETION = "date_of_deletion";
+
+    public static final String PERSONAL_CODE_KEY = "Personal Code: ";
+
+    public static final String OBJECT_ID_KEY = "Object ID: ";
+
+    public static final String IDAM_ID_KEY = "Object ID: ";
+
+    public static final String JUDICIARY_ROLE_ID__KEY = "Judiciary Role ID: ";
+
+    public static final String APPOINTMENT_ID__KEY = "Appointment ID: ";
+
+    public static final String AUTHORISATION_ID__KEY = "Authorisation ID: ";
 
 }

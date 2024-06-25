@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.testng.collections.Lists;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.ElinkEmailConfiguration;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AppointmentsRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.AuthorisationsRequest;
@@ -431,7 +432,7 @@ class ElinksPeopleServiceImplTest {
             ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         });
         verify(elinkDataIngestionSchedularAudit,times(3))
-            .auditSchedulerStatus(any(),any(),any(),any(),any());
+            .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
     }
 
     @Test
@@ -543,7 +544,7 @@ class ElinksPeopleServiceImplTest {
             ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         });
         verify(elinkDataIngestionSchedularAudit,times(3))
-            .auditSchedulerStatus(any(),any(),any(),any(),any());
+            .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
     }
 
     @Test
@@ -711,19 +712,16 @@ class ElinksPeopleServiceImplTest {
                         .roleName("appointment").contractType("type").type("Tribunals").build()))
                 .authorisationsRequests(List.of(AuthorisationsRequest.builder().jurisdiction("juristriction")
                         .ticket("lowerlevel").startDate("1991-12-19")
-                        .endDate("2022-12-20").ticketCode("ticketId").build())).build();
+                        .endDate("2022-12-20").ticketCode("ticketId").build()))
+                .judiciaryRoles(Lists.newArrayList()).build();
         PaginationRequest pagination = PaginationRequest.builder()
                 .results(1)
                 .pages(1).currentPage(1).resultsPerPage(1).morePages(false).build();
-        List<ResultsRequest> results3 = Arrays.asList(result4);
 
         peopleRequest = PeopleRequest.builder().resultsRequests(List.of(resultsRequest)).pagination(pagination)
                 .build();
         when(dataloadSchedularAuditRepository.findLatestSchedularEndTime()).thenReturn(dateTime);
 
-        LocationMapping locationMapping = LocationMapping.builder()
-                .serviceCode("BHA1")
-                .epimmsId("1234").build();
         BaseLocation location = new BaseLocation();
         location.setBaseLocationId("12345");
         location.setName("ABC");
@@ -1306,7 +1304,7 @@ class ElinksPeopleServiceImplTest {
 
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
         verify(elinkDataExceptionHelper,atLeastOnce()).auditException(any(),any(),
-            any(),any(),any(),any(),any(),anyInt());
+            any(),any(),any(),any(),any(),anyInt(), any());
     }
 
 
@@ -1361,8 +1359,10 @@ class ElinksPeopleServiceImplTest {
         when(elinksResponsesHelper.saveElinksResponse(any(),any())).thenReturn(Response.builder()
                 .request(mock(Request.class)).body(body, defaultCharset()).status(200).build());
         ResponseEntity<ElinkPeopleWrapperResponse> responseEntity = elinksPeopleServiceImpl.updatePeople();
-        verify(elinkDataExceptionHelper,times(8))
-            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
+        verify(elinkDataExceptionHelper,times(4))
+                .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt());
+        verify(elinkDataExceptionHelper,times(4))
+            .auditException(any(),any(),any(),any(),any(),any(),any(),anyInt(), any());
     }
 
     @Test

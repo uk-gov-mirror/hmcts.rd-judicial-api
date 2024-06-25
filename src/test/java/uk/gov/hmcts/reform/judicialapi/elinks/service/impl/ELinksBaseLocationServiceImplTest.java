@@ -124,7 +124,7 @@ class ELinksBaseLocationServiceImplTest {
         });
 
         verify(elinkDataIngestionSchedularAudit,times(3))
-            .auditSchedulerStatus(any(),any(),any(),any(),any());
+            .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
 
     }
 
@@ -290,7 +290,7 @@ class ELinksBaseLocationServiceImplTest {
         assertThat(thrown.getErrorMessage()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
         assertThat(thrown.getErrorDescription()).contains(ELINKS_ERROR_RESPONSE_NOT_FOUND);
         verify(elinkDataIngestionSchedularAudit,times(3))
-            .auditSchedulerStatus(any(),any(),any(),any(),any());
+            .auditSchedulerStatus(any(),any(),any(),any(),any(), any());
 
     }
 

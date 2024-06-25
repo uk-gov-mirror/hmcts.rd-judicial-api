@@ -211,14 +211,14 @@ public class ELinksServiceImpl implements ELinksService {
             elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
                     schedulerStartTime,
                     now(),
-                    RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
+                    RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI, ex.getMessage());
             throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR, ELINKS_ACCESS_ERROR);
         } catch (Exception ex) {
             log.error("Exception on elinks location",ex);
             elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
                     schedulerStartTime,
                     now(),
-                    RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI);
+                    RefDataElinksConstants.JobStatus.FAILED.getStatus(), LOCATIONAPI, ex.getMessage());
             throw ex;
         }
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
@@ -508,10 +508,9 @@ public class ELinksServiceImpl implements ELinksService {
             log.warn("Cleaning Elinks Responses Table failed");
             exception.printStackTrace();
             elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
-                    now(),
-                    null,
+                    now(), null,
                     "elinks_responses", "Error while deleting records from elinks_responses table",
-                    ELINKSRESPONSES,null,null);
+                    ELINKSRESPONSES, null, null, exception.getMessage());
         }
     }
 

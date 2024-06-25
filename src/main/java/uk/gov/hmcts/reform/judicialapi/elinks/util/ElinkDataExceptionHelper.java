@@ -30,7 +30,22 @@ public class ElinkDataExceptionHelper {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void auditException(String schedulerName, LocalDateTime schedulerStartTime,
                                String key, String fieldInError, String errorDescription,
-                               String tableName,String personalCode,Integer pageValue) {
+                               String tableName, String personalCode, Integer pageValue) {
+        auditException(schedulerName,
+                schedulerStartTime,
+                key,
+                fieldInError,
+                errorDescription,
+                tableName,
+                personalCode,
+                pageValue, "");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void auditException(String schedulerName, LocalDateTime schedulerStartTime,
+                               String key, String fieldInError, String errorDescription,
+                               String tableName, String personalCode,
+                               Integer pageValue, String errorMessage) {
 
         ElinkDataExceptionRecords audit = new ElinkDataExceptionRecords();
         try {
@@ -44,6 +59,7 @@ public class ElinkDataExceptionHelper {
             audit.setUpdatedTimeStamp(LocalDateTime.now());
             audit.setRowId(personalCode);
             audit.setPageId(pageValue);
+            audit.setErrorMessage(errorMessage.length() > 500 ? errorMessage.substring(0, 500) : errorMessage);
             elinkDataExceptionRepository.save(audit);
         } catch (Exception e) {
             log.error("{}:: Failure error Message {} in auditSchedulerStatus {}  ",
