@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class DateUtil {
 
-    private DateUtil(){
+    private DateUtil() {
     }
 
     public static LocalDate convertToLocalDate(String fieldName, String date) {
