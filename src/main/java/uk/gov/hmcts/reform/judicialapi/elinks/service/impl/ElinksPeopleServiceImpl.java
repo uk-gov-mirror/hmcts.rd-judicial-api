@@ -43,10 +43,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.SendEmail;
 import uk.gov.hmcts.reform.judicialapi.util.JsonFeignResponseUtil;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +53,8 @@ import javax.naming.InvalidNameException;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.DateUtil.convertToLocalDate;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.DateUtil.convertToLocalDateTime;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTIDNOTAVAILABLE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTID_IS_NULL;
@@ -193,6 +192,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     @Autowired
     ElinksResponsesHelper elinksResponsesHelper;
+
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
 
     @Override
@@ -404,13 +405,17 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                     throw new InvalidNameException();
                 }
                 judicialRoleTypeRepository.save(JudicialRoleType.builder()
-                    .title(roleRequest.getName())
-                    .startDate(convertToLocalDateTime(roleRequest.getStartDate()))
-                    .endDate(convertToLocalDateTime(roleRequest.getEndDate()))
-                    .personalCode(personalCode)
-                    .jurisdictionRoleId(roleRequest.getJudiciaryRoleId())
-                    .jurisdictionRoleNameId(roleRequest.getJudiciaryRoleNameId())
-                    .build());
+                        .title(roleRequest.getName())
+                        .startDate(convertToLocalDateTime(START_DATE,
+                                DATE_TIME_FORMAT,
+                                roleRequest.getStartDate()))
+                        .endDate(convertToLocalDateTime(END_DATE,
+                                DATE_TIME_FORMAT,
+                                roleRequest.getEndDate()))
+                        .personalCode(personalCode)
+                        .jurisdictionRoleId(roleRequest.getJudiciaryRoleId())
+                        .jurisdictionRoleNameId(roleRequest.getJudiciaryRoleNameId())
+                        .build());
 
             } catch (Exception e) {
                 log.error("Save Role Details exception {}", e.getMessage(), e);
@@ -749,31 +754,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private String formatErrorDescription(String errorDescription, String wordToAppend) {
         return String.format(errorDescription, wordToAppend);
-    }
-
-
-
-    private LocalDate convertToLocalDate(String fieldName, String date) {
-        if (Optional.ofNullable(date).isPresent()) {
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                return LocalDate.parse(date, formatter);
-            } catch (DateTimeParseException e) {
-                String errorMessage = "Error Field: %s %s";
-                throw new DateTimeParseException(String.format(errorMessage, fieldName, e.getMessage()),
-                        e.getParsedString(),
-                        e.getErrorIndex(), e);
-            }
-        }
-        return null;
-    }
-
-    private LocalDateTime convertToLocalDateTime(String date) {
-        if (Optional.ofNullable(date).isPresent()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            return LocalDateTime.parse(date, formatter);
-        }
-        return null;
     }
 
     private void handleELinksErrorResponse(HttpStatus httpStatus) {
