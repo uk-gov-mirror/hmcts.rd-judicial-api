@@ -1,15 +1,15 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.util;
 
-import lombok.experimental.UtilityClass;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
-@UtilityClass
 public class DateUtil {
+
+    private DateUtil(){
+    }
 
     public static LocalDate convertToLocalDate(String fieldName, String date) {
         if (Optional.ofNullable(date).isPresent()) {
