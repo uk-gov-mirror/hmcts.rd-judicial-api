@@ -14,10 +14,7 @@ public final class DateUtil {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 return LocalDate.parse(date, formatter);
             } catch (DateTimeParseException e) {
-                String errorMessage = "Error Field: %s %s";
-                throw new DateTimeParseException(String.format(errorMessage, fieldName, e.getMessage()),
-                        e.getParsedString(),
-                        e.getErrorIndex(), e);
+                formatErrorMessage(fieldName, e);
             }
         }
         return null;
@@ -31,12 +28,16 @@ public final class DateUtil {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern);
                 return LocalDateTime.parse(date, formatter);
             } catch (DateTimeParseException e) {
-                String errorMessage = "Error Field: %s %s";
-                throw new DateTimeParseException(String.format(errorMessage, fieldName, e.getMessage()),
-                        e.getParsedString(),
-                        e.getErrorIndex(), e);
+                formatErrorMessage(fieldName, e);
             }
         }
         return null;
+    }
+
+    private static void formatErrorMessage(String fieldName, DateTimeParseException e) {
+        String errorMessage = "Error Field: %s %s";
+        throw new DateTimeParseException(String.format(errorMessage, fieldName, e.getMessage()),
+                e.getParsedString(),
+                e.getErrorIndex(), e);
     }
 }
