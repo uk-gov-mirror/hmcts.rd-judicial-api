@@ -185,4 +185,12 @@ public class RefDataElinksConstants {
 
     public static final String AUTHORISATION_ID__KEY = "Authorisation ID: ";
 
+    public static final String LAST_WORKING_DATE = "Last Working Date";
+
+    public static final String RETIREMENT_DATE = "Retirement Date";
+
+    public static final String START_DATE = "Start Date";
+
+    public static final String END_DATE = "End Date";
+
 }

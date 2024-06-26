@@ -47,19 +47,19 @@ class ElinksPeopleDeleteAuditServiceImplTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
-        verify(authorisationsRepositoryAudit, times(0)).saveAll(anyCollection());
-        verify(appointmentsRepositoryAudit, times(0)).saveAll(anyCollection());
-        verify(judicialRoleTypeRepositoryAudit, times(0)).saveAll(anyCollection());
-        verify(profileRepositoryAudit, times(0)).saveAll(anyCollection());
+        verify(authorisationsRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
+        verify(appointmentsRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
+        verify(judicialRoleTypeRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
+        verify(profileRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
     }
 
     @Test
     void shouldNotInvokeSaveAllWhenCollectionIsNull() {
         elinksPeopleDeleteAuditService.auditPeopleDelete(null, null, null, null);
-        verify(authorisationsRepositoryAudit, times(0)).saveAll(anyCollection());
-        verify(appointmentsRepositoryAudit, times(0)).saveAll(anyCollection());
-        verify(judicialRoleTypeRepositoryAudit, times(0)).saveAll(anyCollection());
-        verify(profileRepositoryAudit, times(0)).saveAll(anyCollection());
+        verify(authorisationsRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
+        verify(appointmentsRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
+        verify(judicialRoleTypeRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
+        verify(profileRepositoryAudit, times(0)).saveAllAndFlush(anyCollection());
     }
 
     @Test
@@ -122,9 +122,9 @@ class ElinksPeopleDeleteAuditServiceImplTest {
                 Lists.newArrayList(appointment),
                 Lists.newArrayList(judicialRoleType),
                 Lists.newArrayList(userProfile));
-        verify(authorisationsRepositoryAudit, times(1)).saveAll(anyCollection());
-        verify(appointmentsRepositoryAudit, times(1)).saveAll(anyCollection());
-        verify(judicialRoleTypeRepositoryAudit, times(1)).saveAll(anyCollection());
-        verify(profileRepositoryAudit, times(1)).saveAll(anyCollection());
+        verify(authorisationsRepositoryAudit, times(1)).saveAllAndFlush(anyCollection());
+        verify(appointmentsRepositoryAudit, times(1)).saveAllAndFlush(anyCollection());
+        verify(judicialRoleTypeRepositoryAudit, times(1)).saveAllAndFlush(anyCollection());
+        verify(profileRepositoryAudit, times(1)).saveAllAndFlush(anyCollection());
     }
 }

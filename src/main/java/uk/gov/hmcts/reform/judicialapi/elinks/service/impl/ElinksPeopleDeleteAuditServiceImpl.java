@@ -46,7 +46,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
                                   List<UserProfile> userProfiles) {
         log.info("Audit People Delete");
         if (authorisations != null && authorisations.size() > 0) {
-            authorisationsRepositoryAudit.saveAll(authorisations.stream().map(authorisation ->
+            authorisationsRepositoryAudit.saveAllAndFlush(authorisations.stream().map(authorisation ->
                             uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Authorisation.builder()
                                     .authorisationId(authorisation.getAuthorisationId())
                                     .appointmentId(authorisation.getAppointmentId())
@@ -66,7 +66,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
         }
 
         if (appointments != null && appointments.size() > 0) {
-            appointmentsRepositoryAudit.saveAll(appointments.stream()
+            appointmentsRepositoryAudit.saveAllAndFlush(appointments.stream()
                     .map(appointment -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Appointment.builder()
                             .appointmentMapping(appointment.getAppointmentMapping())
                             .appointmentType(appointment.getAppointmentType())
@@ -91,7 +91,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
         }
 
         if (judicialRoleTypes != null && judicialRoleTypes.size() > 0) {
-            judicialRoleTypeRepositoryAudit.saveAll(judicialRoleTypes.stream()
+            judicialRoleTypeRepositoryAudit.saveAllAndFlush(judicialRoleTypes.stream()
                     .map(judicialRoleType -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleType
                             .builder().jurisdictionRoleId(judicialRoleType.getJurisdictionRoleId())
                             .personalCode(judicialRoleType.getPersonalCode())
@@ -105,7 +105,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
         }
 
         if (userProfiles != null && userProfiles.size() > 0) {
-            profileRepositoryAudit.saveAll(userProfiles.stream()
+            profileRepositoryAudit.saveAllAndFlush(userProfiles.stream()
                     .map(userProfile -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.UserProfile.builder()
                             .activeFlag(userProfile.getActiveFlag())
                             .deletedFlag(userProfile.getDeletedFlag())
