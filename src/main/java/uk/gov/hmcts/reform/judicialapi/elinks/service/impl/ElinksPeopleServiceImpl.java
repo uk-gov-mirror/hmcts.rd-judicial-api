@@ -194,7 +194,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Autowired
     ElinksResponsesHelper elinksResponsesHelper;
 
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
 
     @Override
