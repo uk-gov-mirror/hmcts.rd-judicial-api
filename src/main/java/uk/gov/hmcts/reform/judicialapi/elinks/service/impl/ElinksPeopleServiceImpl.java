@@ -285,6 +285,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private Response getPeopleResponseFromElinks(int currentPage, LocalDateTime schedulerStartTime) {
         String updatedSince = getUpdateSince();
+        log.info("includePreviousAppointments {}", includePreviousAppointments);
         try {
             return elinksFeignClient.getPeopleDetails(updatedSince, perPage, String.valueOf(currentPage),
                     Boolean.parseBoolean(includePreviousAppointments));

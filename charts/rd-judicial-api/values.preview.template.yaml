@@ -16,6 +16,7 @@ java:
     LAUNCH_DARKLY_ENV: "preview"
     ENVIRONMENT_NAME: "preview"
     CUSTOMIZE_UPDATEDSINCE: true
+    INCLUDE_PREVIOUS_APPOINTMENT: true
     JRD_SEARCH_SERVICE_CODE: bfa1,bba3
     ELINKS_URL: https://gateway.staging.elinks.judiciary.uk/elinks/api/v5
     LAST_UPDATED: 2014-01-01
