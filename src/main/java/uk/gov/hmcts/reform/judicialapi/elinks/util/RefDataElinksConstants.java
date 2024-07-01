@@ -92,8 +92,8 @@ public class RefDataElinksConstants {
     public static final String APPOINTMENTIDNOTAVAILABLE = "Appointment ID : %s "
             + "is not available in Appointment Table";
 
-    public static final String APPOINTMENTID_IS_NULL = "Appointment ID : %s "
-            + "is Null for the given Authorisation";
+    public static final String APPOINTMENTID_IS_NULL = "Appointment ID "
+            + "is Null for the Authorisation %s";
 
     public static final String USERPROFILEEMAILID = "Personal Code : %s "
         + " is not having any email id";
@@ -120,7 +120,7 @@ public class RefDataElinksConstants {
 
     public static final String USERPROFILEFAILURE = "UserProfile : %s is failed to load";
 
-    public static final String INVALIDROLETYPE = "Judiciary Role Name ID is invalid";
+    public static final String INVALID_JUDICIARY_ROLE = "Invalid Judiciary Role";
 
     public static final String INVALIDROLEID = "jurisdiction_role_name_id";
 

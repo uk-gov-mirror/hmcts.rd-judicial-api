@@ -23,26 +23,28 @@ public class ElinksPeopleLeaverServiceImpl implements ElinksPeopleLeaverService 
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    private static final String QUERY = "UPDATE dbjudicialdata.judicial_user_profile SET last_working_date = Date(?)"
+            + " , active_flag = ?, last_loaded_date= NOW() AT TIME ZONE 'utc' WHERE personal_code = ?";
+
     @Override
     public void processLeavers(List<LeaversResultsRequest> leaversResultsRequests) {
         try {
-            List<Triple<String, String, String>> leaversId = new ArrayList<>();
+            if (!leaversResultsRequests.isEmpty()) {
+                List<Triple<String, String, String>> leaversId = new ArrayList<>();
 
-            String updateLeaversId = "UPDATE dbjudicialdata.judicial_user_profile SET last_working_date = Date(?) , "
-                    + "active_flag = ?, last_loaded_date= NOW() AT TIME ZONE 'utc' WHERE personal_code = ?";
-
-            leaversResultsRequests.stream().filter(request -> nonNull(request.getPersonalCode())).forEach(s ->
-                    leaversId.add(Triple.of(s.getPersonalCode(), s.getLeaver(), s.getLeftOn())));
-            log.info("Insert Query batch Response from Leavers" + leaversId.size());
-            jdbcTemplate.batchUpdate(
-                    updateLeaversId,
-                    leaversId,
-                    10,
-                    (ps, argument) -> {
-                        ps.setString(1, argument.getRight());
-                        ps.setBoolean(2, !(Boolean.valueOf(argument.getMiddle())));
-                        ps.setString(3, argument.getLeft());
-                    });
+                leaversResultsRequests.stream().filter(request -> nonNull(request.getPersonalCode())).forEach(s ->
+                        leaversId.add(Triple.of(s.getPersonalCode(), s.getLeaver(), s.getLeftOn())));
+                log.info("Insert Query batch Response from Leavers" + leaversId.size());
+                jdbcTemplate.batchUpdate(
+                        QUERY,
+                        leaversId,
+                        10,
+                        (ps, argument) -> {
+                            ps.setString(1, argument.getRight());
+                            ps.setBoolean(2, !(Boolean.valueOf(argument.getMiddle())));
+                            ps.setString(3, argument.getLeft());
+                        });
+            }
         } catch (Exception ex) {
             throw new ElinksException(HttpStatus.NOT_ACCEPTABLE, DATA_UPDATE_ERROR, DATA_UPDATE_ERROR);
         }

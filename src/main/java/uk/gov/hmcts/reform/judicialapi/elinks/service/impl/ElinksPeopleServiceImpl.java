@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
-import com.google.common.collect.Lists;
 import feign.FeignException;
 import feign.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -49,10 +48,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.naming.InvalidNameException;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.DateUtil.convertToLocalDate;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.DateUtil.convertToLocalDateTime;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.APPOINTMENTID;
@@ -75,7 +76,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.END_DATE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALIDROLEID;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALIDROLENAMES;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALIDROLETYPE;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALID_JUDICIARY_ROLE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INVALID_ROLES;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIALROLETYPE;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
@@ -193,7 +194,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Autowired
     ElinksResponsesHelper elinksResponsesHelper;
 
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
 
 
     @Override
@@ -229,6 +230,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         && Optional.ofNullable(elinkPeopleResponseRequest.getResultsRequests()).isPresent()) {
                         isMorePagesAvailable = elinkPeopleResponseRequest.getPagination().getMorePages();
                         processPeopleResponse(elinkPeopleResponseRequest, schedulerStartTime, pageValue);
+                        processLeaversResponse(elinkPeopleResponseRequest);
+                        processDeletedResponse(elinkPeopleResponseRequest);
                     } else {
                         auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                         throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR,
@@ -328,6 +331,33 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         return updatedSince;
     }
 
+    private void processDeletedResponse(PeopleRequest elinkPeopleResponseRequest) {
+        try {
+            List<ResultsRequest> deletedResponses = elinkPeopleResponseRequest.getResultsRequests();
+            List<String> personalCodes = deletedResponses.stream()
+                    .filter(request -> isDeleted(request) && nonNull(request.getPersonalCode()))
+                    .map(request -> request.getPersonalCode()).collect(Collectors.toList());
+            log.info("Deleted Response size {} ", personalCodes.size());
+            elinksPeopleDeleteService.deletePeople(personalCodes);
+        } catch (Exception ex) {
+            log.error("Error while processing delete response during updatePeople {} ", ex.getMessage(), ex);
+        }
+    }
+
+    private void processLeaversResponse(PeopleRequest elinkPeopleResponseRequest) {
+        try {
+            List<ResultsRequest> leaversResponse = elinkPeopleResponseRequest.getResultsRequests();
+            List<LeaversResultsRequest> leaversRequests = leaversResponse.stream()
+                    .filter(request -> isLeaver(request) && nonNull(request.getPersonalCode()))
+                    .map(request -> mapToLeaversRequest(request)).collect(Collectors.toList());
+
+            log.info("Leavers Request size {} ", leaversRequests.size());
+            elinksPeopleLeaverService.processLeavers(leaversRequests);
+        } catch (Exception ex) {
+            log.error("Error while processing leavers response during updatePeople {} ", ex.getMessage(), ex);
+        }
+    }
+
     private void processPeopleResponse(PeopleRequest elinkPeopleResponseRequest, LocalDateTime schedulerStartTime,
                                        int pageValue) {
         try {
@@ -345,11 +375,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     private void savePeopleDetails(
         ResultsRequest resultsRequest, LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (isLeaver(resultsRequest)) {
-            elinksPeopleLeaverService.processLeavers(mapToLeaversRequest(resultsRequest));
-        } else if (isDeleted(resultsRequest)) {
-            elinksPeopleDeleteService.deletePeople(resultsRequest.getPersonalCode());
-        } else if (saveUserProfile(resultsRequest,schedulerStartTime,pageValue)) {
+        if (saveUserProfile(resultsRequest, schedulerStartTime, pageValue)) {
             try {
                 elinksPeopleDeleteService.deleteAuth(resultsRequest);
                 saveAppointmentDetails(resultsRequest.getPersonalCode(),
@@ -376,15 +402,14 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         }
     }
 
-    private List<LeaversResultsRequest> mapToLeaversRequest(ResultsRequest resultsRequest) {
-        LeaversResultsRequest leaversResultsRequest = LeaversResultsRequest.builder()
+    private LeaversResultsRequest mapToLeaversRequest(ResultsRequest resultsRequest) {
+        return LeaversResultsRequest.builder()
                 .personalCode(resultsRequest.getPersonalCode())
                 .objectId(resultsRequest.getObjectId())
                 .perId(resultsRequest.getPerId())
                 .leftOn(resultsRequest.getLeftOn())
                 .leaver(resultsRequest.getLeaver())
                 .build();
-        return Lists.newArrayList(leaversResultsRequest);
     }
 
     private boolean isLeaver(ResultsRequest resultsRequest) {
@@ -424,7 +449,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 partialSuccessFlag = true;
                 elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
                         now(), JUDICIARY_ROLE_ID__KEY + roleRequest.getJudiciaryRoleId(),
-                        INVALIDROLEID, INVALIDROLETYPE, JUDICIALROLETYPE, PERSONAL_CODE_KEY + personalCode,
+                        INVALIDROLEID, INVALID_JUDICIARY_ROLE, JUDICIALROLETYPE, PERSONAL_CODE_KEY + personalCode,
                         pageValue, e.getMessage());
             }
         }
@@ -483,7 +508,9 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
 
     private boolean validateUserProfile(ResultsRequest resultsRequest,LocalDateTime schedulerStartTime, int pageValue) {
 
-        if (isNotValidKnownAs(resultsRequest)) {
+        if (isLeaver(resultsRequest) || isDeleted(resultsRequest)) {
+            return false;
+        } else if (isNotValidKnownAs(resultsRequest)) {
             log.warn("KnownAs is empty or null for the personal code : " + resultsRequest.getPersonalCode());
             partialSuccessFlag = true;
             String errorField = resultsRequest.getPersonalCode();
@@ -655,7 +682,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 partialSuccessFlag = true;
                 String errorDescription;
                 if (isNull(authorisationsRequest.getAppointmentId())) {
-                    errorDescription = APPOINTMENTID_IS_NULL;
+                    errorDescription = formatErrorDescription(APPOINTMENTID_IS_NULL,
+                            authorisationsRequest.getAuthorisationId());
                 } else {
                     errorDescription = formatErrorDescription(
                             APPOINTMENTIDNOTAVAILABLE, authorisationsRequest.getAppointmentId());

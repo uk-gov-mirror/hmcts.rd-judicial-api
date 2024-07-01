@@ -42,6 +42,15 @@ class ElinksPeopleLeaverServiceImplTest {
     }
 
     @Test
+    void shouldNotInvokeBatchUpdate() {
+        List<LeaversResultsRequest> results = Lists.newArrayList();
+
+        elinksPeopleLeaverService.processLeavers(results);
+
+        verify(jdbcTemplate, times(0)).batchUpdate(any(), any(), anyInt(), any());
+    }
+
+    @Test
     void shouldThrowException() {
         LeaversResultsRequest result1 = LeaversResultsRequest.builder().personalCode("1234").leftOn("2022-12-20")
                 .objectId("objectId").leaver("true").perId("40291").build();

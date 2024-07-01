@@ -39,6 +39,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
 
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void auditPeopleDelete(List<Authorisation> authorisations,
                                   List<Appointment> appointments,
                                   List<JudicialRoleType> judicialRoleTypes,
@@ -53,9 +54,8 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
         saveUserProfiles(userProfiles);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void saveUserProfiles(List<UserProfile> userProfiles) {
-        if (userProfiles != null && userProfiles.size() > 0) {
+        if (userProfiles != null && !userProfiles.isEmpty()) {
             profileRepositoryAudit.saveAllAndFlush(userProfiles.stream()
                     .map(userProfile -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.UserProfile.builder()
                             .activeFlag(userProfile.getActiveFlag())
@@ -79,9 +79,8 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void saveJudicialRoleTypes(List<JudicialRoleType> judicialRoleTypes) {
-        if (judicialRoleTypes != null && judicialRoleTypes.size() > 0) {
+        if (judicialRoleTypes != null && !judicialRoleTypes.isEmpty()) {
             judicialRoleTypeRepositoryAudit.saveAllAndFlush(judicialRoleTypes.stream()
                     .map(judicialRoleType -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleType
                             .builder().jurisdictionRoleId(judicialRoleType.getJurisdictionRoleId())
@@ -96,9 +95,8 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void saveAppointment(List<Appointment> appointments) {
-        if (appointments != null && appointments.size() > 0) {
+        if (appointments != null && !appointments.isEmpty()) {
             appointmentsRepositoryAudit.saveAllAndFlush(appointments.stream()
                     .map(appointment -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Appointment.builder()
                             .appointmentMapping(appointment.getAppointmentMapping())
@@ -124,9 +122,8 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void saveAuthorisations(List<Authorisation> authorisations) {
-        if (authorisations != null && authorisations.size() > 0) {
+        if (authorisations != null && !authorisations.isEmpty()) {
             authorisationsRepositoryAudit.saveAllAndFlush(authorisations.stream().map(authorisation ->
                             uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Authorisation.builder()
                                     .authorisationId(authorisation.getAuthorisationId())

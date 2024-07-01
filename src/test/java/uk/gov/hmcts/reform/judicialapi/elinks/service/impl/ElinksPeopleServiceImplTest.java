@@ -48,6 +48,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.repository.LocationRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.ProfileRepository;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleDeleteService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleLeaverService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.IEmailService;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.CommonUtil;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
@@ -182,6 +183,9 @@ class ElinksPeopleServiceImplTest {
 
     @Spy
     ElinksResponsesRepository elinksResponsesRepository;
+
+    @Spy
+    ElinksPeopleLeaverService elinksPeopleLeaverService;
 
     @BeforeEach
     void setUP() {

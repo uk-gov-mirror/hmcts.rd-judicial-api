@@ -13,7 +13,7 @@ public interface AuthorisationsRepository extends JpaRepository<Authorisation, L
 
     void deleteByPersonalCode(String personalCode);
 
-    void deleteByPersonalCodeIn(List<String> personalCode);
+    List<Authorisation> deleteByPersonalCodeIn(List<String> personalCode);
 
-    List<Authorisation> findAllByPersonalCodeIn(List<String> personalCode);
+    List<Authorisation> findByPersonalCodeIn(List<String> personalCode);
 }
