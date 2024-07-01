@@ -69,10 +69,10 @@ class ElinksPeopleDeleteServiceImplTest {
             .ticket("lowerlevel").startDate("1991-12-19")
             .endDate("2022-12-20").ticketCode("ticketId").build();
         RoleRequest roleRequestOne = RoleRequest.builder().judiciaryRoleId("427").name("name")
-            .startDate("1991-12-19T00:00:00.000Z").endDate("2024-12-20T00:00:00.000Z").build();
+            .startDate("1991-12-19").endDate("2024-12-20").build();
         RoleRequest roleRequestTwo = RoleRequest.builder().judiciaryRoleId("427").name("name")
-            .startDate("1991-12-19T00:00:00.000Z")
-            .endDate("2024-12-20T00:00:00.000Z").build();
+            .startDate("1991-12-19")
+            .endDate("2024-12-20").build();
         List<AuthorisationsRequest> authorisations = Arrays.asList(authorisation1,authorisation2);
 
 

@@ -29,7 +29,7 @@ public class DateUtil {
         if (Optional.ofNullable(date).isPresent()) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern);
-                return LocalDateTime.parse(date, formatter);
+                return LocalDate.parse(date, formatter).atStartOfDay();
             } catch (DateTimeParseException e) {
                 formatErrorMessage(fieldName, e);
             }
