@@ -23,13 +23,25 @@ public class DateUtil {
         return null;
     }
 
+    public static LocalDateTime convertToLocalDateTime(String fieldName, String date) {
+        if (Optional.ofNullable(date).isPresent()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                return LocalDate.parse(date, formatter).atStartOfDay();
+            } catch (DateTimeParseException e) {
+                formatErrorMessage(fieldName, e);
+            }
+        }
+        return null;
+    }
+
     public static LocalDateTime convertToLocalDateTime(String fieldName,
                                                        String datePattern,
                                                        String date) {
         if (Optional.ofNullable(date).isPresent()) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern);
-                return LocalDate.parse(date, formatter).atStartOfDay();
+                return LocalDateTime.parse(date, formatter);
             } catch (DateTimeParseException e) {
                 formatErrorMessage(fieldName, e);
             }

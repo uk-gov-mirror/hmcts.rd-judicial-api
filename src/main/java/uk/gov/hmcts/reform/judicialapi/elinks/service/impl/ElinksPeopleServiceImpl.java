@@ -195,9 +195,6 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Autowired
     ElinksResponsesHelper elinksResponsesHelper;
 
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
-
-
     @Override
     public ResponseEntity<ElinkPeopleWrapperResponse> updatePeople() {
 
@@ -442,12 +439,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 }
                 judicialRoleTypeRepository.save(JudicialRoleType.builder()
                         .title(roleRequest.getName())
-                        .startDate(convertToLocalDateTime(START_DATE,
-                                DATE_TIME_FORMAT,
-                                roleRequest.getStartDate()))
-                        .endDate(convertToLocalDateTime(END_DATE,
-                                DATE_TIME_FORMAT,
-                                roleRequest.getEndDate()))
+                        .startDate(convertToLocalDateTime(START_DATE, roleRequest.getStartDate()))
+                        .endDate(convertToLocalDateTime(END_DATE, roleRequest.getEndDate()))
                         .personalCode(personalCode)
                         .jurisdictionRoleId(roleRequest.getJudiciaryRoleId())
                         .jurisdictionRoleNameId(roleRequest.getJudiciaryRoleNameId())
