@@ -162,7 +162,8 @@ public class RefDataElinksConstants {
     public static final String IDAM_TOKEN_ERROR_MESSAGE = "Idam Service Failed while bearer token generate";
 
     public static final List<String> INVALID_ROLES = List.of("CRTS TRIB - RS Admin User",
-        "MAGS - AC Admin User","Person on a List","Unknown","Initial Automated Record");
+            "MAGS - AC Admin User","Person on a List","Unknown","Senior Coroner","Assistant Coroner",
+            "Area Coroner","Acting Senior Coroner","Initial Automated Record");
 
     public static final String DATE_PATTERN = "dd/MM/yyyy";
 

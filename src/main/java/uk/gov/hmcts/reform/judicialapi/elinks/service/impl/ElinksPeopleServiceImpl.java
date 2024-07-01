@@ -195,7 +195,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     @Autowired
     ElinksResponsesHelper elinksResponsesHelper;
 
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
 
 
     @Override
@@ -213,6 +213,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 null,
                 RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), PEOPLEAPI);
         userProfilesSnapshot = profileRepository.findAll();
+        List<LeaversResultsRequest> leavers = new ArrayList<>();
+        List<String> deletedUsers = new ArrayList<>();
         int pageValue = Integer.parseInt(page);
         int retryCount = 0;
         try {
@@ -231,8 +233,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                         && Optional.ofNullable(elinkPeopleResponseRequest.getResultsRequests()).isPresent()) {
                         isMorePagesAvailable = elinkPeopleResponseRequest.getPagination().getMorePages();
                         processPeopleResponse(elinkPeopleResponseRequest, schedulerStartTime, pageValue);
-                        processLeaversResponse(elinkPeopleResponseRequest);
-                        processDeletedResponse(elinkPeopleResponseRequest);
+                        leavers.addAll(retrieveLeavers(elinkPeopleResponseRequest));
+                        deletedUsers.addAll(retrieveDeleted(elinkPeopleResponseRequest));
                     } else {
                         auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus());
                         throw new ElinksException(HttpStatus.FORBIDDEN, ELINKS_ACCESS_ERROR,
@@ -250,6 +252,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
                 }
                 pauseThread(Long.valueOf(threadPauseTime), schedulerStartTime);
             } while (isMorePagesAvailable);
+            processLeaversResponse(leavers);
+            processDeletedResponse(deletedUsers);
         } catch (Exception ex) {
             log.error("People service exception", ex);
             auditStatus(schedulerStartTime, RefDataElinksConstants.JobStatus.FAILED.getStatus(), ex);
@@ -332,12 +336,22 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         return updatedSince;
     }
 
-    private void processDeletedResponse(PeopleRequest elinkPeopleResponseRequest) {
+    private List<LeaversResultsRequest> retrieveLeavers(PeopleRequest elinkPeopleResponseRequest) {
+        List<ResultsRequest> leaversResponse = elinkPeopleResponseRequest.getResultsRequests();
+        return leaversResponse.stream()
+                .filter(request -> isLeaver(request) && nonNull(request.getPersonalCode()))
+                .map(request -> mapToLeaversRequest(request)).collect(Collectors.toList());
+    }
+
+    private List<String> retrieveDeleted(PeopleRequest elinkPeopleResponseRequest) {
+        List<ResultsRequest> deletedResponses = elinkPeopleResponseRequest.getResultsRequests();
+        return deletedResponses.stream()
+                .filter(request -> isDeleted(request) && nonNull(request.getPersonalCode()))
+                .map(request -> request.getPersonalCode()).collect(Collectors.toList());
+    }
+
+    private void processDeletedResponse(List<String> personalCodes) {
         try {
-            List<ResultsRequest> deletedResponses = elinkPeopleResponseRequest.getResultsRequests();
-            List<String> personalCodes = deletedResponses.stream()
-                    .filter(request -> isDeleted(request) && nonNull(request.getPersonalCode()))
-                    .map(request -> request.getPersonalCode()).collect(Collectors.toList());
             log.info("Deleted Response size {} ", personalCodes.size());
             elinksPeopleDeleteService.deletePeople(personalCodes);
         } catch (Exception ex) {
@@ -345,13 +359,8 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
         }
     }
 
-    private void processLeaversResponse(PeopleRequest elinkPeopleResponseRequest) {
+    private void processLeaversResponse(List<LeaversResultsRequest> leaversRequests) {
         try {
-            List<ResultsRequest> leaversResponse = elinkPeopleResponseRequest.getResultsRequests();
-            List<LeaversResultsRequest> leaversRequests = leaversResponse.stream()
-                    .filter(request -> isLeaver(request) && nonNull(request.getPersonalCode()))
-                    .map(request -> mapToLeaversRequest(request)).collect(Collectors.toList());
-
             log.info("Leavers Request size {} ", leaversRequests.size());
             elinksPeopleLeaverService.processLeavers(leaversRequests);
         } catch (Exception ex) {
