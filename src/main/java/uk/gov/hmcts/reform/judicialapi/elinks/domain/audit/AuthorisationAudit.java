@@ -23,7 +23,7 @@ import javax.validation.constraints.Size;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Authorisation implements Serializable {
+public class AuthorisationAudit implements Serializable {
 
     @Id
     @Column(name = "judicial_office_auth_Id")

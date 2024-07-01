@@ -11,6 +11,10 @@ import uk.gov.hmcts.reform.judicialapi.elinks.domain.Appointment;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.Authorisation;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.JudicialRoleType;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.AppointmentAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.AuthorisationAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleTypeAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.UserProfileAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.AppointmentsRepositoryAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.AuthorisationsRepositoryAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.audit.JudicialRoleTypeRepositoryAudit;
@@ -57,7 +61,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
     private void saveUserProfiles(List<UserProfile> userProfiles) {
         if (userProfiles != null && !userProfiles.isEmpty()) {
             profileRepositoryAudit.saveAllAndFlush(userProfiles.stream()
-                    .map(userProfile -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.UserProfile.builder()
+                    .map(userProfile -> UserProfileAudit.builder()
                             .activeFlag(userProfile.getActiveFlag())
                             .deletedFlag(userProfile.getDeletedFlag())
                             .deletedOn(userProfile.getDeletedOn())
@@ -82,7 +86,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
     private void saveJudicialRoleTypes(List<JudicialRoleType> judicialRoleTypes) {
         if (judicialRoleTypes != null && !judicialRoleTypes.isEmpty()) {
             judicialRoleTypeRepositoryAudit.saveAllAndFlush(judicialRoleTypes.stream()
-                    .map(judicialRoleType -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleType
+                    .map(judicialRoleType -> JudicialRoleTypeAudit
                             .builder().jurisdictionRoleId(judicialRoleType.getJurisdictionRoleId())
                             .personalCode(judicialRoleType.getPersonalCode())
                             .startDate(judicialRoleType.getStartDate())
@@ -98,7 +102,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
     private void saveAppointment(List<Appointment> appointments) {
         if (appointments != null && !appointments.isEmpty()) {
             appointmentsRepositoryAudit.saveAllAndFlush(appointments.stream()
-                    .map(appointment -> uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Appointment.builder()
+                    .map(appointment -> AppointmentAudit.builder()
                             .appointmentMapping(appointment.getAppointmentMapping())
                             .appointmentType(appointment.getAppointmentType())
                             .baseLocationId(appointment.getBaseLocationId())
@@ -125,7 +129,7 @@ public class ElinksPeopleDeleteAuditServiceImpl implements ElinksPeopleDeleteAud
     private void saveAuthorisations(List<Authorisation> authorisations) {
         if (authorisations != null && !authorisations.isEmpty()) {
             authorisationsRepositoryAudit.saveAllAndFlush(authorisations.stream().map(authorisation ->
-                            uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Authorisation.builder()
+                            AuthorisationAudit.builder()
                                     .authorisationId(authorisation.getAuthorisationId())
                                     .appointmentId(authorisation.getAppointmentId())
                                     .createdDate(authorisation.getCreatedDate())

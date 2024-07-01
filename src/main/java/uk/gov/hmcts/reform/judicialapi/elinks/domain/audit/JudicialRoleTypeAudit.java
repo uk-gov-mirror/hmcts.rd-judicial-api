@@ -20,7 +20,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @Getter
 @Setter
-public class JudicialRoleType {
+public class JudicialRoleTypeAudit {
 
     @Id
     @Column(name = "role_id")

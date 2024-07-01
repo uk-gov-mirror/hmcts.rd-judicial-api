@@ -23,7 +23,7 @@ import javax.validation.constraints.Size;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfile implements Serializable {
+public class UserProfileAudit implements Serializable {
 
     @Id
     @Column(name = "personal_code")

@@ -7,10 +7,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinkDataSchedularAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.ElinksResponses;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Appointment;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.Authorisation;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleType;
-import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.UserProfile;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.AppointmentAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.AuthorisationAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.JudicialRoleTypeAudit;
+import uk.gov.hmcts.reform.judicialapi.elinks.domain.audit.UserProfileAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinksDataLoadBaseTest;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.TestDataArguments;
@@ -164,17 +164,17 @@ class DeletedIntegrationTest extends ElinksDataLoadBaseTest {
 
     private void verifyDeletedPeopleAudit(TestDataArguments testDataArguments) {
 
-        List<Authorisation> authorisations = authorisationsRepositoryAudit.findAll();
-        assertNotNull(authorisations);
-        assertEquals(testDataArguments.expectedAuthorisationSize(), authorisations.size());
-        List<Appointment> appointments = appointmentsRepositoryAudit.findAll();
-        assertNotNull(appointments);
-        assertEquals(testDataArguments.expectedAppointmentsSize(), appointments.size());
-        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepositoryAudit.findAll();
-        assertNotNull(judicialRoleTypes);
-        List<UserProfile> userProfiles = profileRepositoryAudit.findAll();
-        assertNotNull(userProfiles);
-        assertEquals(testDataArguments.expectedUserProfiles(), userProfiles.size());
+        List<AuthorisationAudit> authorisationAudits = authorisationsRepositoryAudit.findAll();
+        assertNotNull(authorisationAudits);
+        assertEquals(testDataArguments.expectedAuthorisationSize(), authorisationAudits.size());
+        List<AppointmentAudit> appointmentAudits = appointmentsRepositoryAudit.findAll();
+        assertNotNull(appointmentAudits);
+        assertEquals(testDataArguments.expectedAppointmentsSize(), appointmentAudits.size());
+        List<JudicialRoleTypeAudit> judicialRoleTypeAudits = judicialRoleTypeRepositoryAudit.findAll();
+        assertNotNull(judicialRoleTypeAudits);
+        List<UserProfileAudit> userProfileAudits = profileRepositoryAudit.findAll();
+        assertNotNull(userProfileAudits);
+        assertEquals(testDataArguments.expectedUserProfiles(), userProfileAudits.size());
     }
 
 }
