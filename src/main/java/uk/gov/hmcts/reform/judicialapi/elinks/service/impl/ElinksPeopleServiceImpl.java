@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.naming.InvalidNameException;
@@ -413,12 +414,12 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     private boolean isLeaver(ResultsRequest resultsRequest) {
-        String leaver = StringUtils.defaultString(resultsRequest.getLeaver(), "false");
+        String leaver = Objects.toString(resultsRequest.getLeaver(), "false");
         return "true".equalsIgnoreCase(leaver);
     }
 
     private boolean isDeleted(ResultsRequest resultsRequest) {
-        String deleted = StringUtils.defaultString(resultsRequest.getDeleted(), "false");
+        String deleted = Objects.toString(resultsRequest.getDeleted(), "false");
         return "true".equalsIgnoreCase(deleted);
     }
 
@@ -774,7 +775,7 @@ public class ElinksPeopleServiceImpl implements ElinksPeopleService {
     }
 
     private String fetchRegionId(String location) {
-        location = StringUtils.defaultString(location, "").strip();
+        location = Objects.toString(location, "").strip();
         if ("Unassigned".equals(location) || StringUtils.isEmpty(location) || "Unknown".equals(location)) {
             return "0";
         }
