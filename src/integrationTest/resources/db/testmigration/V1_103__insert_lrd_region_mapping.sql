@@ -27,7 +27,9 @@ INSERT INTO dbjudicialdata.jrd_lrd_region_mapping (jrd_region_id, jrd_region, re
 INSERT INTO dbjudicialdata.jrd_lrd_region_mapping (jrd_region_id, jrd_region, region_id, region) VALUES('2336', 'North and West Yorkshire Committee', '3', 'North east');
 INSERT INTO dbjudicialdata.jrd_lrd_region_mapping (jrd_region_id, jrd_region, region_id, region) VALUES('2337', 'Buckinghamshire', '5', 'South east');
 INSERT INTO dbjudicialdata.jrd_lrd_region_mapping (jrd_region_id, jrd_region, region_id, region) VALUES('2338', 'York', '3', 'North east');
-
+INSERT INTO dbjudicialdata.jrd_lrd_region_mapping (jrd_region_id, jrd_region, region_id, region) VALUES('2339', 'East Sussex', '5', 'South east');
+INSERT INTO dbjudicialdata.jrd_lrd_region_mapping (jrd_region_id, jrd_region, region_id, region) VALUES('2340', 'South Glamorgan', '7', 'Wales');
+INSERT INTO dbjudicialdata.jrd_lrd_region_mapping (jrd_region_id, jrd_region, region_id, region) VALUES('2341', 'Devon & Cornwall', '6', 'South west');
 
 
 
