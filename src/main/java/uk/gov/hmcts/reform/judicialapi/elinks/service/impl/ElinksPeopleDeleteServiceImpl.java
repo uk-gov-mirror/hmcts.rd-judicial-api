@@ -4,7 +4,6 @@ package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 import com.launchdarkly.shaded.com.google.common.collect.Lists;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -72,8 +71,7 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
                                 boolean deleteUserProfile,
                                 boolean persistDeleteAudit) {
         try {
-            log.info("AuditAndDelete Personal Codes Size {}  and Personal Codes {}", personalCodes.size(),
-                    StringUtils.join(personalCodes, "||"));
+            log.info("AuditAndDelete Personal Codes Size {}", personalCodes.size());
             List<Authorisation> authorisations = authorisationsRepository.deleteByPersonalCodeIn(personalCodes);
             List<Appointment> appointments = appointmentsRepository.deleteByPersonalCodeIn(personalCodes);
             List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository
