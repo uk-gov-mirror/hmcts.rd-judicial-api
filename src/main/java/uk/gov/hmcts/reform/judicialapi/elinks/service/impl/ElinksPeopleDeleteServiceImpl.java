@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 
-import com.launchdarkly.shaded.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,8 @@ import java.util.List;
 @Service
 @Setter
 public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService {
+
+    private static final int BATCH_SIZE = 500;
 
     @Autowired
     private JudicialRoleTypeRepository judicialRoleTypeRepository;
@@ -71,30 +73,40 @@ public class ElinksPeopleDeleteServiceImpl implements ElinksPeopleDeleteService 
                                 boolean deleteUserProfile,
                                 boolean persistDeleteAudit) {
         try {
-            log.info("AuditAndDelete Personal Codes Size {}", personalCodes.size());
-            List<Authorisation> authorisations = authorisationsRepository.deleteByPersonalCodeIn(personalCodes);
-            List<Appointment> appointments = appointmentsRepository.deleteByPersonalCodeIn(personalCodes);
-            List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository
-                    .deleteByPersonalCodeIn(personalCodes);
 
-            List<UserProfile> userProfiles = new ArrayList<>();
-            if (deleteUserProfile) {
-                userProfiles = profileRepository.deleteByPersonalCodeIn(personalCodes);
-            }
-            log.info("AuditAndDelete No of authorisations {} , No of Appointments {},"
-                            + " No of JudicialRoleTypes {}, No of User Profiles {} ",
-                    authorisations.size(),
-                    appointments.size(),
-                    judicialRoleTypes.size(),
-                    userProfiles.size());
-            if (persistDeleteAudit) {
-                elinksPeopleDeleteAuditService
-                        .auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
-            }
+            List<List<String>> subPersonalCodes =  Lists.partition(personalCodes, BATCH_SIZE);
+
+            subPersonalCodes.forEach(subPersonalCodeList ->
+                    processPersonalCodes(subPersonalCodeList, deleteUserProfile, persistDeleteAudit));
         } catch (Exception e) {
             log.error("Delete User Profile failed for personal codes {} error message: {} ",
                     personalCodes, e.getMessage(), e);
         }
 
+    }
+
+    private void processPersonalCodes(List<String> personalCodes,
+                                      boolean deleteUserProfile,
+                                      boolean persistDeleteAudit) {
+        log.info("AuditAndDelete Personal Codes Size {}", personalCodes.size());
+        List<Authorisation> authorisations = authorisationsRepository.deleteByPersonalCodeIn(personalCodes);
+        List<Appointment> appointments = appointmentsRepository.deleteByPersonalCodeIn(personalCodes);
+        List<JudicialRoleType> judicialRoleTypes = judicialRoleTypeRepository
+                .deleteByPersonalCodeIn(personalCodes);
+
+        List<UserProfile> userProfiles = new ArrayList<>();
+        if (deleteUserProfile) {
+            userProfiles = profileRepository.deleteByPersonalCodeIn(personalCodes);
+        }
+        log.info("AuditAndDelete No of authorisations {} , No of Appointments {},"
+                        + " No of JudicialRoleTypes {}, No of User Profiles {} ",
+                authorisations.size(),
+                appointments.size(),
+                judicialRoleTypes.size(),
+                userProfiles.size());
+        if (persistDeleteAudit) {
+            elinksPeopleDeleteAuditService
+                    .auditPeopleDelete(authorisations, appointments, judicialRoleTypes, userProfiles);
+        }
     }
 }
