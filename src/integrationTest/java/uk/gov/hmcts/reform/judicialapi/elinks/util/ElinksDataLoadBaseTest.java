@@ -974,10 +974,10 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
     protected TestDataArguments getTestDataArguments() {
         return
                 TestDataArguments.builder()
-                        .expectedAppointmentsSize(4)
-                        .expectedAuthorisationSize(4)
-                        .expectedRoleSize(2)
-                        .expectedUserProfiles(2)
+                        .expectedAppointmentsSize(2)
+                        .expectedAuthorisationSize(2)
+                        .expectedRoleSize(1)
+                        .expectedUserProfiles(1)
                         .expectedActiveFlag(false)
                         .expectedDeletedFlag(true)
                         .expectedDeletedOnDate("2022-07-10")
