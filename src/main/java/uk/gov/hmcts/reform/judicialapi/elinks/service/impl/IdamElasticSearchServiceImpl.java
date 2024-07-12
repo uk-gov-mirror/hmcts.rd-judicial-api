@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.judicialapi.elinks.service.impl;
 
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -282,7 +281,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     public void updateSidamIds(Set<IdamResponse> sidamUsers) {
         Map<String, String> objectIdSidamIdMap = new HashMap<>();
         sidamUsers.stream().filter(user -> nonNull(user.getSsoId()))
-                .map(s -> objectIdSidamIdMap.put(s.getSsoId(), s.getId()));
+                .forEach(s -> objectIdSidamIdMap.put(s.getSsoId(), s.getId()));
 
         List<UserProfile> userProfiles = userProfileRepository
                 .fetchUserProfiles(objectIdSidamIdMap.keySet().stream().toList());
@@ -291,8 +290,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
         userProfiles.forEach(userProfile -> {
             String idamId = objectIdSidamIdMap.get(userProfile.getObjectId());
             String userProfileIdamId = userProfile.getSidamId();
-            if (!StringUtils.isEmpty(idamId) && !StringUtils.isEmpty(userProfileIdamId)
-                    && !userProfileIdamId.equalsIgnoreCase(idamId)) {
+            if (!idamId.equalsIgnoreCase(userProfileIdamId)) {
                 sidamObjectId.add(Pair.of(idamId, userProfile.getObjectId()));
             }
         });
