@@ -49,6 +49,7 @@ import uk.gov.hmcts.reform.lib.util.serenity5.SerenityTest;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static java.lang.String.format;
@@ -185,13 +186,22 @@ public abstract class ELinksBaseIntegrationTest extends SpringBootIntegrationTes
 
     protected void stubIdamResponse(final String idamResponseValidationJson,
                                     final HttpStatus httpStatus) {
-        sidamService.stubFor(get(urlPathMatching("/api/v1/users"))
-                .willReturn(aResponse()
-                        .withStatus(httpStatus.value())
-                        .withHeader("Content-Type", "application/json")
-                        .withHeader("Connection", "close")
-                        .withBody(idamResponseValidationJson)
-                ));
+        if (httpStatus == HttpStatus.INTERNAL_SERVER_ERROR) {
+            sidamService.stubFor(get(urlPathMatching("/api/v1/users"))
+                    .willReturn(serverError()
+                            .withStatus(httpStatus.value())
+                            .withHeader("Content-Type", "application/json")
+                            .withBody("Internal server error")
+                    ));
+        } else {
+            sidamService.stubFor(get(urlPathMatching("/api/v1/users"))
+                    .willReturn(aResponse()
+                            .withStatus(httpStatus.value())
+                            .withHeader("Content-Type", "application/json")
+                            .withHeader("Connection", "close")
+                            .withBody(idamResponseValidationJson)
+                    ));
+        }
     }
 
     protected void stubIdamTokenResponse(final HttpStatus httpStatus) {
