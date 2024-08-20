@@ -247,7 +247,6 @@ public class JrdApiProviderTest {
         userProfile.setCreatedDate(LocalDateTime.now());
         userProfile.setLastLoadedDate(LocalDateTime.now());
         userProfile.setActiveFlag(Boolean.TRUE);
-        userProfile.setActiveFlag(Boolean.TRUE);
         userProfile.setPersonalCode("1234");
 
         var judicialRoleType = new JudicialRoleType();
