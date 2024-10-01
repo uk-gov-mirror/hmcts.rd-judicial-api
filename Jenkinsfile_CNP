@@ -8,6 +8,7 @@ def product = "rd"
 def component = "judicial-api"
 
 def appVault = "rd-aat"
+
 def secrets = [
   's2s-${env}': [
     secret('microservicekey-rd-judicial-api', 'JUDICIAL_API_S2S_SECRET')
