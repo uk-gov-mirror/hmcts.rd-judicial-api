@@ -290,15 +290,12 @@ sonarqube {
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/domain/**," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/response/**," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/configuration/ElinksFeignInterceptorConfiguration.java," +
-                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/ELinksServiceImpl.java," +
-                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/ElinksPeopleServiceImpl.java," +
-                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/IdamElasticSearchServiceImpl.java," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/configuration/SchedulerConfig.java," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/configuration/SendGridConfig.java," +
+                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/ElinksPeopleLeaverServiceImpl.java," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/util/DataloadSchedulerJobAudit.java," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/exception/**," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/scheduler/ElinksApiJobScheduler.java," +
-                "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/service/impl/**," +
                 "src/main/java/uk/gov/hmcts/reform/judicialapi/elinks/util/**,"
     }
 }
