@@ -45,9 +45,9 @@ class ElinksPublisherFunctionalTest  {
 
     private final String topicName = "rd-servicebus-aat";
     private final String subscriptionName = "rd-judicial-subscription-aat"; // This must exist
-    private final String connectionString = "Endpoint=sb://rd-servicebus-aat.servicebus.windows.net/" +
-        ";SharedAccessKeyName=SendAndListenSharedAccessKey;SharedAccessKey" +
-        "=7I9wPIX+dLgsMHWW2ipEAAhBdujtCnko3F8dYQFkibQ=;EntityPath=rd-servicebus-aat";
+    private final String connectionString = "Endpoint=sb://rd-servicebus-aat.servicebus.windows.net/"
+        + ";SharedAccessKeyName=SendAndListenSharedAccessKey;SharedAccessKey"
+        + "=7I9wPIX+dLgsMHWW2ipEAAhBdujtCnko3F8dYQFkibQ=;EntityPath=rd-servicebus-aat";
 
     @BeforeAll
     void setUpReceiver() {
