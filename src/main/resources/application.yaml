@@ -271,6 +271,7 @@ email:
       subject: "Official Sensitive: JRD - Incorrect JO Profile Configurations in Elinks - %s"
       template: simple-template-objectIdDuplicate.ftl
 
+thresholdValue: 3
 
 sendgrid:
   key: ${RD_SENDGRID_API_KEY}
