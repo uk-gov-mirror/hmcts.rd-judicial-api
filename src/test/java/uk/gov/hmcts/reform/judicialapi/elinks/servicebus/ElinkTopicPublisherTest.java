@@ -62,7 +62,6 @@ class ElinkTopicPublisherTest {
         doReturn(1).when(messageBatch).getCount();
         doReturn(messageBatch).when(serviceBusSenderClient).createMessageBatch();
         when(messageBatch.getCount()).thenReturn(1);
-
         elinkTopicPublisher.sendMessage(sidamIdsList, "1");
         verify(messageBatch, times(3)).tryAddMessage(any());
         verify(messageBatch).getCount();
