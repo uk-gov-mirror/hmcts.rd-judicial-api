@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ class ElinkTopicPublisherTest {
         elinkTopicPublisher.jrdMessageBatchSize = 2;
         elinkTopicPublisher.loggingComponentName = "loggingComponent";
         elinkTopicPublisher.topic = "dummyTopic";
+        ReflectionTestUtils.setField(elinkTopicPublisher, "thresholdValue", 4);
     }
 
     @Test
@@ -60,6 +62,7 @@ class ElinkTopicPublisherTest {
         doReturn(1).when(messageBatch).getCount();
         doReturn(messageBatch).when(serviceBusSenderClient).createMessageBatch();
         when(messageBatch.getCount()).thenReturn(1);
+
         elinkTopicPublisher.sendMessage(sidamIdsList, "1");
         verify(messageBatch, times(3)).tryAddMessage(any());
         verify(messageBatch).getCount();

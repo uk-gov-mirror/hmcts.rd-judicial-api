@@ -43,11 +43,11 @@ class ElinksPublisherFunctionalTest  {
     private ServiceBusReceiverClient receiverClient;
 
 
-    private final String topicName = "rd-servicebus-aat";
+    private final String topicName = "rd-judicial-topic-aat";
     private final String subscriptionName = "rd-judicial-subscription-aat"; // This must exist
-    private final String connectionString = "Endpoint=sb://rd-servicebus-aat.servicebus.windows.net/"
+    private final String connectionString = "Endpoint=sb://rd-judicial-topic-aat.servicebus.windows.net/"
         + ";SharedAccessKeyName=SendAndListenSharedAccessKey;SharedAccessKey"
-        + "=7I9wPIX+dLgsMHWW2ipEAAhBdujtCnko3F8dYQFkibQ=;EntityPath=rd-servicebus-aat";
+        + "=7I9wPIX+dLgsMHWW2ipEAAhBdujtCnko3F8dYQFkibQ=;EntityPath=rd-judicial-topic-aat";
 
     @BeforeAll
     void setUpReceiver() {
@@ -66,19 +66,25 @@ class ElinksPublisherFunctionalTest  {
 
     @Test
     void testSendMessageToTopic() throws InterruptedException {
+
         // Given
         String jobId = UUID.randomUUID().toString();
         List<String> userIds = List.of("integration-user-1", "integration-user-2",
             "integration-user-3","integration-user-4","integration-user-5","integration-user-6","integration-user-7",
-            "integration-user-8");
+            "integration-user-8","integration-user-9","integration-user-10","integration-user-11",
+            "integration-user-12","integration-user-13","integration-user-14","integration-user-15",
+            "integration-user-16","integration-user-17","integration-user-18","integration-user-19",
+            "integration-user-20");
 
         // When
         publisher.sendMessage(userIds, jobId);
 
         // Then
-        TimeUnit.SECONDS.sleep(5); // Wait for propagation
+        TimeUnit.SECONDS.sleep(5);
 
-        ServiceBusReceivedMessage message = receiverClient.receiveMessages(1).stream().findFirst().orElse(null);
+        // Wait for propagation
+        ServiceBusReceivedMessage message = receiverClient.receiveMessages(1).stream().findFirst()
+            .orElse(null);
 
         assertNotNull(message, "Message should be received from topic subscription");
         String body = message.getBody().toString();

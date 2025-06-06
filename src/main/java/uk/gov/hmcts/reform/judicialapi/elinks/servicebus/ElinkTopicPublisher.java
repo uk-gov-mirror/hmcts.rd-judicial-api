@@ -33,7 +33,8 @@ public class ElinkTopicPublisher {
     @Value("${jrd.publisher.azure.service.bus.topic}")
     String topic;
 
-    Integer counter;
+    @Value("${thresholdValue}")
+    Integer thresholdValue;
 
     @Autowired
     ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
@@ -69,7 +70,7 @@ public class ElinkTopicPublisher {
             throw new ElinksException(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_ERROR, ex.getMessage());
         }
         List<ServiceBusMessage> serviceBusMessages = new ArrayList<>();
-
+        // depending on batchsize no it splits incoming ids into respective batches
         partition(judicalIds, jrdMessageBatchSize)
             .forEach(data -> {
                 PublishingData judicialDataChunk = new PublishingData();
@@ -77,22 +78,42 @@ public class ElinkTopicPublisher {
                 serviceBusMessages.add(new ServiceBusMessage(new Gson().toJson(judicialDataChunk)));
             });
 
-        for (ServiceBusMessage message : serviceBusMessages) {
-
-            /*counter ++;
-            if(counter >=3){
-                try {
-                    ServiceBusTransactionContext  elinktransactionNewContext =
-                    elinkserviceBusSenderClient.createTransaction();
-                    elinkmessageBatch = serviceBusSenderClient.createMessageBatch();
-                    elinkmessageBatch.tryAddMessage(message);
-                    sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
-                }catch (Exception exception) {
-                    log.error("{}:: number of message exceeded sending in new transaction failed",
-                        loggingComponentName, exception.getMessage(), jobId);
+        //for each batch we check if the number of records have exceeded the set thresholdValue
+        if (serviceBusMessages.size() > thresholdValue) {
+            //The number of records in a single batch are very large hence we split the list and send them in saperate
+            // transactions
+            List<ServiceBusMessage> currentBatch = new ArrayList<>();
+            ServiceBusTransactionContext elinktransactionNewContext = null;
+            for (ServiceBusMessage record : serviceBusMessages) {
+                currentBatch.add(record);
+                if (currentBatch.size() == thresholdValue) {
+                    elinktransactionNewContext = elinkserviceBusSenderClient.createTransaction();
+                    prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
+                        jobId, serviceBusMessages);
+                    currentBatch.clear();
                 }
-            }*/
+            }
+            // Send remaining records if any
+            if (!currentBatch.isEmpty()) {
+                elinktransactionNewContext =
+                    elinkserviceBusSenderClient.createTransaction();
+                prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
+                    jobId, serviceBusMessages);
+            }
+        } else { //not exceeded threshold else we send the message as part of a single transaction
 
+            prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, transactionContext,
+                jobId, serviceBusMessages);
+        }
+
+    }
+
+    private void prepareMessageBatch(ServiceBusMessageBatch elinkmessageBatch,
+                                     ServiceBusSenderClient serviceBusSenderClient,
+                                  ServiceBusTransactionContext transactionContext,
+                                  String jobId,List<ServiceBusMessage> serviceBusMessages) {
+
+        for (ServiceBusMessage message : serviceBusMessages) {
 
             if (elinkmessageBatch.tryAddMessage(message)) {
                 continue;
@@ -108,9 +129,10 @@ public class ElinkTopicPublisher {
                 log.error("{}:: Message is too large for an empty batch. Skipping. Max size: {}. Job id::{}",
                     loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), jobId);
             }
-
         }
+
         sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
+
     }
 
     private void sendMessageToAsb(ServiceBusSenderClient serviceBusSenderClient,
