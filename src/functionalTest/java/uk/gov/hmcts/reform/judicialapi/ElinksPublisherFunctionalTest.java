@@ -26,7 +26,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAu
 
 
 @SpringBootTest
-@Disabled("Run manually when needed")
+@Disabled("Run when needed")
 @WithTags({@WithTag("testType:Functional")})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
@@ -46,7 +46,7 @@ class ElinksPublisherFunctionalTest  {
 
 
     private final String topicName = "rd-judicial-topic-aat";
-    private final String subscriptionName = "rd-judicial-subscription-aat"; // This must exist
+    private final String subscriptionName = "rd-judicial-subscription-aat";
     private final String connectionString = "Endpoint=sb://rd-judicial-topic-aat.servicebus.windows.net/"
         + ";SharedAccessKeyName=SendAndListenSharedAccessKey;SharedAccessKey"
         + "=7I9wPIX+dLgsMHWW2ipEAAhBdujtCnko3F8dYQFkibQ=;EntityPath=rd-judicial-topic-aat";
@@ -69,7 +69,7 @@ class ElinksPublisherFunctionalTest  {
     @Test
     void testSendMessageToTopic() throws InterruptedException {
 
-        // Given
+        // Given a list of ids from judicial that will be sent to the topic
         String jobId = UUID.randomUUID().toString();
         List<String> userIds = List.of("integration-user-1", "integration-user-2",
             "integration-user-3","integration-user-4","integration-user-5","integration-user-6","integration-user-7",
