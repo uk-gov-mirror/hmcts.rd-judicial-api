@@ -33,7 +33,7 @@ public class ElinkTopicPublisher {
     @Value("${jrd.publisher.azure.service.bus.topic}")
     String topic;
 
-    @Value("${thresholdValue}")
+    @Value("jrd-message-transaction-size")
     Integer thresholdValue;
 
     @Autowired
