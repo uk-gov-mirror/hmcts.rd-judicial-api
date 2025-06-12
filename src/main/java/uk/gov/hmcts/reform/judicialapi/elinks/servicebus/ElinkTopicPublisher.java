@@ -79,31 +79,26 @@ public class ElinkTopicPublisher {
             });
 
         //for each batch we check if the number of records have exceeded the set thresholdValue
-        if (serviceBusMessages.size() > thresholdValue) {
-            //The number of records in a single batch are very large hence we split the list and send them in saperate
-            // transactions
-            List<ServiceBusMessage> currentBatch = new ArrayList<>();
-            ServiceBusTransactionContext elinktransactionNewContext = null;
-            for (ServiceBusMessage messageRecord : serviceBusMessages) {
-                currentBatch.add(messageRecord);
-                if (currentBatch.size() == thresholdValue) {
-                    elinktransactionNewContext = elinkserviceBusSenderClient.createTransaction();
-                    prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
-                        jobId, serviceBusMessages);
-                    currentBatch.clear();
-                }
-            }
-            // Send remaining records if any
-            if (!currentBatch.isEmpty()) {
-                elinktransactionNewContext =
-                    elinkserviceBusSenderClient.createTransaction();
+
+        //The number of records in a single batch are very large hence we split the list and send them in saperate
+        // transactions
+        List<ServiceBusMessage> currentBatch = new ArrayList<>();
+        ServiceBusTransactionContext elinktransactionNewContext = null;
+        for (ServiceBusMessage messageRecord : serviceBusMessages) {
+            currentBatch.add(messageRecord);
+            if (currentBatch.size() == thresholdValue) {
+                elinktransactionNewContext = elinkserviceBusSenderClient.createTransaction();
                 prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
                     jobId, serviceBusMessages);
+                currentBatch.clear();
             }
-        } else { //not exceeded threshold else we send the message as part of a single transaction
-
-            prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, transactionContext,
-                jobId, serviceBusMessages);
+        }
+        // Send remaining records if any
+        if (!currentBatch.isEmpty()) {
+            elinktransactionNewContext =
+                elinkserviceBusSenderClient.createTransaction();
+                prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
+                    jobId, serviceBusMessages);
         }
 
     }
