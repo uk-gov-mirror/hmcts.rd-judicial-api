@@ -84,8 +84,8 @@ public class ElinkTopicPublisher {
             // transactions
             List<ServiceBusMessage> currentBatch = new ArrayList<>();
             ServiceBusTransactionContext elinktransactionNewContext = null;
-            for (ServiceBusMessage record : serviceBusMessages) {
-                currentBatch.add(record);
+            for (ServiceBusMessage messageRecord : serviceBusMessages) {
+                currentBatch.add(messageRecord);
                 if (currentBatch.size() == thresholdValue) {
                     elinktransactionNewContext = elinkserviceBusSenderClient.createTransaction();
                     prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
