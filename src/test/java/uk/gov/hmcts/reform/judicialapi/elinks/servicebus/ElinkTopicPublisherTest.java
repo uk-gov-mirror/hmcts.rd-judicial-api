@@ -52,7 +52,7 @@ class ElinkTopicPublisherTest {
         elinkTopicPublisher.jrdMessageBatchSize = 2;
         elinkTopicPublisher.loggingComponentName = "loggingComponent";
         elinkTopicPublisher.topic = "dummyTopic";
-        ReflectionTestUtils.setField(elinkTopicPublisher, "thresholdValue", 4);
+        ReflectionTestUtils.setField(elinkTopicPublisher, "thresholdValue", 2);
     }
 
     @Test
@@ -121,5 +121,20 @@ class ElinkTopicPublisherTest {
         elinkTopicPublisher.sendMessage(sidamIdsList, "1");
         verify(serviceBusSenderClient, never())
                 .sendMessages((ServiceBusMessageBatch) any(), any());
+    }
+
+    @Test
+    @DisplayName("Postive scenario for sending message to Azure Sevice Bus")
+    void should_send_message_to_Asb_beyond_threshold() {
+        doReturn(true).when(messageBatch).tryAddMessage(any());
+        doReturn(10).when(messageBatch).getCount();
+        doReturn(messageBatch).when(serviceBusSenderClient).createMessageBatch();
+        when(messageBatch.getCount()).thenReturn(10);
+        elinkTopicPublisher.sendMessage(sidamIdsList, "1");
+        verify(messageBatch, times(6)).tryAddMessage(any());
+        verify(messageBatch, times(2)).getCount();
+        verify(serviceBusSenderClient, times(2))
+            .sendMessages((ServiceBusMessageBatch) any(), any());
+        verify(serviceBusSenderClient, times(1)).commitTransaction(any());
     }
 }
