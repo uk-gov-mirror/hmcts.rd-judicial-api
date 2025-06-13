@@ -95,10 +95,9 @@ public class ElinkTopicPublisher {
         }
         // Send remaining records if any
         if (!currentBatch.isEmpty()) {
-            elinktransactionNewContext =
-                elinkserviceBusSenderClient.createTransaction();
-                prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
-                    jobId, serviceBusMessages);
+            elinktransactionNewContext = elinkserviceBusSenderClient.createTransaction();
+            prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, elinktransactionNewContext,
+                jobId, serviceBusMessages);
         }
 
     }
