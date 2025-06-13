@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.elinks.controller;
 
 import java.util.List;
-import java.util.UUID;
-
 
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BAD_REQUEST;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.FORBIDDEN_ERROR;
@@ -86,10 +84,10 @@ public class TestTopicPublishController {
                 .toList();
 
         Integer sidamIdcount = sidamIds.size();
-        String jobId = UUID.randomUUID().toString();
+            String jobId = "1234";
         elinkTopicPublisher.sendMessage(sidamIds, jobId);
 
-        jdbcTemplate.update(UPDATE_JOB_SQL, "SUCCESS", Integer.valueOf(jobId));
+        int i = jdbcTemplate.update(UPDATE_JOB_SQL, "SUCCESS", Integer.valueOf(jobId));
 
         SchedulerJobStatusResponse response = SchedulerJobStatusResponse.builder().id(jobId)
             .jobStatus("SUCCESS").sidamIdsCount(sidamIdcount).statusCode(HttpStatus.OK.value()).build();
