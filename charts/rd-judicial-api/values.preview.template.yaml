@@ -69,8 +69,8 @@ servicebus:
   enabled: true
   teamName: RD
   resourceGroup: rd-aso-preview-rg
-  sbNamespace: rd-servicebus-preview
+  sbNamespace: rd-sb-preview
   setup:
     topics:
-      - name: jrdapi-topic
+      - name: rd-judicial-api-pr-1018-servicebus-jrdapi-topic
         subscriptionNeeded: yes
