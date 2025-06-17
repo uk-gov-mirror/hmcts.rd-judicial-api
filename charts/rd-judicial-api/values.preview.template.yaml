@@ -13,7 +13,7 @@ java:
     JUDICIAL_DB: classpath:db/migration
     JRD_MQ_HOST: rd-sb-preview.servicebus.windows.net
     JUDICIAL_TOPIC_PRIMARY_SEND_LISTEN_SHARED_ACCESS_KEY: "$(JRD_MQ_PASSWORD)"
-    JRD_MQ_TOPIC_NAME: rd-judicial-api-pr-1043-servicebus-jrdapi-topic
+    JRD_MQ_TOPIC_NAME: "{{ .Release.Name }}-servicebus-jrdapi-topic"
     JRD_MQ_USERNAME: RootManageSharedAccessKey
     JRD_MQ_TRUST_ALL_CERTS: false
     JRD_DATA_PER_MESSAGE: 4
@@ -71,5 +71,5 @@ servicebus:
   sbNamespace: rd-sb-preview
   setup:
     topics:
-      - name: rd-judicial-api-pr-1043-servicebus-jrdapi-topic
+      - name: jrdapi-topic
         subscriptionNeeded: yes
