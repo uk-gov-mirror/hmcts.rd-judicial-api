@@ -60,7 +60,6 @@ public class ElinkTopicPublisher {
 
     private void publishMessageToTopic(List<String> judicalIds,
                                        ServiceBusSenderClient serviceBusSenderClient,
-                                       ServiceBusTransactionContext transactionContext,
                                        String jobId) {
 
         ServiceBusMessageBatch elinkmessageBatch;
