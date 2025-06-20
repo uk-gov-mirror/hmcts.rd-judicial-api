@@ -46,7 +46,7 @@ public class ElinkTopicPublisher {
         ServiceBusTransactionContext elinktransactionContext = null;
         try {
             elinktransactionContext = elinkserviceBusSenderClient.createTransaction();
-            publishMessageToTopic(judicalIds, elinkserviceBusSenderClient, elinktransactionContext, jobId);
+            publishMessageToTopic(judicalIds, elinkserviceBusSenderClient, jobId);
         } catch (Exception exception) {
             log.error("{}:: Publishing message to service bus topic failed with exception: {}:: Job Id {}",
                 loggingComponentName, exception.getMessage(), jobId);
