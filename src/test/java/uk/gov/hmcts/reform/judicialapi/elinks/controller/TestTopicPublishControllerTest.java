@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.judicialapi.elinks.controller;
 
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +50,7 @@ class TestTopicPublishControllerTest {
 
         List<String> sidamIds = IntStream.rangeClosed(1, 10)
             .mapToObj(i -> String.format("ID%03d", i))
-            .collect(Collectors.toList());
+            .toList();
         when(jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, ROW_MAPPER)).thenReturn(sidamIds);
         when(jdbcTemplate.update(
             anyString(),
