@@ -79,40 +79,7 @@ public class TestTopicPublishController {
     public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsb() {
         try {
         // Get all sidam id's from the judicial_user_profile table
-        List<String> sidamIds1 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds2 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds3 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds4 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds5 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds6 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds7 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds8 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds9 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds10 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds11 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds12 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds13 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds14 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-            List<String> sidamIds15 = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
-
-        List<String> sidamIds = new ArrayList<>();
-        for(int i =0 ; i<300 ; i++){
-            sidamIds.add(sidamIds1.get(i));
-            sidamIds.add(sidamIds2.get(i));
-            sidamIds.add(sidamIds3.get(i));
-            sidamIds.add(sidamIds4.get(i));
-            sidamIds.add(sidamIds5.get(i));
-            sidamIds.add(sidamIds6.get(i));
-            sidamIds.add(sidamIds7.get(i));
-            sidamIds.add(sidamIds8.get(i));
-            sidamIds.add(sidamIds9.get(i));
-            sidamIds.add(sidamIds10.get(i));
-            sidamIds.add(sidamIds11.get(i));
-            sidamIds.add(sidamIds12.get(i));
-            sidamIds.add(sidamIds13.get(i));
-            sidamIds.add(sidamIds14.get(i));
-            sidamIds.add(sidamIds15.get(i));
-        }
+        List<String> sidamIds = jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, RefDataConstants.ROW_MAPPER);
 
         sidamIds =
             sidamIds.stream()
