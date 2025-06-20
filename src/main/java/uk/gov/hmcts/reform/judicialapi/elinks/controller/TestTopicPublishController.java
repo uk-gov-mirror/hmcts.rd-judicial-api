@@ -110,7 +110,7 @@ public class TestTopicPublishController {
     @ApiResponse(responseCode = "500", description = INTERNAL_SERVER_ERROR)
     @PostMapping(path = "/publish",
         produces = V2.MediaType.SERVICE)
-    public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsbHardCodedIds(
+    public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsbIdsFromReqBody(
         @RequestBody RefreshRoleRequest refreshRoleRequest) {
         try {
 
