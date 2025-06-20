@@ -12,10 +12,10 @@ management:
     health:
       show-details: "always"
 
+
 testing:
   support:
-    enabled: ${TEST_IDAM_ENABLED:true}
-    idamUrl: ${TEST_IDAM_URL:}
+    enabled: ${TESTING_SUPPORT_ENABLED:false}
 
 spring:
   jpa:
@@ -203,8 +203,8 @@ jrd:
           topic: ${JRD_MQ_TOPIC_NAME:rd-judicial-api-pr-1018-servicebus-jrdapi-topic}
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
-    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:4}
-    jrd-message-transaction-size: ${JRD_DATA_PER_TRANSACTION:3}
+    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:3}
+    jrd-message-transaction-size: ${JRD_DATA_PER_TRANSACTION:20}
 email:
   mailTypes:
     asb:
