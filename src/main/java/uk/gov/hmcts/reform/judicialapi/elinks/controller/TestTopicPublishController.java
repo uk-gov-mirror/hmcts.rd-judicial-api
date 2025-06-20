@@ -44,7 +44,6 @@ import uk.gov.hmcts.reform.judicialapi.versions.V2;
 )
 @Slf4j
 @AllArgsConstructor
-@Hidden
 @ConditionalOnProperty(name = "testing.support.enabled", havingValue = "true")
 @SuppressWarnings("all")
 public class TestTopicPublishController {
