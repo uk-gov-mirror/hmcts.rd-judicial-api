@@ -72,5 +72,5 @@ servicebus:
   sbNamespace: rd-sb-preview
   setup:
     topics:
-      - name: rd-judicial-api-pr-1018-servicebus-jrdapi-topic
+      - name: jrdapi-topic
         subscriptionNeeded: yes
