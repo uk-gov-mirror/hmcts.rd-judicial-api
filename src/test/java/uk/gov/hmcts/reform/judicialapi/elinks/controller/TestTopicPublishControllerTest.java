@@ -79,8 +79,8 @@ class TestTopicPublishControllerTest {
         RefreshRoleRequest refreshRoleRequest = new RefreshRoleRequest("cmc", null,
             sidamIds, null);
 
-        ResponseEntity<SchedulerJobStatusResponse> actual = eLinksController.
-            publishSidamIdToAsbIdsFromReqBody(refreshRoleRequest);
+        ResponseEntity<SchedulerJobStatusResponse> actual = eLinksController
+            .publishSidamIdToAsbIdsFromReqBody(refreshRoleRequest);
         assertThat(actual).isNotNull();
         assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(elinkTopicPublisher, times(1)).sendMessage(any(), anyString());
