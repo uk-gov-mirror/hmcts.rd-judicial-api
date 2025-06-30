@@ -31,10 +31,8 @@ public class ElinkMessagingConfig {
     public ServiceBusSenderClient getServiceBusSenderClient() {
 
 
-        String connectionString = "Endpoint=sb://rd-sb-preview.servicebus.windows.net/;" +
-            "SharedAccessKeyName=" +
-            "SharedAccessKey=";
-
+        String connectionString = "Endpoint=sb://"
+            + host + ";SharedAccessKeyName=" + sharedAccessKeyName + ";SharedAccessKey=" + sharedAccessKeyValue;
 
         return new ServiceBusClientBuilder()
                 .connectionString(connectionString)
