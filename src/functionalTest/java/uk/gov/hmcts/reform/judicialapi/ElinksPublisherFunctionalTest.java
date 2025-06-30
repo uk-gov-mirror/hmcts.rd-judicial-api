@@ -27,8 +27,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAu
 
 
 @SpringBootTest
-//@Disabled("Run when needed")
-@ExtendWith(SerenityJUnit5Extension.class)
+@Disabled("Run when needed")
 @WithTags({@WithTag("testType:Functional")})
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
@@ -49,16 +48,16 @@ class ElinksPublisherFunctionalTest  {
 
     @Value("${jrd.publisher.azure.service.bus.password}")
     String sharedAccessKeyValue;
-    
+
     private final String topicName = "rd-judicial-api-pr-1018-servicebus-jrdapi-topic";
     private final String subscriptionName = "rd-judicial-api-pr-1018-servicebus-jrdapi-topic";
-    
+
 
     @BeforeAll
     void setUpReceiver() {
         String connectionString = "Endpoint=sb://rd-sb-preview.servicebus.windows.net/;" +
         "SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey="+sharedAccessKeyValue;
-        
+
         receiverClient = new ServiceBusClientBuilder()
             .connectionString(connectionString)
             .receiver()
