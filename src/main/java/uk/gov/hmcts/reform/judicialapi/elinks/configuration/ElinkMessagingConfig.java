@@ -32,7 +32,7 @@ public class ElinkMessagingConfig {
 
 
         String connectionString = "Endpoint=sb://rd-sb-preview.servicebus.windows.net/;" +
-            "SharedAccessKeyName=RootManageSharedAccessKey;" +
+            "SharedAccessKeyName=" +
             "SharedAccessKey=";
 
 
