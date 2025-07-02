@@ -93,5 +93,3 @@ class ElinksPublisherFunctionalTest  {
         receiverClient.complete(message);
     }
 }
-
-
