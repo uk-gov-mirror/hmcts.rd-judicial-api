@@ -55,7 +55,7 @@ class ElinksPublisherFunctionalTest  {
 
     @BeforeAll
     void setUpReceiver() {
-        private final String connectionString = "Endpoint=sb://rd-sb-preview.servicebus.windows.net/;" +
+        String connectionString = "Endpoint=sb://rd-sb-preview.servicebus.windows.net/;" +
         "SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey="+sharedAccessKeyValue;
         
         receiverClient = new ServiceBusClientBuilder()
