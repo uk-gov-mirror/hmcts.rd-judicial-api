@@ -46,12 +46,18 @@ class ElinksPublisherFunctionalTest  {
     private ServiceBusReceiverClient receiverClient;
 
 
-    private final String topicName = "rd-judicial-topic-aat";
-    private final String subscriptionName = "rd-judicial-subscription-aat";
-    private final String connectionString = "Endpoint=";
+    @Value("${jrd.publisher.azure.service.bus.password}")
+    String sharedAccessKeyValue;
+    
+    private final String topicName = "rd-judicial-api-pr-1018-servicebus-jrdapi-topic";
+    private final String subscriptionName = "rd-judicial-api-pr-1018-servicebus-jrdapi-topic";
+    
 
     @BeforeAll
     void setUpReceiver() {
+        private final String connectionString = "Endpoint=sb://rd-sb-preview.servicebus.windows.net/;" +
+        "SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey="+sharedAccessKeyValue;
+        
         receiverClient = new ServiceBusClientBuilder()
             .connectionString(connectionString)
             .receiver()
