@@ -42,13 +42,6 @@ class ElinksPublisherFunctionalTest  {
     private ServiceBusReceiverClient receiverClient;
 
 
-
-
-    @AfterAll
-    void cleanUp() {
-        receiverClient.close();
-    }
-
     @Test
     void testSendMessageToTopic() throws InterruptedException {
 
