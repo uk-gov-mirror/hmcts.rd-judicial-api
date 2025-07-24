@@ -14,20 +14,20 @@ import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.annotations.WithTag;
 import net.serenitybdd.annotations.WithTags;
-import net.serenitybdd.junit5.SerenityJUnit5Extension;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import uk.gov.hmcts.reform.judicialapi.elinks.configuration.ElinkMessagingConfig;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 
 
 @SpringBootTest
-@Disabled("Run when needed")
+//@Disabled("Run when needed")
 @WithTags({@WithTag("testType:Functional")})
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
@@ -43,28 +43,22 @@ class ElinksPublisherFunctionalTest  {
     @Autowired
     private ElinkDataIngestionSchedularAudit audit;
 
+    @Autowired
     private ServiceBusReceiverClient receiverClient;
 
+    @Value("${jrd.publisher.azure.service.bus.topic}")
+    String topicName;
+
+    @Value("${jrd.publisher.azure.service.bus.host}")
+    String subscriptionName;
+
+    @Value("${jrd.publisher.azure.service.bus.username}")
+    String sharedAccessKeyName;
 
     @Value("${jrd.publisher.azure.service.bus.password}")
     String sharedAccessKeyValue;
 
-    private final String topicName = "rd-judicial-api-pr-1018-servicebus-jrdapi-topic";
-    private final String subscriptionName = "rd-judicial-api-pr-1018-servicebus-jrdapi-topic";
 
-
-    @BeforeAll
-    void setUpReceiver() {
-        String connectionString = "Endpoint=sb://rd-sb-preview.servicebus.windows.net/;" +
-        "SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey="+sharedAccessKeyValue;
-
-        receiverClient = new ServiceBusClientBuilder()
-            .connectionString(connectionString)
-            .receiver()
-            .topicName(topicName)
-            .subscriptionName(subscriptionName)
-            .buildClient();
-    }
 
     @AfterAll
     void cleanUp() {
