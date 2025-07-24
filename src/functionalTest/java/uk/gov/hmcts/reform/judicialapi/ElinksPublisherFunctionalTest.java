@@ -46,17 +46,6 @@ class ElinksPublisherFunctionalTest  {
     @Autowired
     private ServiceBusReceiverClient receiverClient;
 
-    @Value("${jrd.publisher.azure.service.bus.topic}")
-    String topicName;
-
-    @Value("${jrd.publisher.azure.service.bus.host}")
-    String subscriptionName;
-
-    @Value("${jrd.publisher.azure.service.bus.username}")
-    String sharedAccessKeyName;
-
-    @Value("${jrd.publisher.azure.service.bus.password}")
-    String sharedAccessKeyValue;
 
 
 
