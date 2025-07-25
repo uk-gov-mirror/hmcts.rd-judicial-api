@@ -30,13 +30,10 @@ public class MessagingConfig {
 
     @Bean
     public ServiceBusReceiverClient getServiceBusRecieverClient() {
-
-
         String connectionString = "Endpoint=sb://"
             + host + ";SharedAccessKeyName=" + sharedAccessKeyName + ";SharedAccessKey=" + sharedAccessKeyValue;
-
-       return receiverClient = new ServiceBusClientBuilder()
-           .connectionString(connectionString)
+        return receiverClient = new ServiceBusClientBuilder()
+            .connectionString(connectionString)
            .receiver()
            .topicName(host)
            .subscriptionName(subscriptionName)
