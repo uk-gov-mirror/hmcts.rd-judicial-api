@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.judicialapi.config;
 
 import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusReceiverClient;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ElinkMessagingConfig {
+public class MessagingConfig {
 
     @Value("${jrd.publisher.azure.service.bus.topic}")
     String topic;
@@ -26,19 +27,21 @@ public class ElinkMessagingConfig {
     String sharedAccessKeyValue;
 
 
+    private ServiceBusReceiverClient receiverClient;
+    private final String subscriptionName = "rd-judicial-subscription-aat";
 
     @Bean
-    public ServiceBusSenderClient getServiceBusSenderClient() {
+    public ServiceBusReceiverClient getServiceBusRecieverClient() {
 
 
         String connectionString = "Endpoint=sb://"
             + host + ";SharedAccessKeyName=" + sharedAccessKeyName + ";SharedAccessKey=" + sharedAccessKeyValue;
 
-        return new ServiceBusClientBuilder()
-                .connectionString(connectionString)
-                .retryOptions(new AmqpRetryOptions())
-                .sender()
-                .topicName(topic)
-                .buildClient();
+       return receiverClient = new ServiceBusClientBuilder()
+            .connectionString(connectionString)
+            .receiver()
+            .topicName(host)
+            .subscriptionName(subscriptionName)
+            .buildClient();
     }
 }

@@ -16,6 +16,7 @@ import net.serenitybdd.annotations.WithTags;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import uk.gov.hmcts.reform.judicialapi.config.MessagingConfig;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 
@@ -38,11 +39,13 @@ class ElinksPublisherFunctionalTest  {
     private ElinkDataIngestionSchedularAudit audit;
 
     @Autowired
-    private ServiceBusReceiverClient receiverClient;
+    MessagingConfig messagingConfig;
 
 
     @Test
     void testSendMessageToTopic() throws InterruptedException {
+
+        ServiceBusReceiverClient receiverClient = messagingConfig.getServiceBusRecieverClient();
 
         // Given a list of ids from judicial that will be sent to the topic
         String jobId = UUID.randomUUID().toString();
