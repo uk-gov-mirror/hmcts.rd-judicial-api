@@ -1,10 +1,8 @@
 package uk.gov.hmcts.reform.judicialapi.config;
 
 
-import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusReceiverClient;
-import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,10 +36,10 @@ public class MessagingConfig {
             + host + ";SharedAccessKeyName=" + sharedAccessKeyName + ";SharedAccessKey=" + sharedAccessKeyValue;
 
        return receiverClient = new ServiceBusClientBuilder()
-            .connectionString(connectionString)
-            .receiver()
-            .topicName(host)
-            .subscriptionName(subscriptionName)
-            .buildClient();
+           .connectionString(connectionString)
+           .receiver()
+           .topicName(host)
+           .subscriptionName(subscriptionName)
+           .buildClient();
     }
 }
