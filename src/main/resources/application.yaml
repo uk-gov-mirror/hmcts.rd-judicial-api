@@ -12,10 +12,10 @@ management:
     health:
       show-details: "always"
 
-
 testing:
   support:
-    enabled: ${TESTING_SUPPORT_ENABLED:false}
+    enabled: ${TEST_IDAM_ENABLED:false}
+    idamUrl: ${TEST_IDAM_URL:}
 
 spring:
   jpa:
@@ -204,7 +204,7 @@ jrd:
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
     jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:3}
-    jrd-message-transaction-size: ${JRD_DATA_PER_TRANSACTION:20}
+
 email:
   mailTypes:
     asb:
@@ -273,7 +273,6 @@ email:
       template: simple-template-objectIdDuplicate.ftl
 
 thresholdValue: 3
-
 sendgrid:
   key: ${RD_SENDGRID_API_KEY}
 
