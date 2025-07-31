@@ -93,7 +93,6 @@ public class ElinkTopicPublisher {
             }
 
         }
-
         sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
     }
 
