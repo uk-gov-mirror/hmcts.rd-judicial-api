@@ -17,7 +17,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAu
 //@TestPropertySource(properties = "spring.flyway.enabled=false")
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
-class ElinksPublisherFunctionalTest  {
+class ElinksPublisherFunctionalTest extends AuthorizationFunctionalTest {
 
 
     @Autowired
