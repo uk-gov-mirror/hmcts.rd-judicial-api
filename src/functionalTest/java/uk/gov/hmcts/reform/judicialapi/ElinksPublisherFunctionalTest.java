@@ -1,10 +1,5 @@
 package uk.gov.hmcts.reform.judicialapi;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.annotations.WithTag;
