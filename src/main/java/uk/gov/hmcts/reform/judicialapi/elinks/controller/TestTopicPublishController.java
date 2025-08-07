@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,6 +73,7 @@ public class TestTopicPublishController {
     @ApiResponse(responseCode = "500", description = INTERNAL_SERVER_ERROR)
     @GetMapping(path = "/publish",
         produces = V2.MediaType.SERVICE)
+    @Secured({"jrd-system-user", "jrd-admin"})
     public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsb() {
         try {
         // Get all sidam id's from the judicial_user_profile table
@@ -108,6 +110,7 @@ public class TestTopicPublishController {
     @ApiResponse(responseCode = "500", description = INTERNAL_SERVER_ERROR)
     @PostMapping(path = "/publish",
         produces = V2.MediaType.SERVICE)
+    @Secured({"jrd-system-user", "jrd-admin"})
     public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsbIdsFromReqBody(
         @RequestBody RefreshRoleRequest refreshRoleRequest) {
         try {
