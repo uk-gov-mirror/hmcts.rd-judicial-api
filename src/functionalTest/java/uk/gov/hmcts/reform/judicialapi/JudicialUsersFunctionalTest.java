@@ -119,7 +119,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
     @ParameterizedTest
     @ValueSource(strings = {"jrd-system-user"})
     //@ExtendWith(FeatureToggleConditionExtension.class)
-    //@ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
+    @ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
     void publishUsesToServiceBus(String role) {
 
         List<String> userIds = new ArrayList<>(4000);
