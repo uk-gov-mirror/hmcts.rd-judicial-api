@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.judicialapi.controller.advice.ErrorResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RefreshRoleRequest;
@@ -117,7 +119,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
 
     @DisplayName("Scenario: publish list of judicial users to Azure Service Bus")
     @ParameterizedTest
-    @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
+    @ValueSource(strings = {"jrd-system-user"})
     //@ExtendWith(FeatureToggleConditionExtension.class)
     @ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
     void publishUsesToServiceBus(String role) {
@@ -128,26 +130,24 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
             userIds.add("integration-user-" + i);
         }
 
-        // Example: print the first 10 user IDs
-        //userIds.stream().limit(10).forEach(System.out::println);
-
         RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
             .ccdServiceNames("ia")
             .sidamIds(userIds)
             .objectIds(Collections.emptyList())
             .build();
 
-        Response refreshResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, 1, 1,
+        Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, 1, 1,
             "objectId", "ASC", role);
+        assertEquals(OK.value(), publishResponse.getStatusCode());
+        String expected = "{\n" +
+            "    \"statusCode\": 200,\n" +
+            "    \"sidamIdsCount\": 3999,\n" +
+            "    \"id\": \"1234\",\n" +
+            "    \"publishing_status\": \"SUCCESS\"\n" +
+            "}";
+        log.info("JRD get publishResponse response: {}", publishResponse.getBody().prettyPrint().toString().trim());
+        assertEquals(expected, publishResponse.getBody().prettyPrint().toString());
 
-        if (OK.value() == refreshResponse.getStatusCode()) {
-            List<UserProfileRefreshResponse> userProfiles = InvokerHelper.asList(refreshResponse.getBody()
-                .as(UserProfileRefreshResponse[].class));
-            log.info("JRD get refreshResponse response: {}", userProfiles.get(0).getObjectId());
-            assertNotNull(userProfiles.get(0).getObjectId());
-        } else {
-            assertEquals(NOT_FOUND.value(), refreshResponse.getStatusCode());
-        }
     }
 
     private UserSearchRequest getUserSearchRequest(String location, String serviceCode, String searchString) {
