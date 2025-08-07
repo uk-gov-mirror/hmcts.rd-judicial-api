@@ -119,7 +119,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
     @ParameterizedTest
     @ValueSource(strings = {"jrd-system-user"})
     //@ExtendWith(FeatureToggleConditionExtension.class)
-    @ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
+    //@ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
     void publishUsesToServiceBus(String role) {
 
         List<String> userIds = new ArrayList<>(4000);
@@ -137,12 +137,12 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, 1, 1,
             "objectId", "ASC", role);
         assertEquals(OK.value(), publishResponse.getStatusCode());
-        String expected = "{\n" +
-            "    \"statusCode\": 200,\n" +
-            "    \"sidamIdsCount\": 3999,\n" +
-            "    \"id\": \"1234\",\n" +
-            "    \"publishing_status\": \"SUCCESS\"\n" +
-            "}";
+        String expected = "{\n"
+            + "    \"statusCode\": 200,\n"
+            + "    \"sidamIdsCount\": 3999,\n"
+            + "    \"id\": \"1234\",\n"
+            + "    \"publishing_status\": \"SUCCESS\"\n"
+            + "}";
         log.info("JRD get publishResponse response: {}", publishResponse.getBody().prettyPrint().toString().trim());
         assertEquals(expected, publishResponse.getBody().prettyPrint().toString());
 
