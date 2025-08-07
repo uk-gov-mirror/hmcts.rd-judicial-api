@@ -115,7 +115,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         }
     }
 
-    @DisplayName("Scenario: Get Judicial user based on page size and page number")
+    @DisplayName("Scenario: publish list of judicial users to Azure Service Bus")
     @ParameterizedTest
     @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
     //@ExtendWith(FeatureToggleConditionExtension.class)
@@ -124,7 +124,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
 
         List<String> userIds = new ArrayList<>(4000);
 
-        for (int i = 1; i <= 4000; i++) {
+        for (int i = 1; i < 4000; i++) {
             userIds.add("integration-user-" + i);
         }
 
