@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.UserProfileRefreshRespons
 import uk.gov.hmcts.reform.judicialapi.util.FeatureToggleConditionExtension;
 import uk.gov.hmcts.reform.judicialapi.util.ToggleEnable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +38,8 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
 
     public static final String USERS_SEARCH = "JrdElinkController.retrieveUsers";
     public static final String REFRESH_USER = "JrdElinkController.refreshUserProfile";
+
+    public static final String PUBLISH_USER = "TestTopicPublishController.publishSidamIdToAsbIdsFromReqBody";
 
     @Test
     @ExtendWith(FeatureToggleConditionExtension.class)
@@ -105,6 +108,41 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         if (OK.value() == refreshResponse.getStatusCode()) {
             List<UserProfileRefreshResponse> userProfiles = InvokerHelper.asList(refreshResponse.getBody()
                     .as(UserProfileRefreshResponse[].class));
+            log.info("JRD get refreshResponse response: {}", userProfiles.get(0).getObjectId());
+            assertNotNull(userProfiles.get(0).getObjectId());
+        } else {
+            assertEquals(NOT_FOUND.value(), refreshResponse.getStatusCode());
+        }
+    }
+
+    @DisplayName("Scenario: Get Judicial user based on page size and page number")
+    @ParameterizedTest
+    @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
+    //@ExtendWith(FeatureToggleConditionExtension.class)
+    @ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
+    void publishUsesToServiceBus(String role) {
+
+        List<String> userIds = new ArrayList<>(4000);
+
+        for (int i = 1; i <= 4000; i++) {
+            userIds.add("integration-user-" + i);
+        }
+
+        // Example: print the first 10 user IDs
+        //userIds.stream().limit(10).forEach(System.out::println);
+
+        RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
+            .ccdServiceNames("ia")
+            .sidamIds(userIds)
+            .objectIds(Collections.emptyList())
+            .build();
+
+        Response refreshResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, 1, 1,
+            "objectId", "ASC", role);
+
+        if (OK.value() == refreshResponse.getStatusCode()) {
+            List<UserProfileRefreshResponse> userProfiles = InvokerHelper.asList(refreshResponse.getBody()
+                .as(UserProfileRefreshResponse[].class));
             log.info("JRD get refreshResponse response: {}", userProfiles.get(0).getObjectId());
             assertNotNull(userProfiles.get(0).getObjectId());
         } else {
