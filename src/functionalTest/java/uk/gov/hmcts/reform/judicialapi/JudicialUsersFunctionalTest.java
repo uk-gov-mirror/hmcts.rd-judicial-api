@@ -139,7 +139,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         assertEquals(OK.value(), publishResponse.getStatusCode());
         String expected = "{\n"
             + "    \"statusCode\": 200,\n"
-            + "    \"sidamIdsCount\": 3999,\n"
+            + "    \"sidamIdsCount\": 399999,\n"
             + "    \"id\": \"1234\",\n"
             + "    \"publishing_status\": \"SUCCESS\"\n"
             + "}";
