@@ -125,7 +125,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         List<String> userIds = new ArrayList<>(4000);
 
         for (int i = 1; i < 4000; i++) {
-            userIds.add("integration-user-" + i);
+            userIds.add("ZZ-integration-user-" + i);
         }
 
         RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
