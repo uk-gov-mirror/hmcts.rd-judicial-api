@@ -30,7 +30,7 @@ jrd:
           topic: ${JRD_MQ_TOPIC_NAME:}
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
-    jrd-message-batch-size: 10
+    jrd-message-batch-size: 110
     jrd-message-transaction-size: 5
 
 elastic:
