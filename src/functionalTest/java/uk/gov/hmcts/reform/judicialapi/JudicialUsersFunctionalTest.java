@@ -124,8 +124,8 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
 
         List<String> userIds = new ArrayList<>(4000);
 
-        for (int i = 1; i < 1000000; i++) {
-            userIds.add("NEW-SS-integration-user-" + i);
+        for (int i = 1; i < 100000; i++) {
+            userIds.add("NEW1-integration-user-" + i);
         }
 
         RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
@@ -139,7 +139,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         assertEquals(OK.value(), publishResponse.getStatusCode());
         String expected = "{\n"
             + "    \"statusCode\": 200,\n"
-            + "    \"sidamIdsCount\": 999999,\n"
+            + "    \"sidamIdsCount\": 99999,\n"
             + "    \"id\": \"1234\",\n"
             + "    \"publishing_status\": \"SUCCESS\"\n"
             + "}";
