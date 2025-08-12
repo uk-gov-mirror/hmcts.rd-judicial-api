@@ -75,6 +75,8 @@ public class ElinkTopicPublisher {
                 serviceBusMessages.add(new ServiceBusMessage(new Gson().toJson(judicialDataChunk)));
             });
 
+        log.error("Number of Service Bus Messages {}. Jrd Message Batch Size: {}. Job id::{}",
+                serviceBusMessages.size(), jrdMessageBatchSize, jobId);
         for (ServiceBusMessage message : serviceBusMessages) {
 
             if (elinkmessageBatch.tryAddMessage(message)) {
