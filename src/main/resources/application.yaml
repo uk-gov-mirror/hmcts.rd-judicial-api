@@ -203,7 +203,7 @@ jrd:
           topic: ${JRD_MQ_TOPIC_NAME:rd-judicial-api-pr-1018-servicebus-jrdapi-topic}
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
-    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:3}
+    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:110}
 
 email:
   mailTypes:
