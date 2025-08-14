@@ -31,7 +31,7 @@ jrd:
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
     jrd-message-batch-size: 110
-    jrd-message-transaction-size: 5
+    jrd-message-transaction-size: 100
 
 elastic:
   search:
