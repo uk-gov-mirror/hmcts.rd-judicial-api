@@ -92,7 +92,7 @@ class ElinkTopicPublisherTest {
         when(serviceBusSenderClient.createMessageBatch()).thenReturn(null);
         doThrow(new RuntimeException("NullpointerException")).when(serviceBusSenderClient).createMessageBatch();
         assertThrows(Exception.class, () -> elinkTopicPublisher.sendMessage(sidamIdsList, "1"));
-        verify(serviceBusSenderClient, never()).rollbackTransaction(any());
+        verify(serviceBusSenderClient, times(1)).rollbackTransaction(any());
 
     }
 
