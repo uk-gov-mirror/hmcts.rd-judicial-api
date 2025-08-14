@@ -58,6 +58,7 @@ public class ElinkTopicPublisher {
 
             // Iterate through the prepared Service Bus messages
             for (ServiceBusMessage messageRecord : serviceBusMessages) {
+                elinkmessageBatch = elinkserviceBusSenderClient.createMessageBatch();
                 // Add the message to the current batch
                 // Check if the message can be added to the batch based on the maxbatchsize preconfigured
                 // or if the batch size exceeds the transaction limit(MAX_MESSAGES_PER_TRANSACTION= 100)
