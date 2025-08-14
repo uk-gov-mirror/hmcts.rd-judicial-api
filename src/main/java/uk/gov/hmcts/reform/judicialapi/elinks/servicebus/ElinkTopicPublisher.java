@@ -78,7 +78,7 @@ public class ElinkTopicPublisher {
         } catch (Exception exception) {
             log.error("{}:: Publishing message to service bus topic failed with exception: {}:: Job Id {}",
                 loggingComponentName, exception.getMessage(), jobId);
-            if (Objects.nonNull(elinktransactionContext) && Objects.nonNull(elinkserviceBusSenderClient)) {
+            if (Objects.nonNull(elinktransactionContext) || Objects.nonNull(elinkserviceBusSenderClient)) {
                 elinkserviceBusSenderClient.rollbackTransaction(elinktransactionContext);
             }
             // Throw exception to indicate the failure
