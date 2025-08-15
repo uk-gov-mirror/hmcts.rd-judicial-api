@@ -118,8 +118,8 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
     @DisplayName("Scenario: publish list of judicial users to Azure Service Bus")
     @ParameterizedTest
     @ValueSource(strings = {"jrd-system-user"})
-    //@ExtendWith(FeatureToggleConditionExtension.class)
-    //@ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
+    @ExtendWith(FeatureToggleConditionExtension.class)
+    @ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
     void publishUsesToServiceBus(String role) {
 
         List<String> userIds = new ArrayList<>(4000);
