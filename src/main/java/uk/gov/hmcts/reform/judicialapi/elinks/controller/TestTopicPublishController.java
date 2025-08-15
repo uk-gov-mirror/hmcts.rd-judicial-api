@@ -6,6 +6,7 @@ import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.FORBIDDEN_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JOB_DETAILS_UPDATE_ERROR;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JOB_PUBLISH_ERROR;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.NO_DATA_FOUND;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.TOO_MANY_REQUESTS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.UNAUTHORIZED_ERROR;
@@ -21,9 +22,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RefreshRoleRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
@@ -84,7 +89,7 @@ public class TestTopicPublishController {
                 .toList();
 
         Integer sidamIdcount = sidamIds.size();
-            String jobId = "1234";
+        String jobId = "1234";
         elinkTopicPublisher.sendMessage(sidamIds, jobId);
 
         int i = jdbcTemplate.update(UPDATE_JOB_SQL, "SUCCESS", Integer.valueOf(jobId));
@@ -94,6 +99,35 @@ public class TestTopicPublishController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }catch (Exception ex) {
+            throw new ElinksException(HttpStatus.FORBIDDEN, JOB_PUBLISH_ERROR, JOB_PUBLISH_ERROR);
+        }
+    }
+
+
+
+    @ApiResponse(responseCode = "200", description = "Publish all SIDAM id's to ASB")
+    @ApiResponse(responseCode = "400", description = BAD_REQUEST)
+    @ApiResponse(responseCode = "401", description = UNAUTHORIZED_ERROR)
+    @ApiResponse(responseCode = "403", description = FORBIDDEN_ERROR)
+    @ApiResponse(responseCode = "404", description = NO_DATA_FOUND)
+    @ApiResponse(responseCode = "429", description = TOO_MANY_REQUESTS)
+    @ApiResponse(responseCode = "500", description = INTERNAL_SERVER_ERROR)
+    @PostMapping(path = "/publish",
+        produces = V2.MediaType.SERVICE)
+    @Secured({"jrd-system-user", "jrd-admin"})
+    public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsbIdsFromReqBody(
+        @RequestBody RefreshRoleRequest refreshRoleRequest) {
+        try {
+
+            String jobId = "1234";
+            elinkTopicPublisher.sendMessage(refreshRoleRequest.getSidamIds(), jobId);
+
+            SchedulerJobStatusResponse response = SchedulerJobStatusResponse.builder().id(jobId)
+                .jobStatus("SUCCESS").sidamIdsCount(refreshRoleRequest.getSidamIds().size())
+                .statusCode(HttpStatus.OK.value()).build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (Exception ex) {
             throw new ElinksException(HttpStatus.FORBIDDEN, JOB_DETAILS_UPDATE_ERROR, JOB_DETAILS_UPDATE_ERROR);
         }
     }
