@@ -115,12 +115,9 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         }
     }
 
+    @Test
     @DisplayName("Scenario: publish list of judicial users to Azure Service Bus")
-    @ParameterizedTest
-    @ValueSource(strings = {"jrd-system-user"})
-    @ExtendWith(FeatureToggleConditionExtension.class)
-    @ToggleEnable(mapKey = PUBLISH_USER, withFeature = true)
-    void publishUsesToServiceBus(String role) {
+    void publishUsesToServiceBus() {
 
         List<String> userIds = new ArrayList<>(4000);
 
@@ -135,7 +132,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
             .build();
 
         Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, 1, 1,
-            "objectId", "ASC", role);
+            "objectId", "ASC", "jrd-system-user");
         assertEquals(OK.value(), publishResponse.getStatusCode());
         String expected = "{\n"
             + "    \"statusCode\": 200,\n"
