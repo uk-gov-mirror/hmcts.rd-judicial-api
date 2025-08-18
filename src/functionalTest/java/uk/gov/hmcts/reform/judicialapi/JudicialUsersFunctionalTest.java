@@ -117,6 +117,8 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
 
     @Test
     @DisplayName("Scenario: publish list of judicial users to Azure Service Bus")
+    @ParameterizedTest
+    @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
     void publishUsesToServiceBus() {
 
         List<String> userIds = new ArrayList<>(4000);
