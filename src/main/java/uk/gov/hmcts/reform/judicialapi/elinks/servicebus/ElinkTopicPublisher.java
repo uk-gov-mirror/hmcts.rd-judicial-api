@@ -43,7 +43,9 @@ public class ElinkTopicPublisher {
     private ServiceBusSenderClient elinkserviceBusSenderClient;
 
     public void sendMessage(@NotNull List<String> judicalIds, String jobId) {
-        ServiceBusTransactionContext elinktransactionContext = null;
+        log.info("****************** sendMessage: {}");
+        ServiceBusTransactionContext elinktransactionContext =
+            elinkserviceBusSenderClient.createTransaction();
         ServiceBusMessageBatch elinkmessageBatch = null;
         List<ServiceBusMessage> currentBatch = new ArrayList<>();
         List<ServiceBusMessage> serviceBusMessages = new ArrayList<>();
@@ -55,6 +57,7 @@ public class ElinkTopicPublisher {
                     judicialDataChunk.setUserIds(data);
                     serviceBusMessages.add(new ServiceBusMessage(new Gson().toJson(judicialDataChunk)));
                 });
+            log.info("****************** serviceBusMessages : {}");
 
             // Iterate through the prepared Service Bus messages
             for (ServiceBusMessage messageRecord : serviceBusMessages) {
