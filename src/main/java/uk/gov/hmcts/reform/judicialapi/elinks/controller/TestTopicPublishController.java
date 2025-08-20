@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -114,7 +115,8 @@ public class TestTopicPublishController {
     public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsbIdsFromReqBody(
         @RequestBody RefreshRoleRequest refreshRoleRequest) {
         try {
-
+            log.info("******************Authenticated roles: {}", SecurityContextHolder.getContext()
+                .getAuthentication().getAuthorities());
             String jobId = "1234";
             elinkTopicPublisher.sendMessage(refreshRoleRequest.getSidamIds(), jobId);
 

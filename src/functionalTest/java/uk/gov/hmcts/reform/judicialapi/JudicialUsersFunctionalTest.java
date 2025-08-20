@@ -115,7 +115,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         }
     }
 
-    @Test
+
     @DisplayName("Scenario: publish list of judicial users to Azure Service Bus")
     @ParameterizedTest
     @ValueSource(strings = {"jrd-system-user", "jrd-admin"})
@@ -124,7 +124,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         List<String> userIds = new ArrayList<>();
 
         for (int i = 1; i < 100000; i++) {
-            userIds.add("NEW1-integration-user-" + i);
+            userIds.add("SIR-integration-user-" + i);
         }
 
         RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
