@@ -104,15 +104,17 @@ public class JudicialApiClient {
         return refreshResponse;
     }
 
-    public Response publishUserProfiles(RefreshRoleRequest refreshRoleRequest, int pageSize, int pageNumber,
-                                        String sortColumn, String sortDirection,
+    public Response publishUserProfiles(RefreshRoleRequest refreshRoleRequest,HttpStatus expectedStatus,
                                         String role) {
 
-        Response publishUsersResponse = getMultipleAuthHeaders(role,pageSize,pageNumber,sortColumn,sortDirection)
+        Response publishUsersResponse =  getMultipleAuthHeadersInternal(role)
             .body(refreshRoleRequest).log().body(true)
             .post(PUBLISH_USER_URI)
             .andReturn();
 
+        publishUsersResponse.then()
+            .assertThat()
+            .statusCode(expectedStatus.value());
         log.info("JRD get publishUsersResponse status code: {}", publishUsersResponse.getStatusCode());
 
         return publishUsersResponse;
