@@ -115,8 +115,7 @@ public class TestTopicPublishController {
     public ResponseEntity<SchedulerJobStatusResponse> publishSidamIdToAsbIdsFromReqBody(
         @RequestBody RefreshRoleRequest refreshRoleRequest) {
         try {
-            log.info("******************Authenticated roles: {}", SecurityContextHolder.getContext()
-                .getAuthentication().getAuthorities());
+            log.info("******************Authenticated roles: {}");
             String jobId = "1234";
             elinkTopicPublisher.sendMessage(refreshRoleRequest.getSidamIds(), jobId);
 
