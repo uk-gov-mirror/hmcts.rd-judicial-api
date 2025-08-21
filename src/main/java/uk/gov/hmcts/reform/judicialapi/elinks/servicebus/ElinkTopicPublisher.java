@@ -43,7 +43,7 @@ public class ElinkTopicPublisher {
     private ServiceBusSenderClient elinkserviceBusSenderClient;
 
     public void sendMessage(@NotNull List<String> judicalIds, String jobId) {
-        log.info("****************** sendMessage: {}");
+        log.info("****************** sendMessage: {}",judicalIds.size());
         ServiceBusTransactionContext elinktransactionContext =
             elinkserviceBusSenderClient.createTransaction();
         ServiceBusMessageBatch elinkmessageBatch = null;
@@ -57,10 +57,11 @@ public class ElinkTopicPublisher {
                     judicialDataChunk.setUserIds(data);
                     serviceBusMessages.add(new ServiceBusMessage(new Gson().toJson(judicialDataChunk)));
                 });
-            log.info("****************** serviceBusMessages : {}");
+            log.info("****************** serviceBusMessages : {}",serviceBusMessages.size());
 
             // Iterate through the prepared Service Bus messages
             for (ServiceBusMessage messageRecord : serviceBusMessages) {
+                log.info("****************** in loop : {}",messageRecord.getMessageId());
                 elinkmessageBatch = elinkserviceBusSenderClient.createMessageBatch();
                 // Add the message to the current batch
                 // Check if the message can be added to the batch based on the maxbatchsize preconfigured
@@ -73,6 +74,7 @@ public class ElinkTopicPublisher {
                 // Create a new transaction for the current batch
                 elinktransactionContext = elinkserviceBusSenderClient.createTransaction();
                 // Send the current batch of messages to the Service Bus and commit the transaction
+                log.info("****************** sending message : {}",elinkmessageBatch.getCount());
                 sendMessageToAsb(elinkserviceBusSenderClient, elinktransactionContext, elinkmessageBatch, jobId);
                 elinkserviceBusSenderClient.commitTransaction(elinktransactionContext);
                 // Clear the current batch for the next set of messages
@@ -87,6 +89,7 @@ public class ElinkTopicPublisher {
             // Throw exception to indicate the failure
             throw new ElinksException(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_ERROR, UNAUTHORIZED_ERROR);
         }
+        log.info("****************** comitting transac : {}");
         // Commit the transaction for any remaining messages
         elinkserviceBusSenderClient.commitTransaction(elinktransactionContext);
     }
@@ -97,7 +100,8 @@ public class ElinkTopicPublisher {
                                   String jobId) {
         if (messageBatch.getCount() > 0) {
             serviceBusSenderClient.sendMessages(messageBatch, transactionContext);
-            log.info("{}:: Sent a batch of messages to the topic: {} ::Job id::{}", loggingComponentName, topic, jobId);
+            log.info("******************************{}:: Sent a batch of messages to the topic: {} ::Job id::{}",
+                loggingComponentName, topic, jobId);
         }
     }
 }
