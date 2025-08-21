@@ -203,7 +203,7 @@ jrd:
           topic: ${JRD_MQ_TOPIC_NAME:rd-judicial-topic-sandbox}
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
-    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:4}
+    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:2}
 email:
   mailTypes:
     asb:
