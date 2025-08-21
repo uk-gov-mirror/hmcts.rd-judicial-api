@@ -133,8 +133,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
             .objectIds(Collections.emptyList())
             .build();
 
-        Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, 1, 1,
-            "objectId", "ASC", role);
+        Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, OK,role);
         assertEquals(OK.value(), publishResponse.getStatusCode());
         String expected = "{\n"
             + "    \"statusCode\": 200,\n"
