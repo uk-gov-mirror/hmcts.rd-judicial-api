@@ -194,6 +194,8 @@ Idam:
 
 jrd:
   publisher:
+    jrd-message-batch-size: 100
+    jrd-batches-per-transaction: 100
     azure:
       service:
         bus:
@@ -203,8 +205,6 @@ jrd:
           topic: ${JRD_MQ_TOPIC_NAME:rd-judicial-api-pr-1018-servicebus-jrdapi-topic}
           # DO NOT SET THIS 'true' IN PRODUCTION!
           trustAllCerts: ${JRD_MQ_TRUST_ALL_CERTS:false}
-    jrd-message-batch-size: ${JRD_DATA_PER_MESSAGE:2}
-    jrd-message-transaction-size: 100
 
 email:
   mailTypes:
