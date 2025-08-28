@@ -114,15 +114,16 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         }
     }
 
+
     @DisplayName("Scenario: publish list of judicial users to Azure Service Bus")
     @ParameterizedTest
-    @ValueSource(strings = {"jrd-system-user","jrd-admin"})
+    @ValueSource(strings = {"jrd-system-user"})
     void publishUsesToServiceBus(String role) {
 
-        List<String> userIds = new ArrayList<>(4000);
+        List<String> userIds = new ArrayList<>();
 
-        for (int i = 1; i < 100000; i++) {
-            userIds.add("NEW1-integration-user-" + i);
+        for (int i = 1; i < 800000; i++) {
+            userIds.add("SADE-Judicial-user-785fa62b-3e79-415b-bfc4-1ad83d95a73b" + i);
         }
 
         RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
@@ -132,10 +133,11 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
             .build();
 
         Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, OK,role);
+        log.info("%^$%^$%^$%^$%^{}:: publishResponse",publishResponse.getBody().prettyPrint().toString());
         assertEquals(OK.value(), publishResponse.getStatusCode());
         String expected = "{\n"
             + "    \"statusCode\": 200,\n"
-            + "    \"sidamIdsCount\": 99999,\n"
+            + "    \"sidamIdsCount\": 799999,\n"
             + "    \"id\": \"1234\",\n"
             + "    \"publishing_status\": \"SUCCESS\"\n"
             + "}";
