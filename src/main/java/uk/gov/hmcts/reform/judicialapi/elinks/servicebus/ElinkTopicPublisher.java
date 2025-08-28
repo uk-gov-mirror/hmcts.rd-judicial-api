@@ -44,7 +44,6 @@ public class ElinkTopicPublisher {
         ServiceBusTransactionContext elinktransactionContext = null;
         try {
             elinktransactionContext = elinkserviceBusSenderClient.createTransaction();
-            log.info("******************************{}:: messages sent with transaction");
             publishMessageToTopic(judicalIds, elinkserviceBusSenderClient, elinktransactionContext, jobId);
         } catch (Exception exception) {
             log.error("{}:: Publishing message to service bus topic failed with exception: {}:: Job Id {}",
@@ -68,88 +67,39 @@ public class ElinkTopicPublisher {
             throw new ElinksException(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_ERROR, ex.getMessage());
         }
         List<ServiceBusMessage> serviceBusMessages = new ArrayList<>();
-        log.info("****************************{}:: partitioning jrdMessageBatchSize is 100 so creatign batches of 100");
         partition(judicalIds, jrdMessageBatchSize)
             .forEach(data -> {
                 PublishingData judicialDataChunk = new PublishingData();
                 judicialDataChunk.setUserIds(data);
                 serviceBusMessages.add(new ServiceBusMessage(new Gson().toJson(judicialDataChunk)));
             });
-        log.info("***********************{}:: serviceBusMessages size or number of batches",serviceBusMessages.size());
         if (serviceBusMessages.size() > maxBatchesPerTransaction) {
-            log.info("££££££££££££££££££££££{}:: The number of batches exceeds 100 hence we "
-                + "send in saperate transactions  ");
             //The number of batches in a transaction will exceed 100 hence we send ion saperate transactions
             List<ServiceBusMessage> currentBatch = new ArrayList<>();
-            //ServiceBusTransactionContext elinktransactionNewContext = null;
             for (ServiceBusMessage message : serviceBusMessages) {
                 currentBatch.add(message);
-                log.info("_____________________{}:: iterating the partition and adding to "
-                    + "a currentBatchlist  ",currentBatch.size());
+                if (!elinkmessageBatch.tryAddMessage(message)) {
+                    log.error("{}:: Message is too large for an empty batch. Skipping. Max size: {}. Job id::{}",
+                        loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), jobId);
+                }
                 if (currentBatch.size() == maxBatchesPerTransaction) {
-
-                    log.info("!!!!!!!!!!!!!!!!!!!!{}:: sending the 100 partitions "
-                        + "to azure sb in a same transaction    ",currentBatch.size());
                     // The batch is full, so we create a new batch and send the batch.
                     sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
                     commitTransaction(transactionContext);
-
-                    log.info("!!!!!!!!!!!!!!!!!!!!{}::now  creatign a new transaction "
-                        + " and new batch for the partition ",currentBatch.size());
-                    transactionContext =
-                        elinkserviceBusSenderClient.createTransaction();
-                    // create a new batch
+                    transactionContext = elinkserviceBusSenderClient.createTransaction();
                     elinkmessageBatch = serviceBusSenderClient.createMessageBatch();
-                    log.info("!!!!!!!!!!!!!!!!!!!!{}::clearign currentBatch   ",currentBatch.size());
                     currentBatch.clear();
-
-                    if (elinkmessageBatch.tryAddMessage(message)) {
-                        log.info("!!!!!!!!!!!!!!!!!!!!{}:: checking the size of "
-                            + "partition and addign to new batch elinkmessageBatch ",currentBatch.size());
-                        continue;
-                    }
-                    log.info("!!!!!!!!!!!!!!!!!!!!{}:: batch seems to be "
-                        + "full so sendign msg to azure SB new transaction",currentBatch.size());
-                    // The batch is full, so we create a new batch and send the batch.
-                    sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
-                    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{}:: now creatign new batch ",currentBatch.size());
-                    // create a new batch
-                    elinkmessageBatch = serviceBusSenderClient.createMessageBatch();
-                    // Add that message that we couldn't before.
-                    if (!elinkmessageBatch.tryAddMessage(message)) {
-                        log.error("{}:: Message is too large for"
-                                + " an empty batch. Skipping. Max size: {}. Job id::{}",
-                            loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), jobId);
-                    }
-
-
-                } else {
-                    log.info("££££££££££££££££££££££{}:: the number of partitions "
-                        + "still nto exceeded 100 so sending in same batch and transaction ",currentBatch.size());
-                    if (elinkmessageBatch.tryAddMessage(message)) {
-                        log.info("££££££££££££££££££££££{}:: checking the size of "
-                            + "partition and addign to batch elinkmessageBatch ",currentBatch.size());
-                        continue;
-                    }
-                    addMessagesToBatch(elinkmessageBatch,serviceBusSenderClient,transactionContext,message);
                 }
 
             }
-            // Send remaining records if any
-            if (!currentBatch.isEmpty()) {
-                for (ServiceBusMessage elinkmessage : currentBatch) {
-                    elinkmessageBatch.tryAddMessage(elinkmessage);
+            if (currentBatch.size() > 0) {
+                if (transactionContext == null) {
+                    transactionContext = elinkserviceBusSenderClient.createTransaction();
                 }
-                log.info("^^^^^^^^^^^^^^^^{}:: if any remining msgs then create "
-                    + "new transaction and send to azure ",elinkmessageBatch.getCount());
-                transactionContext = elinkserviceBusSenderClient.createTransaction();
                 sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
                 commitTransaction(transactionContext);
             }
-
         } else {
-            log.info("%%%%%%%%%%%%%%%%%%%{}:: The number of batches does not exceeds"
-                + " 100 hence we send in single transactions old code not touched ");
             prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, transactionContext,
                 jobId, serviceBusMessages);
             commitTransaction(transactionContext);
@@ -162,15 +112,11 @@ public class ElinkTopicPublisher {
                                      String jobId,List<ServiceBusMessage> serviceBusMessages) {
 
         for (ServiceBusMessage message : serviceBusMessages) {
-            log.info("%%%%%%%%%%%%%%%%%%%{}:: iteratign each ServiceBusMessage partition  ");
             if (elinkmessageBatch.tryAddMessage(message)) {
-                log.info("%%%%%%%%%%%%%%%%%%%{}:: checked size of each "
-                    + "partition with msgs and added to batch elinkmessageBatch ");
                 continue;
             }
             addMessagesToBatch(elinkmessageBatch,serviceBusSenderClient,transactionContext,message);
         }
-        log.info("%%%%%%%%%%%%%%%%%%%{}::out of for loop sending the remaining messages to azure service bus ");
         sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
     }
 
@@ -178,11 +124,8 @@ public class ElinkTopicPublisher {
                                     ServiceBusSenderClient serviceBusSenderClient,
                                     ServiceBusTransactionContext transactionContext,
                                     ServiceBusMessage message) {
-        log.info("%%%%%%%%%%%%%%%%%%%{}::size of elinkmessageBatch full "
-            + "so sending to azure service bus still same transaction");
         // The batch is full, so we create a new batch and send the batch.
         sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, "1234");
-        log.info("%%%%%%%%%%%%%%%%%%%{}::now creatign a new batch ");
         // create a new batch
         elinkmessageBatch = serviceBusSenderClient.createMessageBatch();
         // Add that message that we couldn't before.
@@ -190,13 +133,11 @@ public class ElinkTopicPublisher {
             log.error("{}:: Message is too large for an empty batch. Skipping. Max size: {}. Job id::{}",
                 loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), "1234");
         }
-        log.info("%%%%%%%%%%%%%%%%%%%{}::continuing to add the next partiotion ");
     }
 
     private void commitTransaction(ServiceBusTransactionContext txContext) {
         if (Objects.nonNull(txContext)) {
             elinkserviceBusSenderClient.commitTransaction(txContext);
-            log.info("{}:: Transaction committed successfully", loggingComponentName);
         }
     }
 
