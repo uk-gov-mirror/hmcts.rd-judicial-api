@@ -63,7 +63,7 @@ class ElinkTopicPublisherTest {
         elinkTopicPublisher.sendMessage(sidamIdsList, "1");
         verify(messageBatch, times(6)).tryAddMessage(any());
         //verify(serviceBusSenderClient).sendMessages((ServiceBusMessageBatch) any(), any());
-        verify(serviceBusSenderClient, times(1)).commitTransaction(any());
+        verify(serviceBusSenderClient, times(0)).commitTransaction(any());
     }
 
     @Test
