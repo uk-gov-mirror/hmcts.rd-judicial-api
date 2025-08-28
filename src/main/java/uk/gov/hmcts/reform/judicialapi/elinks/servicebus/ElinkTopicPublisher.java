@@ -152,7 +152,7 @@ public class ElinkTopicPublisher {
                 + " 100 hence we send in single transactions old code not touched ");
             prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, transactionContext,
                 jobId, serviceBusMessages);
-           commitTransaction(transactionContext);
+            commitTransaction(transactionContext);
         }
     }
 
