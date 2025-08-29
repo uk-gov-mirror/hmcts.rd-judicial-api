@@ -77,8 +77,8 @@ public class ElinkTopicPublisher {
         for (ServiceBusMessage message : serviceBusMessages) {
             batchSize++;
             if (!elinkmessageBatch.tryAddMessage(message)) {
-                log.error("{}:: Message is too large for an empty batch. Skipping." +
-                        " Max size: {}. Job id::{}",
+                log.error("{}:: Message is too large for an empty batch. Skipping." 
+                        + " Max size: {}. Job id::{}",
                     loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), jobId);
             }
             if (batchSize == maxBatchesPerTransaction) {
