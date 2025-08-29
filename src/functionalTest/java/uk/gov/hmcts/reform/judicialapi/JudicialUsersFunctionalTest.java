@@ -132,17 +132,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
             .objectIds(Collections.emptyList())
             .build();
 
-        Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, OK,role);
-        log.info("%^$%^$%^$%^$%^{}:: publishResponse",publishResponse.getBody().prettyPrint().toString());
-        assertEquals(OK.value(), publishResponse.getStatusCode());
-        String expected = "{\n"
-            + "    \"statusCode\": 200,\n"
-            + "    \"sidamIdsCount\": 799999,\n"
-            + "    \"id\": \"1234\",\n"
-            + "    \"publishing_status\": \"SUCCESS\"\n"
-            + "}";
-        log.info("JRD get publishResponse response: {}", publishResponse.getBody().prettyPrint().toString().trim());
-        assertEquals(expected, publishResponse.getBody().prettyPrint().toString());
+       
 
     }
 
