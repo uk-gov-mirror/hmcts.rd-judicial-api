@@ -73,66 +73,24 @@ public class ElinkTopicPublisher {
                 judicialDataChunk.setUserIds(data);
                 serviceBusMessages.add(new ServiceBusMessage(new Gson().toJson(judicialDataChunk)));
             });
-        if (serviceBusMessages.size() > maxBatchesPerTransaction) {
-            //The number of batches in a transaction will exceed 100 hence we send ion saperate transactions
-            List<ServiceBusMessage> currentBatch = new ArrayList<>();
-            for (ServiceBusMessage message : serviceBusMessages) {
-                currentBatch.add(message);
-                if (!elinkmessageBatch.tryAddMessage(message)) {
-                    log.error("{}:: Message is too large for an empty batch. Skipping. Max size: {}. Job id::{}",
-                        loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), jobId);
-                }
-                if (currentBatch.size() == maxBatchesPerTransaction) {
-                    // The batch is full, so we create a new batch and send the batch.
-                    sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
-                    commitTransaction(transactionContext);
-                    transactionContext = elinkserviceBusSenderClient.createTransaction();
-                    elinkmessageBatch = serviceBusSenderClient.createMessageBatch();
-                    currentBatch.clear();
-                }
-
+        int batchSize = 0;
+        for (ServiceBusMessage message : serviceBusMessages) {
+            batchSize++;
+            if (!elinkmessageBatch.tryAddMessage(message)) {
+                log.error("{}:: Message is too large for an empty batch. Skipping." +
+                        " Max size: {}. Job id::{}",
+                    loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), jobId);
             }
-            if (currentBatch.size() > 0) {
-                if (transactionContext == null) {
-                    transactionContext = elinkserviceBusSenderClient.createTransaction();
-                }
+            if (batchSize == maxBatchesPerTransaction) {
+                // The batch is full, so we create a new batch and send the batch.
                 sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
                 commitTransaction(transactionContext);
+                transactionContext = elinkserviceBusSenderClient.createTransaction();
+                elinkmessageBatch = serviceBusSenderClient.createMessageBatch();
             }
-        } else {
-            prepareMessageBatch(elinkmessageBatch, serviceBusSenderClient, transactionContext,
-                jobId, serviceBusMessages);
-            commitTransaction(transactionContext);
-        }
-    }
-
-    private void prepareMessageBatch(ServiceBusMessageBatch elinkmessageBatch,
-                                     ServiceBusSenderClient serviceBusSenderClient,
-                                     ServiceBusTransactionContext transactionContext,
-                                     String jobId,List<ServiceBusMessage> serviceBusMessages) {
-
-        for (ServiceBusMessage message : serviceBusMessages) {
-            if (elinkmessageBatch.tryAddMessage(message)) {
-                continue;
-            }
-            addMessagesToBatch(elinkmessageBatch,serviceBusSenderClient,transactionContext,message);
         }
         sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, jobId);
-    }
-
-    private void addMessagesToBatch(ServiceBusMessageBatch elinkmessageBatch,
-                                    ServiceBusSenderClient serviceBusSenderClient,
-                                    ServiceBusTransactionContext transactionContext,
-                                    ServiceBusMessage message) {
-        // The batch is full, so we create a new batch and send the batch.
-        sendMessageToAsb(serviceBusSenderClient, transactionContext, elinkmessageBatch, "1234");
-        // create a new batch
-        elinkmessageBatch = serviceBusSenderClient.createMessageBatch();
-        // Add that message that we couldn't before.
-        if (!elinkmessageBatch.tryAddMessage(message)) {
-            log.error("{}:: Message is too large for an empty batch. Skipping. Max size: {}. Job id::{}",
-                loggingComponentName, elinkmessageBatch.getMaxSizeInBytes(), "1234");
-        }
+        commitTransaction(transactionContext);
     }
 
     private void commitTransaction(ServiceBusTransactionContext txContext) {
