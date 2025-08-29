@@ -123,7 +123,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
 
         List<String> userIds = new ArrayList<>();
 
-        for (int i = 1; i < 20257; i++) {
+        for (int i = 1; i < 200257; i++) {
             userIds.add("SADE-Judicial-user-785fa62b-3e79-415b-bfc4-1ad83d95a73b" + i);
         }
 
@@ -138,7 +138,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         assertEquals(OK.value(), publishResponse.getStatusCode());
         String expected = "{\n"
             + "    \"statusCode\": 200,\n"
-            + "    \"sidamIdsCount\": 19256,\n"
+            + "    \"sidamIdsCount\": 200256,\n"
             + "    \"id\": \"1234\",\n"
             + "    \"publishing_status\": \"SUCCESS\"\n"
             + "}";
