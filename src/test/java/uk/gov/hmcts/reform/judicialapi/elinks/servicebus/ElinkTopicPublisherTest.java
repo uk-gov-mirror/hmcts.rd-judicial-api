@@ -65,7 +65,8 @@ class ElinkTopicPublisherTest {
         elinkTopicPublisher.sendMessage(sidamIdsList, "1");
         verify(messageBatch, times(3)).tryAddMessage(any());
         verify(messageBatch, times(2)).getCount();
-        verify(serviceBusSenderClient,times(2)).sendMessages((ServiceBusMessageBatch) any(), any());
+        verify(serviceBusSenderClient,times(2)).sendMessages((ServiceBusMessageBatch)
+            any(), any());
         verify(serviceBusSenderClient, times(2)).commitTransaction(any());
     }
 
@@ -132,7 +133,8 @@ class ElinkTopicPublisherTest {
         elinkTopicPublisher.sendMessage(sidamIdsList, "1");
         verify(messageBatch, times(3)).tryAddMessage(any());
         verify(messageBatch,times(2)).getCount();
-        verify(serviceBusSenderClient,times(2)).sendMessages((ServiceBusMessageBatch) any(), any());
+        verify(serviceBusSenderClient,times(2)).sendMessages((ServiceBusMessageBatch)
+            any(), any());
         verify(serviceBusSenderClient, times(2)).commitTransaction(any());
     }
 
@@ -154,7 +156,8 @@ class ElinkTopicPublisherTest {
         doReturn(messageBatch).when(serviceBusSenderClient).createMessageBatch();
         elinkTopicPublisher.sendMessage(sidamIdsList, "1");
         verify(messageBatch, times(3)).tryAddMessage(any());
-        verify(serviceBusSenderClient,times(2)).sendMessages((ServiceBusMessageBatch) any(), any());
+        verify(serviceBusSenderClient,times(2)).sendMessages((ServiceBusMessageBatch)
+            any(), any());
         verify(serviceBusSenderClient, times(2)).commitTransaction(any());
     }
 

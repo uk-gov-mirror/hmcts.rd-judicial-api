@@ -124,7 +124,7 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
         List<String> userIds = new ArrayList<>();
 
         for (int i = 1; i < 200257; i++) {
-            userIds.add("SADE-Judicial-user-785fa62b-3e79-415b-bfc4-1ad83d95a73b" + i);
+            userIds.add("IDAM-Judicial-user-785fa62b-3e79-415b-bfc4-1ad83d95a73b" + i);
         }
 
         RefreshRoleRequest refreshRoleRequest = RefreshRoleRequest.builder()
@@ -134,7 +134,6 @@ class JudicialUsersFunctionalTest extends AuthorizationFunctionalTest {
             .build();
 
         Response publishResponse = judicialApiClient.publishUserProfiles(refreshRoleRequest, OK,role);
-        log.info("%^$%^$%^$%^$%^{}:: publishResponse",publishResponse.getBody().prettyPrint().toString());
         assertEquals(OK.value(), publishResponse.getStatusCode());
         String expected = "{\n"
             + "    \"statusCode\": 200,\n"

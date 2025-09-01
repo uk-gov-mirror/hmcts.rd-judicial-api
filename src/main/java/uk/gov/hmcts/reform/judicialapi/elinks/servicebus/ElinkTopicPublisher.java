@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.judicialapi.elinks.configuration.PublishingData;
 import uk.gov.hmcts.reform.judicialapi.elinks.exception.ElinksException;
-import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataIngestionSchedularAudit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +27,15 @@ public class ElinkTopicPublisher {
 
     @Value("${logging-component-name}")
     String loggingComponentName;
+
     @Value("${jrd.publisher.jrd-message-batch-size}")
     int jrdMessageBatchSize;
+
     @Value("${jrd.publisher.azure.service.bus.topic}")
     String topic;
+
     @Value("${jrd.publisher.jrd-batches-per-transaction}")
     int maxBatchesPerTransaction;
-    @Autowired
-    ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
 
     @Autowired
     private ServiceBusSenderClient elinkserviceBusSenderClient;
