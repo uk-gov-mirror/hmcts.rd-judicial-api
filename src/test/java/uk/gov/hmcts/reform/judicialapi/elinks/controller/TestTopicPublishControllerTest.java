@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import uk.gov.hmcts.reform.judicialapi.elinks.controller.request.RefreshRoleRequest;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
 import uk.gov.hmcts.reform.judicialapi.elinks.servicebus.ElinkTopicPublisher;
@@ -57,7 +58,12 @@ class TestTopicPublishControllerTest {
             anyString(),
             any(Object[].class)
         )).thenReturn(1);
-        ResponseEntity<SchedulerJobStatusResponse> actual = eLinksController.publishSidamIdToAsb();
+
+        RefreshRoleRequest refreshRoleRequest = new RefreshRoleRequest("cmc", null,
+            sidamIds, null);
+
+        ResponseEntity<SchedulerJobStatusResponse> actual = eLinksController.publishSidamIdToAsbIdsFromReqBody(
+            refreshRoleRequest);
         assertThat(actual).isNotNull();
         assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(elinkTopicPublisher, times(1)).sendMessage(any(), anyString());
