@@ -2,19 +2,14 @@ package uk.gov.hmcts.reform.judicialapi.elinks.controller;
 
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataConstants.ROW_MAPPER;
-import static uk.gov.hmcts.reform.judicialapi.elinks.util.SqlContants.GET_DISTINCT_SIDAM_ID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,9 +37,6 @@ class TestTopicPublishControllerTest {
 
     @Mock
     ElinkTopicPublisher elinkTopicPublisher;
-
-    @Spy
-    PublishSidamIdService publishSidamIdService;
 
 
     @Test
