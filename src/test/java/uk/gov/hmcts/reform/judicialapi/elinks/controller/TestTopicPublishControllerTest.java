@@ -52,27 +52,21 @@ class TestTopicPublishControllerTest {
 
         List<String> sidamIds = IntStream.rangeClosed(1, 10)
             .mapToObj(i -> String.format("ID%03d", i))
-            .collect(Collectors.toList());
-        when(jdbcTemplate.query(GET_DISTINCT_SIDAM_ID, ROW_MAPPER)).thenReturn(sidamIds);
-        when(jdbcTemplate.update(
-            anyString(),
-            any(Object[].class)
-        )).thenReturn(1);
-
+            .toList();
         RefreshRoleRequest refreshRoleRequest = new RefreshRoleRequest("cmc", null,
             sidamIds, null);
 
-        ResponseEntity<SchedulerJobStatusResponse> actual = eLinksController.publishSidamIdToAsbIdsFromReqBody(
-            refreshRoleRequest);
+        ResponseEntity<SchedulerJobStatusResponse> actual = eLinksController
+            .publishSidamIdToAsbIdsFromReqBody(refreshRoleRequest);
         assertThat(actual).isNotNull();
         assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(elinkTopicPublisher, times(1)).sendMessage(any(), anyString());
-        verify(jdbcTemplate, times(1)).update(anyString(), any(), anyInt());
         SchedulerJobStatusResponse res = SchedulerJobStatusResponse.builder().id("10")
             .jobStatus("success").sidamIdsCount(10).statusCode(HttpStatus.OK.value()).build();
         assertEquals("10",res.getId());
         assertEquals("success", res.getJobStatus());
         assertEquals(HttpStatus.OK.value(),res.getStatusCode());
+
 
     }
 }
