@@ -68,7 +68,7 @@ servicebus:
   enabled: true
   teamName: RD
   resourceGroup: rd-aso-preview-rg
-  sbNamespace: rd-sb-preview
+  sbNamespace: rd-servicebus-preview
   setup:
     topics:
       - name: jrdapi-topic
