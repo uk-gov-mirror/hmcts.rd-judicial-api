@@ -11,4 +11,6 @@ public interface IdamElasticSearchService {
     ResponseEntity<Object> getIdamElasticSearchSyncFeed();
 
     ResponseEntity<Object> getIdamDetails();
+
+    ResponseEntity<Object> getIdamJudicialDataSyncFeed();
 }

@@ -198,6 +198,7 @@ public class ElinksApiJobScheduler {
                 }
             }
         }
+        //Look for Idam ids missing in Refdata pick them from idam and update judicial ref data
         try{
         ResponseEntity<Object> idamSearchResponse
                 = retrieveIdamElasticSearchDetails();
@@ -215,6 +216,25 @@ public class ElinksApiJobScheduler {
                 }
             }
         }
+        //look for idam ids missign in refdata and create new in idam if missing then update judicial ref data
+        try{
+            ResponseEntity<Object> idamSyncResponse
+                = createIdamIdsIfMissing();
+        } catch (Exception ex) {
+            log.error("Elinks idam elastic search Job execution completed failure for elastic Response", ex);
+            if (ex instanceof HttpClientErrorException)
+            {
+                HttpClientErrorException exception = (HttpClientErrorException) ex;
+                if (exception.getStatusCode() == HttpStatus.FORBIDDEN && exception.getMessage()
+                    .contains("jrd-elinks-idam-elastic-search".concat(SPACE).concat(FORBIDDEN_EXCEPTION_LD)))
+                {
+
+                    elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS, now(), now(),
+                        RefDataElinksConstants.JobStatus.FAILED.getStatus(), ELASTICSEARCH, ex.getMessage());
+                }
+            }
+        }
+
         try {
             ResponseEntity<Object> idamResponce = retrieveSidamids();
         } catch (Exception ex) {
@@ -338,8 +358,6 @@ public class ElinksApiJobScheduler {
 
     public ResponseEntity<Object> retrieveIdamElasticSearchDetails() {
 
-
-
         String apiUrl = eLinksWrapperBaseUrl.concat(ELINKS_CONTROLLER_BASE_URL)
                 .concat("/idam/elastic/search");
 
@@ -351,6 +369,22 @@ public class ElinksApiJobScheduler {
 
         return restTemplate.exchange(apiUrl,
                 HttpMethod.GET, request, Object.class);
+
+    }
+
+    public ResponseEntity<Object> createIdamIdsIfMissing() {
+
+        String apiUrl = eLinksWrapperBaseUrl.concat(ELINKS_CONTROLLER_BASE_URL)
+            .concat("/idam/sync");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(APPLICATION_JSON);
+
+        HttpEntity<String> request =
+            new HttpEntity<>(headers);
+
+        return restTemplate.exchange(apiUrl,
+            HttpMethod.GET, request, Object.class);
 
     }
 

@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -101,26 +102,26 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             String authorisation = props.getAuthorization();
             String[] userDetails = authorisation.split(":");
             TokenRequest tokenRequest = new TokenRequest(props.getClientId(),
-                    props.getClientAuthorization(),
-                    "password",
-                    props.getRedirectUri(),
-                    userDetails[0].trim(),
-                    userDetails[1].trim(),
-                    SCOPE, "", "");
+                props.getClientAuthorization(),
+                "password",
+                props.getRedirectUri(),
+                userDetails[0].trim(),
+                userDetails[1].trim(),
+                SCOPE, "", "");
 
             idamOpenIdTokenResponse = idamFeignClient.getOpenIdToken(tokenRequest);
 
             if (idamOpenIdTokenResponse == null) {
                 throw new ElinksException(HttpStatus.FORBIDDEN, IDAM_TOKEN_ERROR_MESSAGE,
-                        IDAM_TOKEN_ERROR_MESSAGE);
+                    IDAM_TOKEN_ERROR_MESSAGE);
             }
         } catch (Exception e) {
             elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
                 schedulerStartTime,
                 now(),
-                RefDataElinksConstants.JobStatus.FAILED.getStatus(),ELASTICSEARCH, e.getMessage());
+                RefDataElinksConstants.JobStatus.FAILED.getStatus(), ELASTICSEARCH, e.getMessage());
             throw new ElinksException(HttpStatus.FORBIDDEN, IDAM_TOKEN_ERROR_MESSAGE,
-                    IDAM_TOKEN_ERROR_MESSAGE);
+                IDAM_TOKEN_ERROR_MESSAGE);
         }
         return idamOpenIdTokenResponse.getAccessToken();
     }
@@ -177,6 +178,98 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 .ok()
                 .body(judicialUsers);
     }
+
+
+    public ResponseEntity<Object> getIdamJudicialDataSyncFeed() {
+
+        log.info("Calling idam search");
+        LocalDateTime schedulerStartTime = now();
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+            schedulerStartTime,
+            null,
+            RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), IDAMSEARCH);
+
+        Set<IdamResponse> idamUsers = new HashSet<>();
+
+        // fetch all judicial users from jrd with object ids present but missing idam ids
+        List<UserProfile> judicialUsers = userProfileRepository.fetchObjectIdMissingSidamId();
+        int userProfileSize = judicialUsers.size();
+        if (userProfileSize == 0) {
+            elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+                schedulerStartTime,
+                now(),
+                RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), IDAMSEARCH);
+            ElinkIdamWrapperResponse response = new ElinkIdamWrapperResponse();
+            response.setMessage("No JRD users found with missing SIDAM id");
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+        }
+
+        String bearerToken = "Bearer ".concat(getIdamBearerToken(schedulerStartTime));
+        log.debug("{}:: Number of User profiles from JRD :: " + userProfileSize, loggingComponentName);
+        boolean partialSuccess = false;
+        int generatedIdCount = 0;
+        int idamFoundCount = 0;
+
+        // iterate the users and call idam to check if the users exist in idam
+        for (UserProfile userProfile : judicialUsers) {
+            String objectId = userProfile.getObjectId();
+            String query = idamFindQuery.concat(objectId);
+            log.debug("{}:: search elk query {}", loggingComponentName, query);
+            try {
+                List<IdamResponse> responses = idamFeignClient.searchUsers(bearerToken, query, null, null);
+                if (responses == null || responses.isEmpty()) {
+                    IdamResponse generatedResponse = new IdamResponse();
+                    generatedResponse.setId(UUID.randomUUID().toString());
+                    generatedResponse.setSsoId(objectId);
+                    idamUsers.add(generatedResponse);
+                    generatedIdCount++;
+                    log.info("{}:: Generated new SIDAM id for Object ID: {}", loggingComponentName, objectId);
+                } else {
+                    idamUsers.addAll(responses);
+                    idamFoundCount += responses.size();
+                }
+            } catch (Exception ex) {
+                String errorDescription = "IDAM Search Service failed";
+                log.error("{}:: " + errorDescription + " ::{}", loggingComponentName, ex);
+                elinkDataExceptionHelper.auditException(JUDICIAL_REF_DATA_ELINKS,
+                    schedulerStartTime,
+                    IDAMSEARCH,
+                    IDAMSEARCH,
+                    errorDescription,
+                    IDAMSEARCH,
+                    "Object ID:" + objectId,
+                    0,
+                    ex.getMessage());
+                partialSuccess = true;
+            }
+        }
+
+        if (!idamUsers.isEmpty()) {
+            updateSidamIds(idamUsers);
+        }
+
+        elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
+            schedulerStartTime,
+            now(),
+            partialSuccess
+                ? RefDataElinksConstants.JobStatus.PARTIAL_SUCCESS.getStatus()
+                : RefDataElinksConstants.JobStatus.SUCCESS.getStatus(),
+            IDAMSEARCH);
+
+        ElinkIdamWrapperResponse response = new ElinkIdamWrapperResponse();
+        response.setMessage("SIDAM ids updated. Found in IDAM: " + idamFoundCount
+            + ". Generated: " + generatedIdCount
+            + ". Total missing: " + userProfileSize);
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(response);
+
+    }
+
+
+
 
     @SuppressWarnings("unchecked")
     @Override

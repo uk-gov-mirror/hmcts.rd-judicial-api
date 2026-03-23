@@ -96,6 +96,21 @@ public class ElinksController {
     }
 
     @Operation(description = "", hidden = true)
+    @ApiResponse(responseCode = "200", description = "Sync list of judicial users.")
+    @ApiResponse(responseCode = "400", description = BAD_REQUEST)
+    @ApiResponse(responseCode = "401", description = UNAUTHORIZED_ERROR)
+    @ApiResponse(responseCode = "403", description = FORBIDDEN_ERROR)
+    @ApiResponse(responseCode = "500", description = INTERNAL_SERVER_ERROR)
+    @GetMapping (path = "/idam/sync",
+        produces = V2.MediaType.SERVICE)
+    public ResponseEntity<Object> idamRefDataSync() {
+
+        ResponseEntity<Object> response =  idamElasticSearchService.getIdamJudicialDataSyncFeed();
+
+        return response;
+    }
+
+    @Operation(description = "", hidden = true)
     @ApiResponse(responseCode = "200", description = "Get list of idam users.")
     @ApiResponse(responseCode = "400", description = BAD_REQUEST)
     @ApiResponse(responseCode = "401", description = UNAUTHORIZED_ERROR)
