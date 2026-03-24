@@ -95,8 +95,6 @@ public class ElinksController {
         return response;
     }
 
-
-
     @Operation(description = "", hidden = true)
     @ApiResponse(responseCode = "200", description = "Get list of idam users.")
     @ApiResponse(responseCode = "400", description = BAD_REQUEST)
