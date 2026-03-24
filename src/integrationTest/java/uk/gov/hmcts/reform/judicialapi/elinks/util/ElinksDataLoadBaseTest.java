@@ -412,13 +412,6 @@ public class ElinksDataLoadBaseTest extends ELinksBaseIntegrationTest {
                 .statusCode(expectedHttpStatus.value());
     }
 
-    protected void syncSidamIdsByObjectIds(final HttpStatus expectedHttpStatus) {
-        final ValidatableResponse validatableResponse = elinksReferenceDataClient.syncSidamIdsByObjectIds();
-        validatableResponse
-                .assertThat()
-                .statusCode(expectedHttpStatus.value());
-    }
-
     protected void publishSidamIds(final HttpStatus expectedHttpStatus) {
         final ValidatableResponse validatableResponse = elinksReferenceDataClient.publishSidamIds();
         validatableResponse
