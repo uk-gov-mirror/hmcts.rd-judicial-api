@@ -70,7 +70,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     @Value("${elastic.search.recordsPerPage}")
     int recordsPerPage;
 
-    @Value("${idam.sync}")
+    @Value("${Idam.sync}")
     boolean idamSyncFlag;
 
     @Autowired
