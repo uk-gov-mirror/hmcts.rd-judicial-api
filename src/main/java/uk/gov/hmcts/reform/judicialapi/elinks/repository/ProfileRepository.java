@@ -126,7 +126,7 @@ public interface ProfileRepository extends JpaRepository<UserProfile, String> {
     @Query("select per "
             + "from judicialUserProfile per "
             + "where (per.objectId != '' and per.objectId is not null) "
-            + "and (per.sidamId  = '' or per.sidamId = null)")
+            + "and (per.sidamId = '' or per.sidamId is null)")
     List<UserProfile> fetchObjectIdMissingSidamId();
 
 
