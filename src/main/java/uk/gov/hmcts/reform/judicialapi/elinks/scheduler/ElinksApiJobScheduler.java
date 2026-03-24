@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperRespon
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.IdamElasticSearchService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.ELinksServiceImpl;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.DataloadSchedulerJobAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
@@ -81,6 +82,9 @@ public class ElinksApiJobScheduler {
 
     @Autowired
     ELinksServiceImpl elinksServiceImpl;
+
+    @Autowired
+    IdamElasticSearchService idamElasticSearchService;
 
     public static final String ELINKS_CONTROLLER_BASE_URL = "/refdata/internal/elink";
 
@@ -374,17 +378,8 @@ public class ElinksApiJobScheduler {
 
     public ResponseEntity<Object> createIdamIdsIfMissing() {
 
-        String apiUrl = eLinksWrapperBaseUrl.concat(ELINKS_CONTROLLER_BASE_URL)
-            .concat("/idam/sync");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(APPLICATION_JSON);
-
-        HttpEntity<String> request =
-            new HttpEntity<>(headers);
-
-        return restTemplate.exchange(apiUrl,
-            HttpMethod.GET, request, Object.class);
+        idamElasticSearchService.syncMissingSidamIds();
+        return ResponseEntity.ok().build();
 
     }
 

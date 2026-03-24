@@ -410,4 +410,9 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 });
 
     }
+
+    @Override
+    public void syncMissingSidamIds() {
+        updateNewSidamIds(new HashSet<>());
+    }
 }
