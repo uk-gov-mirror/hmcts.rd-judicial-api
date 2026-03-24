@@ -70,6 +70,9 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     @Value("${elastic.search.recordsPerPage}")
     int recordsPerPage;
 
+    @Value("${idam.sync}")
+    boolean IdamSyncFlag;
+
     @Autowired
     IdamFeignClient idamFeignClient;
 
@@ -142,6 +145,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             null,
             RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), ELASTICSEARCH);
 
+        // fetch all users from idam
         log.info("Calling idam client");
         try {
             String bearerToken = "Bearer ".concat(getIdamBearerToken(schedulerStartTime));
@@ -164,11 +168,19 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             throw new ElinksException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(),
                     IDAM_ERROR_MESSAGE);
         }
-
+        // find all users in judicial database that are not present in idam
+        // Object ID, received from Idam, is not present in Judicial Reference Data
         validateObjectIds(judicialUsers,schedulerStartTime);
         sendEmail.sendEmail(schedulerStartTime);
-
+        // update judicial user profile with idam ids found in idam
         updateSidamIds(judicialUsers);
+
+        // if flag is set to true then create new idam ids and update judicial user profile with
+        // new idam ids found in idam
+        if(IdamSyncFlag){
+            updateNewSidamIds(judicialUsers);
+        }
+
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
             schedulerStartTime,
             now(),
@@ -179,17 +191,14 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 .body(judicialUsers);
     }
 
-
-    public ResponseEntity<Object> getIdamJudicialDataSyncFeed() {
-
+    public void updateNewSidamIds(Set<IdamResponse> sidamUsers) {
         log.info("Calling idam search");
         LocalDateTime schedulerStartTime = now();
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
             schedulerStartTime,
             null,
             RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus(), IDAMSEARCH);
-
-        Set<IdamResponse> idamUsers = new HashSet<>();
+        Set<IdamResponse> idamUsersList = new HashSet<>();
 
         // fetch all judicial users from jrd with object ids present but missing idam ids
         List<UserProfile> judicialUsers = userProfileRepository.fetchObjectIdMissingSidamId();
@@ -201,9 +210,9 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                 RefDataElinksConstants.JobStatus.SUCCESS.getStatus(), IDAMSEARCH);
             ElinkIdamWrapperResponse response = new ElinkIdamWrapperResponse();
             response.setMessage("No JRD users found with missing SIDAM id");
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+            ResponseEntity
+                .ok()
+                .body(sidamUsers);
         }
 
         String bearerToken = "Bearer ".concat(getIdamBearerToken(schedulerStartTime));
@@ -223,11 +232,11 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
                     IdamResponse generatedResponse = new IdamResponse();
                     generatedResponse.setId(UUID.randomUUID().toString());
                     generatedResponse.setSsoId(objectId);
-                    idamUsers.add(generatedResponse);
+                    idamUsersList.add(generatedResponse);
                     generatedIdCount++;
                     log.info("{}:: Generated new SIDAM id for Object ID: {}", loggingComponentName, objectId);
                 } else {
-                    idamUsers.addAll(responses);
+                    idamUsersList.addAll(responses);
                     idamFoundCount += responses.size();
                 }
             } catch (Exception ex) {
@@ -246,8 +255,8 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
             }
         }
 
-        if (!idamUsers.isEmpty()) {
-            updateSidamIds(idamUsers);
+        if (!idamUsersList.isEmpty()) {
+            updateSidamIds(idamUsersList);
         }
 
         elinkDataIngestionSchedularAudit.auditSchedulerStatus(JUDICIAL_REF_DATA_ELINKS,
@@ -262,10 +271,9 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
         response.setMessage("SIDAM ids updated. Found in IDAM: " + idamFoundCount
             + ". Generated: " + generatedIdCount
             + ". Total missing: " + userProfileSize);
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(response);
-
+        ResponseEntity
+            .ok()
+            .body(idamUsersList);
     }
 
 

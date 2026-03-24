@@ -39,7 +39,7 @@ class IdamJudicialDataSyncIntegrationTest extends ElinksDataLoadBaseTest {
         deleteData();
     }
 
-    @DisplayName("Should generate SIDAM id when IDAM user is missing")
+    @DisplayName("Should generate SIDAM id when IDAM user is missing via elastic search")
     @Test
     void shouldGenerateSidamIdWhenIdamUserIsMissing() throws IOException {
 
@@ -53,6 +53,7 @@ class IdamJudicialDataSyncIntegrationTest extends ElinksDataLoadBaseTest {
         stubPeopleApiResponse(peopleApiResponseJson, OK);
         stubIdamTokenResponse(OK);
 
+        stubIdamElasticSearchResponse(idamIdsSearchResponse, OK);
         stubIdamResponseForQuery("ssoid:" + OBJECT_ID_1, idamIdsSearchResponse, OK);
         stubIdamResponseForQuery("ssoid:" + OBJECT_ID_2, "[]", OK);
 
@@ -61,7 +62,7 @@ class IdamJudicialDataSyncIntegrationTest extends ElinksDataLoadBaseTest {
 
         verifyUserSidamIdIsNull();
 
-        syncSidamIdsByObjectIds(OK);
+        elasticSearchLoadSidamIdsByObjectIds(OK);
 
         verifyUpdatedUserSidamIdsWithGenerated();
 
@@ -71,6 +72,18 @@ class IdamJudicialDataSyncIntegrationTest extends ElinksDataLoadBaseTest {
     private void stubIdamResponseForQuery(String query, String responseBody, HttpStatus httpStatus) {
         sidamService.stubFor(get(urlPathMatching("/api/v1/users"))
                 .withQueryParam("query", equalTo(query))
+                .willReturn(aResponse()
+                        .withStatus(httpStatus.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Connection", "close")
+                        .withBody(responseBody)));
+    }
+
+    private void stubIdamElasticSearchResponse(String responseBody, HttpStatus httpStatus) {
+        sidamService.stubFor(get(urlPathMatching("/api/v1/users"))
+                .withQueryParam("query", equalTo("(roles:judiciary) AND lastModified:>now-12h"))
+                .withQueryParam("size", equalTo("500"))
+                .withQueryParam("page", equalTo("0"))
                 .willReturn(aResponse()
                         .withStatus(httpStatus.value())
                         .withHeader("Content-Type", "application/json")

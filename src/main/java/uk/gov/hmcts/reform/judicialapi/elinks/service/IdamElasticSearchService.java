@@ -12,5 +12,4 @@ public interface IdamElasticSearchService {
 
     ResponseEntity<Object> getIdamDetails();
 
-    ResponseEntity<Object> getIdamJudicialDataSyncFeed();
-}
+   }
