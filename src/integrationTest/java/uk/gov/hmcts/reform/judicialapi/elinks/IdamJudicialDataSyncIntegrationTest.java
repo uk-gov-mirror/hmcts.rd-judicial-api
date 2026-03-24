@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.BASE_LOCATION_DATA_LOAD_SUCCESS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELASTICSEARCH;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAMSEARCH;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JobStatus.SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
@@ -138,32 +139,25 @@ class IdamJudicialDataSyncIntegrationTest extends ElinksDataLoadBaseTest {
                         .stream()
                         .sorted(comparing(ElinkDataSchedularAudit::getApiName))
                         .toList();
-        assertThat(eLinksDataSchedulerAudits).isNotNull().isNotEmpty().hasSize(3);
+        assertThat(eLinksDataSchedulerAudits).isNotNull().isNotEmpty().hasSize(4);
 
-        final ElinkDataSchedularAudit auditEntry1 = eLinksDataSchedulerAudits.get(0);
-        final ElinkDataSchedularAudit auditEntry2 = eLinksDataSchedulerAudits.get(1);
-        final ElinkDataSchedularAudit auditEntry3 = eLinksDataSchedulerAudits.get(2);
+        assertAuditEntry(eLinksDataSchedulerAudits, ELASTICSEARCH, SUCCESS.getStatus());
+        assertAuditEntry(eLinksDataSchedulerAudits, IDAMSEARCH, idamElasticSerachJobStatus.getStatus());
+        assertAuditEntry(eLinksDataSchedulerAudits, LOCATIONAPI, SUCCESS.getStatus());
+        assertAuditEntry(eLinksDataSchedulerAudits, PEOPLEAPI, SUCCESS.getStatus());
+    }
 
-        assertThat(auditEntry1).isNotNull();
-        assertThat(auditEntry2).isNotNull();
-        assertThat(auditEntry3).isNotNull();
+    private void assertAuditEntry(List<ElinkDataSchedularAudit> audits,
+                                  String apiName,
+                                  String expectedStatus) {
+        ElinkDataSchedularAudit audit = audits.stream()
+                .filter(entry -> apiName.equals(entry.getApiName()))
+                .findFirst()
+                .orElseThrow();
 
-        assertThat(auditEntry1.getApiName()).isNotNull().isEqualTo(IDAMSEARCH);
-        assertThat(auditEntry1.getStatus()).isNotNull().isEqualTo(idamElasticSerachJobStatus.getStatus());
-        assertThat(auditEntry1.getSchedulerName()).isNotNull().isEqualTo(JUDICIAL_REF_DATA_ELINKS);
-        assertThat(auditEntry1.getSchedulerStartTime()).isNotNull();
-        assertThat(auditEntry1.getSchedulerEndTime()).isNotNull();
-
-        assertThat(auditEntry2.getApiName()).isNotNull().isEqualTo(LOCATIONAPI);
-        assertThat(auditEntry2.getStatus()).isNotNull().isEqualTo(SUCCESS.getStatus());
-        assertThat(auditEntry2.getSchedulerName()).isNotNull().isEqualTo(JUDICIAL_REF_DATA_ELINKS);
-        assertThat(auditEntry2.getSchedulerStartTime()).isNotNull();
-        assertThat(auditEntry2.getSchedulerEndTime()).isNotNull();
-
-        assertThat(auditEntry3.getApiName()).isNotNull().isEqualTo(PEOPLEAPI);
-        assertThat(auditEntry3.getStatus()).isNotNull().isEqualTo(SUCCESS.getStatus());
-        assertThat(auditEntry3.getSchedulerName()).isNotNull().isEqualTo(JUDICIAL_REF_DATA_ELINKS);
-        assertThat(auditEntry3.getSchedulerStartTime()).isNotNull();
-        assertThat(auditEntry3.getSchedulerEndTime()).isNotNull();
+        assertThat(audit.getStatus()).isNotNull().isEqualTo(expectedStatus);
+        assertThat(audit.getSchedulerName()).isNotNull().isEqualTo(JUDICIAL_REF_DATA_ELINKS);
+        assertThat(audit.getSchedulerStartTime()).isNotNull();
+        assertThat(audit.getSchedulerEndTime()).isNotNull();
     }
 }
