@@ -71,7 +71,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
     int recordsPerPage;
 
     @Value("${idam.sync}")
-    boolean IdamSyncFlag;
+    boolean idamSyncFlag;
 
     @Autowired
     IdamFeignClient idamFeignClient;
@@ -179,7 +179,7 @@ public class IdamElasticSearchServiceImpl implements IdamElasticSearchService {
 
         // if flag is set to true then create new idam ids and update judicial user profile with
         // new idam ids found in idam
-        if(IdamSyncFlag){
+        if (idamSyncFlag) {
             updateNewSidamIds(judicialUsers);
         }
 
