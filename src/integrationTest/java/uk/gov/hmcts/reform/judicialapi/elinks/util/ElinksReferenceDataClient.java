@@ -85,12 +85,6 @@ public class ElinksReferenceDataClient {
                 .then();
     }
 
-    public ValidatableResponse syncSidamIdsByObjectIds() {
-        return withAuthenticatedUser()
-                .get("/idam/sync")
-                .then();
-    }
-
     public ValidatableResponse publishSidamIds() {
         return withAuthenticatedUser()
                 .get("/sidam/asb/publish")
