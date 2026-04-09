@@ -35,6 +35,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.IN_PROGRESS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.SUCCESS;
 
 @ExtendWith(MockitoExtension.class)
 class ElinksApiJobSchedulerTest {
@@ -141,11 +143,17 @@ class ElinksApiJobSchedulerTest {
         ReflectionTestUtils.setField(elinksApiJobScheduler, "isSchedulerEnabled", true);
         when(dataloadSchedulerJobRepository.findFirstByOrderByIdDesc()).thenReturn(null);
         doNothing().when(elinksApiJobScheduler).loadElinksData();
+        DataloadSchedulerJob savedAudit = new DataloadSchedulerJob();
+        savedAudit.setId(11);
+        savedAudit.setPublishingStatus(IN_PROGRESS.getStatus());
+        when(dataloadSchedulerJobAudit.auditSchedulerJobStatus(any(DataloadSchedulerJob.class))).thenReturn(savedAudit);
+        when(dataloadSchedulerJobRepository.findFirstByOrderByIdDesc()).thenReturn(savedAudit);
 
         elinksApiJobScheduler.loadElinksJob();
 
         verify(dataloadSchedulerJobAudit, times(1)).auditSchedulerJobStatus(any(DataloadSchedulerJob.class));
         verify(elinksApiJobScheduler, times(1)).loadElinksData();
+        verify(jdbcTemplate).update(any(String.class), eq(SUCCESS.getStatus()), eq(11));
     }
 
     private void assertValueProperty(String fieldName, String expectedValue) throws NoSuchFieldException {

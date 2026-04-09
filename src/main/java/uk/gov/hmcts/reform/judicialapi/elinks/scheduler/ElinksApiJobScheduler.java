@@ -36,6 +36,8 @@ import static java.time.LocalDateTime.now;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.FAILED;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.IN_PROGRESS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.SUCCESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.DELETEDAPI;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.ELASTICSEARCH;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.IDAMSEARCH;
@@ -139,10 +141,11 @@ public class ElinksApiJobScheduler {
             audit.setJobStartTime(jobStartTime);
             audit.setPublishingStatus(RefDataElinksConstants.JobStatus.IN_PROGRESS.getStatus());
 
-            dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
+            audit = dataloadSchedulerJobAudit.auditSchedulerJobStatus(audit);
 
             log.info("ElinksApiJobScheduler.loadElinksData Job execution in progress");
             loadElinksData();
+            updateSchedulerJobStatus(audit.getId(), SUCCESS.getStatus());
             log.info("ElinksApiJobScheduler: loadElinksData Job status - Job execution completed successfully");
         }
 
@@ -396,6 +399,17 @@ public class ElinksApiJobScheduler {
         return restTemplate.exchange(apiUrl,
             HttpMethod.GET, request, SchedulerJobStatusResponse.class);
 
+    }
+
+    private void updateSchedulerJobStatus(Integer jobId, String targetStatus) {
+        if (jobId == null) {
+            return;
+        }
+
+        DataloadSchedulerJob currentJob = dataloadSchedulerJobRepository.findFirstByOrderByIdDesc();
+        if (currentJob != null && IN_PROGRESS.getStatus().equals(currentJob.getPublishingStatus())) {
+            jdbcTemplate.update(UPDATE_JOB_SQL, targetStatus, jobId);
+        }
     }
 
 }
