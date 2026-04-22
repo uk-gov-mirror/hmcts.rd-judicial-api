@@ -53,7 +53,7 @@ class ElinksApiJobSchedulerTest {
     private DataloadSchedulerJobAudit dataloadSchedulerJobAudit;
 
     @Mock
-    private ELinksService eLinksService;
+    private ELinksService elinksService;
 
     @Mock
     private ElinksPeopleService elinksPeopleService;
@@ -96,7 +96,7 @@ class ElinksApiJobSchedulerTest {
     void shouldNotInvokeSchedulerStepsWhenAllStepFlagsAreDisabled() {
         elinksApiJobScheduler.loadElinksData();
 
-        verifyNoInteractions(eLinksService, elinksPeopleService, idamElasticSearchService, publishSidamIdService);
+        verifyNoInteractions(elinksService, elinksPeopleService, idamElasticSearchService, publishSidamIdService);
         verify(elinksServiceImpl).cleanUpElinksResponses();
         verify(elinksServiceImpl).deleteJohProfiles(any());
     }
@@ -105,10 +105,10 @@ class ElinksApiJobSchedulerTest {
     void shouldInvokeEveryEnabledSchedulerStep() {
         enableAllStepFlags();
 
-        when(eLinksService.retrieveLocation()).thenReturn(ResponseEntity.ok(new ElinkBaseLocationWrapperResponse()));
+        when(elinksService.retrieveLocation()).thenReturn(ResponseEntity.ok(new ElinkBaseLocationWrapperResponse()));
         when(elinksPeopleService.updatePeople()).thenReturn(ResponseEntity.ok(new ElinkPeopleWrapperResponse()));
-        when(eLinksService.retrieveLeavers()).thenReturn(ResponseEntity.ok(new ElinkLeaversWrapperResponse()));
-        when(eLinksService.retrieveDeleted()).thenReturn(ResponseEntity.ok(new ElinkDeletedWrapperResponse()));
+        when(elinksService.retrieveLeavers()).thenReturn(ResponseEntity.ok(new ElinkLeaversWrapperResponse()));
+        when(elinksService.retrieveDeleted()).thenReturn(ResponseEntity.ok(new ElinkDeletedWrapperResponse()));
         when(idamElasticSearchService.getIdamElasticSearchSyncFeed()).thenReturn(ResponseEntity.ok(new Object()));
         when(idamElasticSearchService.getIdamDetails()).thenReturn(ResponseEntity.ok(new Object()));
         when(publishSidamIdService.publishSidamIdToAsb())
@@ -116,10 +116,10 @@ class ElinksApiJobSchedulerTest {
 
         elinksApiJobScheduler.loadElinksData();
 
-        verify(eLinksService).retrieveLocation();
+        verify(elinksService).retrieveLocation();
         verify(elinksPeopleService).updatePeople();
-        verify(eLinksService).retrieveLeavers();
-        verify(eLinksService).retrieveDeleted();
+        verify(elinksService).retrieveLeavers();
+        verify(elinksService).retrieveDeleted();
         verify(idamElasticSearchService).getIdamElasticSearchSyncFeed();
         verify(idamElasticSearchService).getIdamDetails();
         verify(publishSidamIdService).publishSidamIdToAsb();
@@ -131,7 +131,7 @@ class ElinksApiJobSchedulerTest {
     void shouldAuditFeatureFlagFailureForDirectLocationServiceCall() {
         ReflectionTestUtils.setField(elinksApiJobScheduler, "isloadLocationEnabled", true);
         String message = "jrd-elinks-location feature flag is not released";
-        when(eLinksService.retrieveLocation()).thenThrow(new ForbiddenException(message));
+        when(elinksService.retrieveLocation()).thenThrow(new ForbiddenException(message));
 
         elinksApiJobScheduler.loadElinksData();
 
