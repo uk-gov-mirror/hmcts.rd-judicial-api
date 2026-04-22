@@ -7,18 +7,21 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.judicialapi.controller.advice.ForbiddenException;
 import uk.gov.hmcts.reform.judicialapi.elinks.domain.DataloadSchedulerJob;
 import uk.gov.hmcts.reform.judicialapi.elinks.repository.DataloadSchedulerJobRepository;
-import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkBaseLocationWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLeaversWrapperResponse;
-import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkLocationWrapperResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkDeletedWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.ElinkPeopleWrapperResponse;
 import uk.gov.hmcts.reform.judicialapi.elinks.response.SchedulerJobStatusResponse;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ELinksService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.ElinksPeopleService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.IdamElasticSearchService;
+import uk.gov.hmcts.reform.judicialapi.elinks.service.PublishSidamIdService;
 import uk.gov.hmcts.reform.judicialapi.elinks.service.impl.ELinksServiceImpl;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.DataloadSchedulerJobAudit;
 import uk.gov.hmcts.reform.judicialapi.elinks.util.ElinkDataExceptionHelper;
@@ -30,18 +33,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.IN_PROGRESS;
 import static uk.gov.hmcts.reform.judicialapi.elinks.util.JobStatus.SUCCESS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JobStatus.FAILED;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.JUDICIAL_REF_DATA_ELINKS;
+import static uk.gov.hmcts.reform.judicialapi.elinks.util.RefDataElinksConstants.LOCATIONAPI;
 
 @ExtendWith(MockitoExtension.class)
 class ElinksApiJobSchedulerTest {
-
-    private static final String WRAPPER_BASE_URL = "http://localhost:8093";
 
     @Mock
     private JdbcTemplate jdbcTemplate;
@@ -50,7 +53,16 @@ class ElinksApiJobSchedulerTest {
     private DataloadSchedulerJobAudit dataloadSchedulerJobAudit;
 
     @Mock
-    private RestTemplate restTemplate;
+    private ELinksService eLinksService;
+
+    @Mock
+    private ElinksPeopleService elinksPeopleService;
+
+    @Mock
+    private IdamElasticSearchService idamElasticSearchService;
+
+    @Mock
+    private PublishSidamIdService publishSidamIdService;
 
     @Mock
     private ElinkDataIngestionSchedularAudit elinkDataIngestionSchedularAudit;
@@ -82,58 +94,54 @@ class ElinksApiJobSchedulerTest {
 
     @Test
     void shouldNotInvokeSchedulerStepsWhenAllStepFlagsAreDisabled() {
-        setBaseUrl();
-
         elinksApiJobScheduler.loadElinksData();
 
-        verify(elinksApiJobScheduler, never()).retrieveLocationDetails();
-        verify(elinksApiJobScheduler, never()).retrievePeopleDetails();
-        verify(elinksApiJobScheduler, never()).retrieveLeaversDetails();
-        verify(elinksApiJobScheduler, never()).retrieveDeletedDetails();
-        verify(elinksApiJobScheduler, never()).retrieveIdamElasticSearchDetails();
-        verify(elinksApiJobScheduler, never()).retrieveAsbPublishDetails();
-        verify(restTemplate, never()).exchange(any(String.class), eq(HttpMethod.GET), any(), eq(Object.class));
+        verifyNoInteractions(eLinksService, elinksPeopleService, idamElasticSearchService, publishSidamIdService);
         verify(elinksServiceImpl).cleanUpElinksResponses();
         verify(elinksServiceImpl).deleteJohProfiles(any());
     }
 
     @Test
     void shouldInvokeEveryEnabledSchedulerStep() {
-        setBaseUrl();
         enableAllStepFlags();
 
-        doReturn(ResponseEntity.ok(new ElinkLocationWrapperResponse()))
-            .when(elinksApiJobScheduler).retrieveLocationDetails();
-        doReturn(ResponseEntity.ok(new ElinkPeopleWrapperResponse()))
-            .when(elinksApiJobScheduler).retrievePeopleDetails();
-        doReturn(ResponseEntity.ok(new ElinkLeaversWrapperResponse()))
-            .when(elinksApiJobScheduler).retrieveLeaversDetails();
-        doReturn(ResponseEntity.ok(new ElinkDeletedWrapperResponse()))
-            .when(elinksApiJobScheduler).retrieveDeletedDetails();
-        doReturn(ResponseEntity.ok(new Object()))
-            .when(elinksApiJobScheduler).retrieveIdamElasticSearchDetails();
-        doReturn(ResponseEntity.ok(new SchedulerJobStatusResponse()))
-            .when(elinksApiJobScheduler).retrieveAsbPublishDetails();
-        when(restTemplate.exchange(
-            eq(WRAPPER_BASE_URL + ElinksApiJobScheduler.ELINKS_CONTROLLER_BASE_URL + "/idam/find"),
-            eq(HttpMethod.GET),
-            any(),
-            eq(Object.class))
-        ).thenReturn(ResponseEntity.ok(new Object()));
+        when(eLinksService.retrieveLocation()).thenReturn(ResponseEntity.ok(new ElinkBaseLocationWrapperResponse()));
+        when(elinksPeopleService.updatePeople()).thenReturn(ResponseEntity.ok(new ElinkPeopleWrapperResponse()));
+        when(eLinksService.retrieveLeavers()).thenReturn(ResponseEntity.ok(new ElinkLeaversWrapperResponse()));
+        when(eLinksService.retrieveDeleted()).thenReturn(ResponseEntity.ok(new ElinkDeletedWrapperResponse()));
+        when(idamElasticSearchService.getIdamElasticSearchSyncFeed()).thenReturn(ResponseEntity.ok(new Object()));
+        when(idamElasticSearchService.getIdamDetails()).thenReturn(ResponseEntity.ok(new Object()));
+        when(publishSidamIdService.publishSidamIdToAsb())
+            .thenReturn(ResponseEntity.ok(new SchedulerJobStatusResponse()));
 
         elinksApiJobScheduler.loadElinksData();
 
-        verify(elinksApiJobScheduler).retrieveLocationDetails();
-        verify(elinksApiJobScheduler).retrievePeopleDetails();
-        verify(elinksApiJobScheduler).retrieveLeaversDetails();
-        verify(elinksApiJobScheduler).retrieveDeletedDetails();
-        verify(elinksApiJobScheduler).retrieveIdamElasticSearchDetails();
-        verify(elinksApiJobScheduler).retrieveAsbPublishDetails();
-        verify(restTemplate).exchange(
-            eq(WRAPPER_BASE_URL + ElinksApiJobScheduler.ELINKS_CONTROLLER_BASE_URL + "/idam/find"),
-            eq(HttpMethod.GET),
+        verify(eLinksService).retrieveLocation();
+        verify(elinksPeopleService).updatePeople();
+        verify(eLinksService).retrieveLeavers();
+        verify(eLinksService).retrieveDeleted();
+        verify(idamElasticSearchService).getIdamElasticSearchSyncFeed();
+        verify(idamElasticSearchService).getIdamDetails();
+        verify(publishSidamIdService).publishSidamIdToAsb();
+        verify(elinksServiceImpl).cleanUpElinksResponses();
+        verify(elinksServiceImpl).deleteJohProfiles(any());
+    }
+
+    @Test
+    void shouldAuditFeatureFlagFailureForDirectLocationServiceCall() {
+        ReflectionTestUtils.setField(elinksApiJobScheduler, "isloadLocationEnabled", true);
+        String message = "jrd-elinks-location feature flag is not released";
+        when(eLinksService.retrieveLocation()).thenThrow(new ForbiddenException(message));
+
+        elinksApiJobScheduler.loadElinksData();
+
+        verify(elinkDataIngestionSchedularAudit).auditSchedulerStatus(
+            eq(JUDICIAL_REF_DATA_ELINKS),
             any(),
-            eq(Object.class));
+            any(),
+            eq(FAILED.getStatus()),
+            eq(LOCATIONAPI),
+            eq(message));
         verify(elinksServiceImpl).cleanUpElinksResponses();
         verify(elinksServiceImpl).deleteJohProfiles(any());
     }
@@ -161,10 +169,6 @@ class ElinksApiJobSchedulerTest {
         Value value = field.getAnnotation(Value.class);
         assertThat(value).isNotNull();
         assertThat(value.value()).isEqualTo(expectedValue);
-    }
-
-    private void setBaseUrl() {
-        ReflectionTestUtils.setField(elinksApiJobScheduler, "eLinksWrapperBaseUrl", WRAPPER_BASE_URL);
     }
 
     private void enableAllStepFlags() {
