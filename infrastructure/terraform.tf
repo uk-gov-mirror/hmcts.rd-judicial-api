@@ -8,8 +8,8 @@ provider "azurerm" {
 
 provider "azurerm" {
   features {}
-  alias                      = "postgres_network"
-  subscription_id            = var.aks_subscription_id
+  alias           = "postgres_network"
+  subscription_id = var.aks_subscription_id
 }
 
 terraform {
