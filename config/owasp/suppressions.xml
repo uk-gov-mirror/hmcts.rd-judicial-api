@@ -83,7 +83,7 @@
     </notes>
     <cve>CVE-2026-66299</cve>
   </suppress>
-      <suppress>
+  <suppress>
         <notes>https://tools.hmcts.net/jira/browse/DTSRD-6681 spring framework</notes>
         <cve>CVE-2026-59313</cve>
         <cve>CVE-2026-59314</cve>
@@ -92,8 +92,8 @@
         <cve>CVE-2026-47893</cve>
         <cve>CVE-2026-59280</cve>
   </suppress>
-   <suppress>
+  <suppress>
         <notes>https://tools.hmcts.net/jira/browse/DTSRD-6684 spring security</notes>
         <cve>CVE-2026-59270</cve>
-    </suppress>
+  </suppress>
 </suppressions>
