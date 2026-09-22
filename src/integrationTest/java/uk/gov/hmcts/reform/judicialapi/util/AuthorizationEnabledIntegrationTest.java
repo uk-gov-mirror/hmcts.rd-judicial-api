@@ -19,9 +19,6 @@ import static org.mockito.Mockito.when;
 @DirtiesContext
 public abstract class AuthorizationEnabledIntegrationTest extends SpringBootIntegrationTest {
 
-    public static final String JRD_SYSTEM_USER = "jrd-system-user";
-    public static final String INVALID_TEST_USER = "test-user-role";
-
     @MockitoBean
     protected FeatureToggleServiceImpl featureToggleServiceImpl;
     protected JudicialReferenceDataClient judicialReferenceDataClient;

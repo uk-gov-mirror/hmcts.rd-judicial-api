@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.judicialapi.wiremock;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.springframework.http.HttpStatus;
 
 import java.util.LinkedHashMap;
@@ -39,39 +38,6 @@ public final class IdamWireMockStubs {
                                         .withTransformers("user-token-response")
                         )
         );
-    }
-
-    public static StubMapping stubIdamWithInvalidRole(WireMockServer server) {
-        try {
-
-            return server.stubFor(get(urlPathMatching("/o/userinfo.*"))
-                    .atPriority(1)
-                    .willReturn(aResponse()
-                            .withStatus(200)
-                            .withHeader("Content-Type", "application/json")
-                            .withHeader("Connection", "close")
-                            .withBody(getUserDetailsJson())
-                            .withTransformers("user-token-response")));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    public static StubMapping stubIdamWithGivenRoleAndStatus(WireMockServer server, String status, List<String> roles) {
-        try {
-
-            return server.stubFor(get(urlPathMatching("/o/userinfo.*"))
-                    .atPriority(1)
-                    .willReturn(aResponse()
-                            .withStatus(200)
-                            .withHeader("Content-Type", "application/json")
-                            .withHeader("Connection", "close")
-                            .withBody(getUserDetailsJson())
-                            .withTransformers("user-token-response")));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static String getUserDetailsJson() {
