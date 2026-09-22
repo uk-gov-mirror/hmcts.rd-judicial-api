@@ -17,6 +17,7 @@ import java.util.HashMap;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static uk.gov.hmcts.reform.judicialapi.util.SpringBootIntegrationTest.getObjectMapper;
 
 @Configuration
 @TestPropertySource(properties = {"OPEN_ID_API_BASE_URI:http://0.0.0.0:6000/o"})
@@ -57,7 +58,7 @@ public class IntegrationTestOidcSecurityConfig extends ContextCleanupListener {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withHeader("Connection", "close")
-                        .withBody(WireMockUtil.getObjectMapper().writeValueAsString(data))));
+                        .withBody(getObjectMapper().writeValueAsString(data))));
 
         if (!mockHttpServerForOidc.isRunning()) {
             mockHttpServerForOidc.start();
